@@ -4,28 +4,27 @@ import { getSession } from './repositories/sessions.repository';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api/auth') ||
-    pathname.includes('favicon.ico')
-  ) {
-    return NextResponse.next();
-  }
-
-  const sessionId = request.cookies.get('session_id')?.value;
-
-  if (!sessionId) {
-    if (pathname === '/login') return NextResponse.next();
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
   try {
-    const isValid = await checkSessionValidity(sessionId);
+    if (
+      pathname.startsWith('/_next') ||
+      pathname.startsWith('/api/auth') ||
+      pathname.includes('favicon.ico')
+    ) {
+      return NextResponse.next();
+    }
+
+    const sessionId = request.cookies.get('session_id')?.value;
+
+    if (!sessionId) {
+      if (pathname === '/login') return NextResponse.next();
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    const isValid = await getSession(sessionId);
 
     if (!isValid) {
       const response = NextResponse.redirect(new URL('/login', request.url));
-      response.cookies.delete('session_id'); // Clear the bad cookie
+      response.cookies.delete('session_id');
       return response;
     }
 
