@@ -10,11 +10,15 @@ export async function createSessionsTable() {
 
       CREATE TABLE IF NOT EXISTS sessions (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-        user_id TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
         expires_at TIMESTAMP NOT NULL,
-        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-      );
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 
+        FOREIGN KEY (user_id)
+          REFERENCES users(id)
+          ON DELETE CASCADE
+
+      );
     `;
 
     await pgPool.query(query);
