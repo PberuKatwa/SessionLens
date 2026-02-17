@@ -2,18 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validatePassword } from "../../../repositories/users.repository";
 import { createSession } from "../../../repositories/sessions.repository";
+import { globalConfig } from "@/config/config";
 
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
+    const { environment } = globalConfig();
 
     const user = await validatePassword(email, password);
-
     const sessionId = await createSession(user.id);
 
-    cookies().set("session_id", sessionId, {
+    const cookieStore = await cookies();
+
+    let isSecure = false;
+
+    if (environment === "PRODUCTION") isSecure = true;
+
+    cookieStore.set("session_id", sessionId, {
       httpOnly: true,
-      secure: true,
+      secure: isSecure,
       sameSite: "lax",
       path: "/",
     });
