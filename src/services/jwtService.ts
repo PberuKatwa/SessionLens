@@ -12,5 +12,9 @@ export function signJwt(payload: SignedUser) {
 }
 
 export function verifyJwt(token: string) {
-  return jwt.verify(token, secret)
+  try {
+    return jwt.verify(token, secret)
+  } catch (error) {
+    throw error;
+  }
 }
