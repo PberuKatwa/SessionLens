@@ -13,7 +13,7 @@ export async function createUsersTable() {
         email TEXT NOT NULL UNIQUE,
         password VARCHAR NOT NULL,
         status row_status DEFAULT 'active',
-        role user_role DEFAULT 'demo',
+        role user_role DEFAULT 'fellow',
         created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
       );
     `;
