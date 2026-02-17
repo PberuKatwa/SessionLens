@@ -1,6 +1,4 @@
-import bcrypt from "bcrypt"
 import { createUser } from "../repositories/users.repository"
-import { signJwt } from "@/lib/jwt"
 import { CreateUserPayload } from "@/types/user.types";
 
 export async function registerUser(payload: CreateUserPayload) {
