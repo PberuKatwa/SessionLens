@@ -38,7 +38,4 @@ class AppLogger {
 
 
 declare global { var _logger: AppLogger | undefined };
-
-
-
 export const logger = global._logger ?? (global._logger = new AppLogger());
