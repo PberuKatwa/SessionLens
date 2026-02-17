@@ -2,7 +2,7 @@ import { getPgPool } from "@/lib/database";
 import { logger } from "@/lib/logger";
 import { BaseSession } from "@/types/session.types";
 
-export async function createSession(userId:number) {
+export async function createSession(userId:number):Promise<BaseSession> {
   try {
 
     const pgPool = getPgPool();
@@ -21,7 +21,8 @@ export async function createSession(userId:number) {
     expiresAt.setDate(expiresAt.getDate() + 1);
 
     const result = await pgPool.query(query, [userId, expiresAt]);
-    return result.rows[0].id;
+    const session:BaseSession = result.rows[0];
+    return session;
   } catch (error) {
     throw error;
   }
@@ -34,9 +35,10 @@ export async function getSession(sessionId: string):Promise<BaseSession> {
     const result = await pgPool.query(
       `
       SELECT user_id
-       FROM sessions
-       WHERE id = $1, status != 'trash'
-       AND expires_at > NOW();
+      FROM sessions
+      WHERE id = $1
+        AND status != 'trash'
+        AND expires_at > NOW();
       `,
       [sessionId]
     );

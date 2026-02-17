@@ -4,7 +4,7 @@ import { registerUser } from "@/services/auth.service";
 import { logger } from "@/lib/logger";
 import { ProfileApiResponse, UserApiResponse } from "@/types/user.types";
 import { getSession } from "@/repositories/sessions.repository";
-import { findUserById } from "../../../repositories/users.repository";
+import { findUserById } from "../../../../repositories/users.repository";
 
 export async function GET() {
   try {
