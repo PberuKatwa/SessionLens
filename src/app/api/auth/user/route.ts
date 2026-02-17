@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 import { ProfileApiResponse, UserApiResponse } from "@/types/user.types";
 import { getSession } from "@/repositories/sessions.repository";
 import { findUserById } from "../../../../repositories/users.repository";
-import { authMiddleware } from "@/lib/auth.wrapper";
+import { authMiddleware } from "@/lib/auth.middleware";
 
 async function getProfile() {
   try {

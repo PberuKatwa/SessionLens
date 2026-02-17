@@ -1,4 +1,4 @@
-import { authMiddleware } from "@/lib/auth.wrapper";
+import { authMiddleware } from "@/lib/auth.middleware";
 import { logger } from "@/lib/logger";
 import { trashSession } from "@/repositories/sessions.repository";
 import { ApiResponse } from "@/types/api.types";
