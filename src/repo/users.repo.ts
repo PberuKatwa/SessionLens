@@ -16,12 +16,11 @@ export async function createUser(payload:CreateUserPayload):Promise<BaseUser> {
     const result = await pgPool.query(
       `INSERT INTO users (first_name, last_name, email, password)
        VALUES ($1,$2,$3,$4)
-       RETURNING id, first_name`,
+       RETURNING first_name`,
       [firstName, lastName, email, hashedPassword]
     );
 
     const user: BaseUser = result.rows[0];
-
     logger.info(`Successfully created user`);
 
     return user;
