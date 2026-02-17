@@ -1,7 +1,6 @@
 export interface GlobalEnvironment{
   environment: string;
   port: string;
-  jwtSecret: string;
   sessionName: string;
   sessionSecret: string;
 }
