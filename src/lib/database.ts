@@ -16,8 +16,8 @@ export function getPgPool() {
         port: Number(pgPort),
       })
     }
-    return pool;
 
+    return pool;
   } catch (error) {
     throw error;
   }
