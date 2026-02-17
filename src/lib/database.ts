@@ -1,17 +1,19 @@
 import { Pool } from "pg";
+import { postgresEnv } from "../config/config";
 
 let pool:Pool
 
 export function getPgPool() {
   try {
+    const { pgHost, pgDatabase, pgPassword, pgPort, pgUser } = postgresEnv();
 
     if (!pool) {
       pool = new Pool({
-        user: process.env.PG_USER,
-        host: process.env.PG_HOST,
-        database: process.env.PG_DATABASE,
-        password: process.env.PG_PASSWORD,
-        port: Number(process.env.PG_PORT),
+        user: pgUser,
+        host: pgHost,
+        database: pgDatabase,
+        password: pgPassword,
+        port: Number(pgPort),
       })
     }
     return pool;
