@@ -1,18 +1,30 @@
+import { BaseUser, CreateUserPayload } from "@/types/user.types";
+import * as bcrypt from "bcrypt";
 import { getPgPool } from "../lib/database";
+import { logger } from "@/lib/logger";
 
-export async function createUserRepo(firstName: string, lastName: string, email: string, password: string) {
+export async function createUser(payload:CreateUserPayload):Promise<BaseUser> {
 
   try {
     const pgPool = getPgPool()
+
+    const { firstName, lastName, email, password } = payload;
+
+    logger.warn(`Atttempting to create user with name:${firstName}.`);
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     const result = await pgPool.query(
       `INSERT INTO users (first_name, last_name, email, password)
        VALUES ($1,$2,$3,$4)
        RETURNING id, first_name`,
-      [firstName, lastName, email, password]
-    )
+      [firstName, lastName, email, hashedPassword]
+    );
 
-    return result.rows[0]
+    const user: BaseUser = result.rows[0];
+
+    logger.info(`Successfully created user`);
+
+    return user;
   } catch (error) {
     throw error;
   }
