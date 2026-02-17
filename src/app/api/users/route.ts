@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerUser } from "@/services/auth.service";
 import { logger } from "@/lib/logger";
+import { UserApiResponse } from "@/types/user.types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,7 +17,14 @@ export async function POST(req: NextRequest) {
     }
 
     const user = await registerUser({ firstName, lastName, email, password });
-    return NextResponse.json(user, { status: 201 });
+
+    const response: UserApiResponse = {
+      success: true,
+      message: "Successfully registered user",
+      data:user
+    }
+
+    return NextResponse.json(response, { status: 201 });
   } catch (error: any) {
 
     logger.error(`Error in creating user`, error)
