@@ -20,8 +20,11 @@ export interface UpdateUserPayload{
 export interface AuthUser extends BaseUser {
   id: number;
   email: string;
-  password?: string;
 };
+
+export interface LoginUser extends AuthUser {
+  password: string;
+}
 
 export interface UserProfile extends BaseUser {
   id: number;

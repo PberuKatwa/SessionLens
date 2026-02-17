@@ -1,4 +1,4 @@
-import { AuthUser, BaseUser, CreateUserPayload, UserProfile } from "@/types/user.types";
+import { AuthUser, BaseUser, CreateUserPayload, LoginUser, UserProfile } from "@/types/user.types";
 import * as bcrypt from "bcrypt";
 import { getPgPool } from "../lib/database";
 import { logger } from "@/lib/logger";
@@ -58,14 +58,14 @@ export async function validatePassword(email: string, password: string):Promise<
       [email]
     )
 
-    const user: AuthUser = result.rows[0];
+    const user: LoginUser = result.rows[0];
     if (!user.password || !password) throw new Error(`The user didnt provide a password`);
 
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) throw new Error(`Email or password provided is invalid`);
 
     logger.info(`Successfully logged in`);
-    return user;
+    return { id: user.id, first_name: user.first_name, email: user.email };
   } catch (error) {
     throw error;
   }

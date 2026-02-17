@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { validatePassword } from "../../../repositories/users.repository";
 import { createSession } from "../../../repositories/sessions.repository";
 import { globalConfig } from "@/config/config";
+import { AuthUserApiResponse } from "@/types/user.types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,7 +26,13 @@ export async function POST(req: NextRequest) {
       path: "/",
     });
 
-    return Response.json({ success: true });
+    const response: AuthUserApiResponse = {
+      success: true,
+      message: "Successfully logged in user",
+      data:user
+    }
+
+    return Response.json(response, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: `${error.message}` }, { status: 500 });
   }

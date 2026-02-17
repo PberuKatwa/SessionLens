@@ -38,12 +38,11 @@ export async function getSession(sessionId: string) {
       [sessionId]
     );
 
-    if (!result.rowCount || result.rowCount > 0) throw new Error(`No valid session`);
+    if (!result.rowCount || result.rowCount === 0) throw new Error(`No valid session`);
 
     const session = result.rows[0];
     return session;
   } catch (error) {
     throw error;
   }
-
 }
