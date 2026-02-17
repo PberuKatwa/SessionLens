@@ -7,6 +7,10 @@ export async function createSession(userId:number) {
 
     const pgPool = getPgPool();
 
+    // const existingSession = await pgPool.query(
+    //   `SELECT `
+    // )
+
     const query = `
       INSERT INTO sessions (user_id, expires_at)
       VALUES ($1, $2)
