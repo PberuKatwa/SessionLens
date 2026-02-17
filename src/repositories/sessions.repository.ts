@@ -1,17 +1,20 @@
 import { getPgPool } from "@/lib/database";
 
-export async function createSession() {
+export async function createSession(userId:number) {
   try {
 
     const pgPool = getPgPool();
 
     const query = `
-      INSERT INTO sessions (id, user_id, expires_at)
-      VALUES ($1, $2, $3)
+      INSERT INTO sessions (user_id, expires_at)
+      VALUES ($1, $2)
       RETURNING id;
     `;
 
-    const result = await pgPool.query(query);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 1);
+
+    const result = await pgPool.query(query,[userId,expiresAt]);
     const session = result.rows[0];
 
     return session
