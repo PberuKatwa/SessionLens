@@ -3,6 +3,7 @@ export interface GlobalEnvironment{
   port: string;
   jwtSecret: string;
   sessionName: string;
+  sessionSecret: string;
 }
 
 export interface S3Config{

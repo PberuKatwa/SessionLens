@@ -46,5 +46,6 @@ export const globalConfig = (): GlobalEnvironment => ({
   environment: getGlobalEnvironment(),
   port: getEnv(getGlobalEnvironment, "PORT"),
   jwtSecret: getEnv(getGlobalEnvironment, "JWT_SECRET"),
-  sessionName:getEnv(getGlobalEnvironment,"SESSION_NAME")
+  sessionName: getEnv(getGlobalEnvironment, "SESSION_NAME"),
+  sessionSecret:getEnv(getGlobalEnvironment,"SESSION_SECRET")
 });
