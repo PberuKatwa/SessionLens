@@ -1,7 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { registerUser } from "@/services/auth.service";
 import { logger } from "@/lib/logger";
 import { UserApiResponse } from "@/types/user.types";
+
+export async function GET(req: NextRequest) {
+  try {
+
+    const cookieStore = await cookies();
+    const sessionId = cookieStore.get("session_id")?.value;
+
+    if (!sessionId) throw new Error(`Session has expired please login`);
+
+  } catch (error: any) {
+
+    logger.error(`Error in creating user`, error)
+    return NextResponse.json({ message: `${error.message}` }, { status: 500 });
+  };
+}
 
 export async function POST(req: NextRequest) {
   try {
