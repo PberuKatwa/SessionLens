@@ -6,7 +6,6 @@ export async function register() {
   logger.info("Running startup initialization...");
   try {
     await initDatabase();
-    logger.info("Database initialized successfully");
   } catch (error) {
     logger.error("Database initialization failed", error);
   }
