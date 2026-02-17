@@ -1,42 +1,26 @@
-import nc from "next-connect";
-import passport from "@/lib/passport.strategy";
-import "@/lib/passport.serialize";
-import { sessionMiddleware } from "@/lib/session";
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { validatePassword } from "../../../repositories/users.repository";
+import { createSession } from "../../../repositories/sessions.repository";
 
-const handler = nc();
+export async function POST(req: NextRequest) {
+  try {
+    const { email, password } = await req.json();
 
-// Attach session first
-handler.use(sessionMiddleware);
+    const user = await validatePassword(email, password);
 
-// Then passport
-handler.use(passport.initialize());
-handler.use(passport.session());
+    const sessionId = await createSession(user.id);
 
-handler.post((req: any, res: any, next: any) => {
-
-  passport.authenticate("local", (err: any, user: any, info: any) => {
-
-    if (err) return res.status(500).json({ message: "Server error" });
-
-    if (!user) {
-      return res.status(401).json({ message: info?.message || "Invalid credentials" });
-    }
-
-    // This creates the session
-    req.login(user, (err: any) => {
-      if (err) return res.status(500).json({ message: "Login failed" });
-
-      return res.status(200).json({
-        message: "Login successful",
-        user: {
-          id: user.id,
-          email: user.email,
-        }
-      });
+    cookies().set("session_id", sessionId, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
     });
 
-  })(req, res, next);
+    return Response.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: `${error.message}` }, { status: 500 });
+  }
 
-});
-
-export const POST = handler;
+}
