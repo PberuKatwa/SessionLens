@@ -12,8 +12,6 @@ export async function POST(req: NextRequest) {
 
     const user = await validatePassword(email, password);
     const sessionId = await createSession(user.id);
-    console.log("session Id", sessionId)
-
     const cookieStore = await cookies();
 
     let isSecure = false;

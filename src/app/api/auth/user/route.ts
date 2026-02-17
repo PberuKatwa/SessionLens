@@ -40,59 +40,64 @@ export const GET = withAuth(
 
 )
 
-// export async function GET() {
+export const POST = withAuth(
+
+  async function(req: NextRequest) {
+    try {
+
+      const body = await req.json();
+      const { firstName, lastName, email, password } = body;
+
+      if (!firstName || !lastName || !email || !password) {
+        return NextResponse.json(
+          { message: "Missing required fields" },
+          { status: 400 }
+        );
+      }
+
+      const user = await registerUser({ firstName, lastName, email, password });
+
+      const response: UserApiResponse = {
+        success: true,
+        message: "Successfully registered user",
+        data:user
+      }
+
+      return NextResponse.json(response, { status: 201 });
+    } catch (error: any) {
+
+      logger.error(`Error in creating user`, error)
+      return NextResponse.json({ message: `${error.message}` }, { status: 500 });
+    }
+  }
+
+)
+
+// export async function POST(req: NextRequest) {
 //   try {
 
-//     const cookieStore = await cookies();
-//     const sessionCookie = cookieStore.get("session_id");
-//     const sessionId = sessionCookie?.value;
+//     const body = await req.json();
+//     const { firstName, lastName, email, password } = body;
 
-//     if (!sessionId) {
-//       return NextResponse.json({ error: "No session found" }, { status: 401 });
+//     if (!firstName || !lastName || !email || !password) {
+//       return NextResponse.json(
+//         { message: "Missing required fields" },
+//         { status: 400 }
+//       );
 //     }
 
-//     const session = await getSession(sessionId);
-//     const user = await findUserById(session.user_id);
+//     const user = await registerUser({ firstName, lastName, email, password });
 
-//     const response: ProfileApiResponse = {
+//     const response: UserApiResponse = {
 //       success: true,
-//       message: "Successfully fetched profile",
+//       message: "Successfully registered user",
 //       data:user
 //     }
 
-//     return NextResponse.json(response, { status: 200 });
+//     return NextResponse.json(response, { status: 201 });
 //   } catch (error: any) {
 
-//     logger.error(`Error in fetching user`, error)
+//     logger.error(`Error in creating user`, error)
 //     return NextResponse.json({ message: `${error.message}` }, { status: 500 });
-//   };
+//   }
 // }
-
-export async function POST(req: NextRequest) {
-  try {
-
-    const body = await req.json();
-    const { firstName, lastName, email, password } = body;
-
-    if (!firstName || !lastName || !email || !password) {
-      return NextResponse.json(
-        { message: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    const user = await registerUser({ firstName, lastName, email, password });
-
-    const response: UserApiResponse = {
-      success: true,
-      message: "Successfully registered user",
-      data:user
-    }
-
-    return NextResponse.json(response, { status: 201 });
-  } catch (error: any) {
-
-    logger.error(`Error in creating user`, error)
-    return NextResponse.json({ message: `${error.message}` }, { status: 500 });
-  }
-}
