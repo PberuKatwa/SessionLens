@@ -7,7 +7,6 @@ export async function createUser(payload:CreateUserPayload):Promise<BaseUser> {
 
   try {
     const pgPool = getPgPool()
-
     const { firstName, lastName, email, password } = payload;
 
     logger.warn(`Atttempting to create user with name:${firstName}.`);
