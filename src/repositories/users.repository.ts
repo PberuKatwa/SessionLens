@@ -1,4 +1,4 @@
-import { BaseUser, CreateUserPayload } from "@/types/user.types";
+import { AuthUser, BaseUser, CreateUserPayload } from "@/types/user.types";
 import * as bcrypt from "bcrypt";
 import { getPgPool } from "../lib/database";
 import { logger } from "@/lib/logger";
@@ -22,6 +22,20 @@ export async function createUser(payload:CreateUserPayload):Promise<BaseUser> {
     const user: BaseUser = result.rows[0];
     logger.info(`Successfully created user`);
 
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function findUserByEmail(email: string):Promise<AuthUser> {
+  try {
+    const pgPool = getPgPool();
+    const result = await pgPool.query(
+      `SELECT id, first_name, email FROM users WHERE email = $1`,
+      [email]
+    );
+    const user = result.rows[0];
     return user;
   } catch (error) {
     throw error;

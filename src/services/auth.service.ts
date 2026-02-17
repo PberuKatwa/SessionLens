@@ -8,16 +8,3 @@ export async function registerUser(payload: CreateUserPayload) {
     throw error;
   }
 };
-
-// export async function loginUser(email: string, password: string) {
-//   const user = await findUserByEmail(email)
-//   if (!user) throw new Error("Invalid credentials")
-
-//   const isMatch = await bcrypt.compare(password, user.password)
-//   if (!isMatch) throw new Error("Invalid credentials")
-
-//   return signJwt({
-//     userId: user.id,
-//     role: user.role,
-//   })
-// }

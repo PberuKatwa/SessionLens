@@ -15,27 +15,16 @@ export interface UpdateUserPayload{
   id: number;
   firstName: string;
   lastName: string;
-  fileId: number | null;
 }
-
-export interface SignedUser {
-  userId: number;
-  role: string;
-  iat?: number;
-  exp?: number;
-};
 
 export interface AuthUser extends BaseUser {
   id: number;
-  access_token: string;
+  email: string;
 };
 
 export interface UserProfile extends BaseUser {
   id: number;
   last_name: string;
-  file_id: number | null;
-  file_url: string | null;
-  signed_url: string | null;
 }
 
 export interface UserApiResponse extends ApiResponse<BaseUser> { };
