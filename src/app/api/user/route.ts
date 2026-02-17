@@ -2,27 +2,36 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { registerUser } from "@/services/auth.service";
 import { logger } from "@/lib/logger";
-import { UserApiResponse } from "@/types/user.types";
+import { ProfileApiResponse, UserApiResponse } from "@/types/user.types";
 import { getSession } from "@/repositories/sessions.repository";
-import { RouteParams } from "@/types/api.types";
+import { findUserById } from "../../../repositories/users.repository";
 
-export async function GET(
-  req: NextRequest,
-  {params}:RouteParams
-) {
+export async function GET() {
   try {
 
-    const { id } = await params;
     const cookieStore = await cookies();
-    const sessionId = cookieStore.get("session_id")?.value;
+    const sessionCookie = cookieStore.get("session_id");
+    const sessionId = sessionCookie?.value;
 
-    if (!sessionId) throw new Error(`Session has expired please login`);
+    if (!sessionId) {
+      return NextResponse.json({ error: "No session found" }, { status: 401 });
+    }
+
+    console.log("session", sessionId)
 
     const session = await getSession(sessionId);
+    const user = await findUserById(session.user_id);
 
+    const response: ProfileApiResponse = {
+      success: true,
+      message: "Successfully fetched profile",
+      data:user
+    }
+
+    return NextResponse.json(response, { status: 200 });
   } catch (error: any) {
 
-    logger.error(`Error in creating user`, error)
+    logger.error(`Error in fetching user`, error)
     return NextResponse.json({ message: `${error.message}` }, { status: 500 });
   };
 }
