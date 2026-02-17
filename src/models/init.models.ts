@@ -7,6 +7,7 @@ export async function initDatabase() {
   try {
     await initializeTypes();
     await createUsersTable();
+    await createSessionsTable();
     logger.info("Database initialization complete");
   } catch (error) {
     throw error;
