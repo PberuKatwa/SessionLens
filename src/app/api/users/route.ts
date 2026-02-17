@@ -15,20 +15,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await registerUser({
-      firstName,
-      lastName,
-      email,
-      password,
-    });
-
+    const user = await registerUser({ firstName, lastName, email, password });
     return NextResponse.json(user, { status: 201 });
-
   } catch (error: any) {
+
     logger.error(`Error in creating user`, error)
-    return NextResponse.json(
-      { message: `${error.message}` },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: `${error.message}` }, { status: 500 });
   }
 }
