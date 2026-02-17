@@ -1,11 +1,12 @@
 import session from "express-session";
+import type { RequestHandler } from "express";
 import connectPgSimple from "connect-pg-simple";
 import { getPgPool } from "./database";
 import { globalConfig } from "../config/config";
 
 const PgSession = connectPgSimple(session);
 
-export const createSessionMiddleware = async function () {
+export const createSessionMiddleware = async function (): Promise<RequestHandler> {
   try {
 
     const pgPool = getPgPool();
@@ -29,12 +30,11 @@ export const createSessionMiddleware = async function () {
         secure: isSecureSession,
         maxAge: 1000 * 60 * 60 * 24,
       },
+
     });
 
-
+    return sessionMiddleware;
   } catch (error) {
     throw error;
   }
 }
-
-export
