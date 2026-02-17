@@ -14,9 +14,7 @@ async function getProfile() {
     const sessionCookie = cookieStore.get("session_id");
     const sessionId = sessionCookie?.value;
 
-    if (!sessionId) {
-      return NextResponse.json({ error: "No session found" }, { status: 401 });
-    }
+    if (!sessionId) return NextResponse.json({ error: "No session found" }, { status: 401 });
 
     const session = await getSession(sessionId);
     const user = await findUserById(session.user_id);
