@@ -22,3 +22,28 @@ export async function createSession(userId:number) {
     throw error;
   }
 }
+
+export async function getSession(sessionId: string) {
+  try {
+
+    const pgPool = getPgPool();
+
+    const result = await pgPool.query(
+      `
+      SELECT user_id
+       FROM sessions
+       WHERE id = $1
+       AND expires_at > NOW();
+      `,
+      [sessionId]
+    );
+
+    if (!result.rowCount || result.rowCount > 0) throw new Error(`No valid session`);
+
+    const session = result.rows[0];
+    return session;
+  } catch (error) {
+    throw error;
+  }
+
+}
