@@ -32,7 +32,7 @@ export async function findUserByEmail(email: string):Promise<AuthUser> {
   try {
     const pgPool = getPgPool();
     const result = await pgPool.query(
-      `SELECT id, first_name, email FROM users WHERE email = $1`,
+      `SELECT id, first_name, email, password FROM users WHERE email = $1`,
       [email]
     );
     const user = result.rows[0];
@@ -41,4 +41,25 @@ export async function findUserByEmail(email: string):Promise<AuthUser> {
     throw error;
   }
 
+}
+
+export async function validatePassword(email: string, password: string):Promise<BaseUser> {
+  try {
+
+    const pgPool = getPgPool();
+
+    const result = await pgPool.query(
+      `SELECT id,email, password FROM users WHERE email=$1;`,
+      [email]
+    )
+
+    const user: AuthUser = result.rows[0];
+    const isValid = await bcrypt.compare(password, user.password);
+
+    if (!isValid) throw new Error(`Email or password provided is invalid`);
+
+    return { first_name: user.first_name };
+  } catch (error) {
+    throw error;
+  }
 }
