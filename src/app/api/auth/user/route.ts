@@ -7,68 +7,62 @@ import { getSession } from "@/repositories/sessions.repository";
 import { findUserById } from "../../../../repositories/users.repository";
 import { authMiddleware } from "@/lib/auth.wrapper";
 
-export const GET = authMiddleware(
+async function getProfile() {
+  try {
 
-  async function() {
-    try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session_id");
+    const sessionId = sessionCookie?.value;
 
-      const cookieStore = await cookies();
-      const sessionCookie = cookieStore.get("session_id");
-      const sessionId = sessionCookie?.value;
-
-      if (!sessionId) {
-        return NextResponse.json({ error: "No session found" }, { status: 401 });
-      }
-
-      const session = await getSession(sessionId);
-      const user = await findUserById(session.user_id);
-
-      const response: ProfileApiResponse = {
-        success: true,
-        message: "Successfully fetched profile",
-        data:user
-      }
-
-      return NextResponse.json(response, { status: 200 });
-    } catch (error: any) {
-
-      logger.error(`Error in fetching user`, error)
-      return NextResponse.json({ message: `${error.message}` }, { status: 500 });
-    };
-  }
-
-
-)
-
-export const POST = authMiddleware(
-
-  async function(req: NextRequest) {
-    try {
-
-      const body = await req.json();
-      const { firstName, lastName, email, password } = body;
-
-      if (!firstName || !lastName || !email || !password) {
-        return NextResponse.json(
-          { message: "Missing required fields" },
-          { status: 400 }
-        );
-      }
-
-      const user = await registerUser({ firstName, lastName, email, password });
-
-      const response: UserApiResponse = {
-        success: true,
-        message: "Successfully registered user",
-        data:user
-      }
-
-      return NextResponse.json(response, { status: 201 });
-    } catch (error: any) {
-
-      logger.error(`Error in creating user`, error)
-      return NextResponse.json({ message: `${error.message}` }, { status: 500 });
+    if (!sessionId) {
+      return NextResponse.json({ error: "No session found" }, { status: 401 });
     }
-  }
 
-)
+    const session = await getSession(sessionId);
+    const user = await findUserById(session.user_id);
+
+    const response: ProfileApiResponse = {
+      success: true,
+      message: "Successfully fetched profile",
+      data:user
+    }
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error: any) {
+
+    logger.error(`Error in fetching user`, error)
+    return NextResponse.json({ message: `${error.message}` }, { status: 500 });
+  };
+}
+
+async function createUser(req: NextRequest) {
+  try {
+
+    const body = await req.json();
+    const { firstName, lastName, email, password } = body;
+
+    if (!firstName || !lastName || !email || !password) {
+      return NextResponse.json(
+        { message: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const user = await registerUser({ firstName, lastName, email, password });
+
+    const response: UserApiResponse = {
+      success: true,
+      message: "Successfully registered user",
+      data:user
+    }
+
+    return NextResponse.json(response, { status: 201 });
+  } catch (error: any) {
+
+    logger.error(`Error in creating user`, error)
+    return NextResponse.json({ message: `${error.message}` }, { status: 500 });
+  }
+}
+
+export const GET = authMiddleware(getProfile);
+export const POST = authMiddleware(createUser);
