@@ -1,4 +1,4 @@
-import { AuthUser, BaseUser, CreateUserPayload } from "@/types/user.types";
+import { AuthUser, BaseUser, CreateUserPayload, UserProfile } from "@/types/user.types";
 import * as bcrypt from "bcrypt";
 import { getPgPool } from "../lib/database";
 import { logger } from "@/lib/logger";
@@ -28,14 +28,14 @@ export async function createUser(payload:CreateUserPayload):Promise<BaseUser> {
   }
 }
 
-export async function findUserByEmail(email: string):Promise<AuthUser> {
+export async function findUserByEmail(email: string):Promise<UserProfile> {
   try {
     const pgPool = getPgPool();
     const result = await pgPool.query(
-      `SELECT id, first_name, email, password FROM users WHERE email = $1`,
+      `SELECT id, first_name, last_name FROM users WHERE email = $1`,
       [email]
     );
-    const user = result.rows[0];
+    const user:UserProfile = result.rows[0];
     return user;
   } catch (error) {
     throw error;
@@ -43,7 +43,7 @@ export async function findUserByEmail(email: string):Promise<AuthUser> {
 
 }
 
-export async function validatePassword(email: string, password: string):Promise<BaseUser> {
+export async function validatePassword(email: string, password: string):Promise<AuthUser> {
   try {
 
     const pgPool = getPgPool();
@@ -54,11 +54,12 @@ export async function validatePassword(email: string, password: string):Promise<
     )
 
     const user: AuthUser = result.rows[0];
-    const isValid = await bcrypt.compare(password, user.password);
+    if (!user.password || !password) throw new Error(`The user didnt provide a password`);
 
+    const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) throw new Error(`Email or password provided is invalid`);
 
-    return { first_name: user.first_name };
+    return user;
   } catch (error) {
     throw error;
   }
