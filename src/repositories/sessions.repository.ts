@@ -1,4 +1,5 @@
 import { getPgPool } from "@/lib/database";
+import { BaseSession } from "@/types/session.types";
 
 export async function createSession(userId:number) {
   try {
@@ -23,7 +24,7 @@ export async function createSession(userId:number) {
   }
 }
 
-export async function getSession(sessionId: string) {
+export async function getSession(sessionId: string):Promise<BaseSession> {
   try {
 
     const pgPool = getPgPool();
@@ -40,7 +41,7 @@ export async function getSession(sessionId: string) {
 
     if (!result.rowCount || result.rowCount === 0) throw new Error(`No valid session`);
 
-    const session = result.rows[0];
+    const session:BaseSession = result.rows[0];
     return session;
   } catch (error) {
     throw error;

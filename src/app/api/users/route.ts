@@ -3,14 +3,22 @@ import { cookies } from "next/headers";
 import { registerUser } from "@/services/auth.service";
 import { logger } from "@/lib/logger";
 import { UserApiResponse } from "@/types/user.types";
+import { getSession } from "@/repositories/sessions.repository";
+import { RouteParams } from "@/types/api.types";
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  {params}:RouteParams
+) {
   try {
 
+    const { id } = await params;
     const cookieStore = await cookies();
     const sessionId = cookieStore.get("session_id")?.value;
 
     if (!sessionId) throw new Error(`Session has expired please login`);
+
+    const session = await getSession(sessionId);
 
   } catch (error: any) {
 

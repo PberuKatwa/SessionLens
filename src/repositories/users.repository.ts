@@ -45,7 +45,20 @@ export async function findUserByEmail(email: string):Promise<UserProfile> {
   } catch (error) {
     throw error;
   }
+}
 
+export async function findUserById(id: number):Promise<UserProfile> {
+  try {
+    const pgPool = getPgPool();
+    const result = await pgPool.query(
+      `SELECT id, first_name, last_name FROM users WHERE id = $1`,
+      [id]
+    );
+    const user:UserProfile = result.rows[0];
+    return user;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function validatePassword(email: string, password: string):Promise<AuthUser> {
