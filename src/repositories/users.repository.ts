@@ -8,10 +8,10 @@ export async function createUser(payload:CreateUserPayload):Promise<BaseUser> {
     const pgPool = getPgPool()
     const { firstName, lastName, email, password } = payload;
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
     if (!passwordRegex.test(password)) {
-      throw new Error("Password is too weak. It must be at least 8 characters and include uppercase, lowercase, numbers, and symbols.");
+      throw new Error("Password is too weak. It must be at least 8 characters and include uppercase, lowercase, and numbers.");
     }
 
     logger.warn(`Atttempting to create user with name:${firstName}.`);
