@@ -1,32 +1,40 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getSession } from "./repositories/sessions.repository";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getSession } from './repositories/sessions.repository';
 
 export async function middleware(request: NextRequest) {
-  const sessionCookie = request.cookies.get("session_id");
+  const { pathname } = request.nextUrl;
 
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login") ||
-                     request.nextUrl.pathname.startsWith("/register");
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api/auth') ||
+    pathname.includes('favicon.ico')
+  ) {
+    return NextResponse.next();
+  }
 
-  if (!sessionCookie) {
-    if (isAuthPage) return NextResponse.next();
-    return NextResponse.redirect(new URL("/login", request.url));
+  const sessionId = request.cookies.get('session_id')?.value;
+
+  if (!sessionId) {
+    if (pathname === '/login') return NextResponse.next();
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   try {
-    const session = await getSession(sessionCookie.value);
+    const isValid = await checkSessionValidity(sessionId);
 
-    if (session && !isAuthPage) return NextResponse.next();
-    if (session && isAuthPage) return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (!isValid) {
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.delete('session_id'); // Clear the bad cookie
+      return response;
+    }
 
+    return NextResponse.next();
   } catch (error) {
-    const response = NextResponse.redirect(new URL("/login", request.url));
-    response.cookies.delete("session_id");
-    return response;
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 }
 
-// 5. Configure which routes middleware applies to
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ['/((?!api/auth|_next/static|_next/image|favicon.ico).*)'],
 };
