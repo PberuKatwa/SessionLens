@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { getSession } from "@/repositories/sessions.repository";
 import { NextResponse } from "next/server";
 
-export function withAuth(handler: Function) {
+export function authMiddleware(handler: Function) {
   return async (req: Request, ...args: any[]) => {
     try {
       const cookieStore = await cookies();

@@ -5,9 +5,9 @@ import { logger } from "@/lib/logger";
 import { ProfileApiResponse, UserApiResponse } from "@/types/user.types";
 import { getSession } from "@/repositories/sessions.repository";
 import { findUserById } from "../../../../repositories/users.repository";
-import { withAuth } from "@/lib/auth.wrapper";
+import { authMiddleware } from "@/lib/auth.wrapper";
 
-export const GET = withAuth(
+export const GET = authMiddleware(
 
   async function() {
     try {
@@ -40,7 +40,7 @@ export const GET = withAuth(
 
 )
 
-export const POST = withAuth(
+export const POST = authMiddleware(
 
   async function(req: NextRequest) {
     try {
@@ -72,32 +72,3 @@ export const POST = withAuth(
   }
 
 )
-
-// export async function POST(req: NextRequest) {
-//   try {
-
-//     const body = await req.json();
-//     const { firstName, lastName, email, password } = body;
-
-//     if (!firstName || !lastName || !email || !password) {
-//       return NextResponse.json(
-//         { message: "Missing required fields" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const user = await registerUser({ firstName, lastName, email, password });
-
-//     const response: UserApiResponse = {
-//       success: true,
-//       message: "Successfully registered user",
-//       data:user
-//     }
-
-//     return NextResponse.json(response, { status: 201 });
-//   } catch (error: any) {
-
-//     logger.error(`Error in creating user`, error)
-//     return NextResponse.json({ message: `${error.message}` }, { status: 500 });
-//   }
-// }
