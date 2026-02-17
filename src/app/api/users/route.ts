@@ -26,7 +26,6 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     logger.error(`Error in creating user`, error)
-    console.error(error);
     return NextResponse.json(
       { message: `${error.message}` },
       { status: 500 }

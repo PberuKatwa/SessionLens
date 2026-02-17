@@ -50,7 +50,7 @@ export async function findUserByEmail(email: string):Promise<UserProfile> {
 
 export async function validatePassword(email: string, password: string):Promise<AuthUser> {
   try {
-
+    logger.warn(`Attempting to login user`);
     const pgPool = getPgPool();
 
     const result = await pgPool.query(
@@ -64,6 +64,7 @@ export async function validatePassword(email: string, password: string):Promise<
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) throw new Error(`Email or password provided is invalid`);
 
+    logger.info(`Successfully logged in`);
     return user;
   } catch (error) {
     throw error;
