@@ -1,10 +1,11 @@
+import { authMiddleware } from "@/lib/auth.wrapper";
 import { logger } from "@/lib/logger";
 import { trashSession } from "@/repositories/sessions.repository";
 import { ApiResponse } from "@/types/api.types";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function POST() {
+async function logout() {
   try {
 
     const cookieStore = await cookies();
@@ -30,3 +31,5 @@ export async function POST() {
     return NextResponse.json({ success: false, message: `${error.message}` }, { status: 500 });
   }
 }
+
+export const POST = authMiddleware(logout);
