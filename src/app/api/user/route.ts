@@ -17,8 +17,6 @@ export async function GET() {
       return NextResponse.json({ error: "No session found" }, { status: 401 });
     }
 
-    console.log("session", sessionId)
-
     const session = await getSession(sessionId);
     const user = await findUserById(session.user_id);
 

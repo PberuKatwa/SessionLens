@@ -1,4 +1,5 @@
 import { logger } from "@/lib/logger";
+import { trashSession } from "@/repositories/sessions.repository";
 import { ApiResponse } from "@/types/api.types";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -7,9 +8,16 @@ export async function POST() {
   try {
 
     const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("session_id");
+    const sessionId = sessionCookie?.value;
+
+    if (!sessionId) {
+      return NextResponse.json({ error: "No session found" }, { status: 401 });
+    }
 
     cookieStore.delete("session_id");
     logger.info(`Succesfully logged out user`)
+    await trashSession(sessionId)
 
     const response: ApiResponse = {
       success: false,
