@@ -21,6 +21,15 @@ export interface CreateGroupSessionPayload {
   transcript: object;
 }
 
+export interface PaginatedGroupSessions {
+  groupSessions: GroupSession[];
+  pagination: {
+    totalCount: number;
+    currentPage: number;
+    totalPages: number;
+  };
+}
 export interface UpdateGroupSessionPayload extends BaseGroupSession { };
 export interface SingleGroupSessionApiResponse extends ApiResponse<BaseGroupSession> { };
 export interface CompleteGroupSessionApiResponse extends ApiResponse<GroupSession> { };
+export interface PaginatedGroupSessionsApiResponse extends ApiResponse<PaginatedGroupSessions> { };
