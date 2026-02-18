@@ -28,10 +28,10 @@ export async function getCookieId() {
 
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session_id");
-    const sessionId = sessionCookie?.value;
+    const authSessionId = sessionCookie?.value;
 
-    if (!sessionId) throw new Error(`No session cookie was found`);
-    return cookieStore;
+    if (!authSessionId) throw new Error(`No session cookie was found`);
+    return { cookieStore, authSessionId };
   } catch (error) {
     throw error;
   }
@@ -39,8 +39,10 @@ export async function getCookieId() {
 
 export async function deleteCookie() {
   try {
-    const cookieStore = await getCookieId()
+    const { cookieStore, authSessionId } = await getCookieId()
+    cookieStore.delete("auth_session_id");
 
+    return authSessionId;
   } catch (error) {
     throw error;
   }

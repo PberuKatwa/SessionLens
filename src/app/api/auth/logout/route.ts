@@ -1,4 +1,5 @@
 import { authMiddleware } from "@/lib/auth.middleware";
+import { deleteCookie } from "@/lib/cookies";
 import { logger } from "@/lib/logger";
 import { trashAuthSession } from "@/repositories/sessions.repository";
 import { ApiResponse } from "@/types/api.types";
@@ -8,17 +9,8 @@ import { NextResponse } from "next/server";
 async function logout() {
   try {
 
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("session_id");
-    const sessionId = sessionCookie?.value;
-
-    if (!sessionId) {
-      return NextResponse.json({ error: "No session found" }, { status: 401 });
-    }
-
-    cookieStore.delete("session_id");
-    logger.info(`Succesfully logged out user`)
-    await trashAuthSession(sessionId)
+    const authSessionId = await deleteCookie();
+    await trashAuthSession(authSessionId)
 
     const response: ApiResponse = {
       success: false,
