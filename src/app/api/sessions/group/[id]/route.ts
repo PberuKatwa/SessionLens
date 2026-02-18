@@ -8,35 +8,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { parseJsonFile } from "@/lib/json.manager";
 import { authMiddleware } from "@/lib/auth.middleware";
 
-
-async function createSession(req: NextRequest, session:BaseAuthSession) {
+async function getSession(
+  req: NextRequest,
+  session: BaseAuthSession,
+  { params }: { params: { id: string } }
+) {
   try {
+    const { id } = params;
+    const sessionId = parseInt(id);
 
-    const formData = await req.formData();
+    if (isNaN(sessionId)) return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
+    const session = await getGroupSessionById(sessionId);
 
-    const fellowName = formData.get("fellowName") as string;
-    const groupId = formData.get("groupId") as string;
-    const transcriptFile = formData.get("transcriptFile") as File;
-
-    const parsedJson = await parseJsonFile<GroupSessionTranscript>(transcriptFile)
-
-    const groupSession = await createGroupSession({
-      user_id: session.user_id,
-      group_id: parseInt(groupId),
-      fellow_name: fellowName,
-      transcript: parsedJson
-    });
-
-    const response: SingleGroupSessionApiResponse = {
+    const response: CompleteGroupSessionApiResponse = {
       success: true,
-      message: "Successfully created group session",
-      data:groupSession
+      message: "Successfully fetched response",
+      data:session
     }
 
     return NextResponse.json(response, { status: 200 });
-  } catch (error: any) {
+  } catch (error:any) {
 
-    logger.error(`error in creating group session`, error);
+    logger.error(`error in fetching group session`, error);
     const response: ApiResponse = {
       success: false,
       message:`${error.message}`
@@ -45,4 +38,4 @@ async function createSession(req: NextRequest, session:BaseAuthSession) {
   }
 }
 
-export const POST = authMiddleware(createSession);
+export const GET = authMiddleware(getSession);
