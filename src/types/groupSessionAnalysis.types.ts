@@ -1,3 +1,5 @@
+import { ApiResponse } from "./api.types";
+
 export interface GroupSessionAnalysis {
   session_id: number;
 
@@ -31,3 +33,5 @@ export interface PaginatedGroupSessionAnalysis {
     totalPages: number;
   };
 }
+
+export interface PaginatedGroupSessionAnalysisApiResponse extends ApiResponse<PaginatedGroupSessionAnalysis> { };
