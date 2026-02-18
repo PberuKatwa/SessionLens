@@ -4,15 +4,16 @@ import { allLexicons } from "./token.config.js";
 import { SessionSchema } from "../../validators/session.schema.js";
 import { LLMEvaluationResult } from "../../types/evaluation.types.js";
 import { useGeminiLLMApi } from "../../lib/gemini.api.js";
-import { logger } from "../utils/logger/index.logger.js";
+import { logger } from "@/lib/logger.js";
 
 
 
-export async function getLLMEvaluation(   jsonData: string): Promise<LLMEvaluationResult> {
+export async function getLLMEvaluation( jsonData: string): Promise<LLMEvaluationResult> {
   logger.info("Starting LLM evaluation pipeline");
 
   try {
     let parsedJson: Session;
+
 
     try {
       parsedJson = JSON.parse(jsonData);

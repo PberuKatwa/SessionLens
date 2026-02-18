@@ -15,3 +15,12 @@ export async function parseJsonFile<T>(file: File | null): Promise<T> {
     throw new Error("Failed to parse JSON. The file content is malformed.");
   }
 }
+
+export function safeJsonParse<T>(data: string): T {
+  try {
+    const cleanData = data.replace(/^```json\n?|\n?```$/g, "").trim();
+    return JSON.parse(cleanData) as T;
+  } catch (error) {
+    throw error;
+  }
+}
