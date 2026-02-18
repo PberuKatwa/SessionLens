@@ -36,4 +36,4 @@ async function createAnalyzedSession(
   }
 }
 
-export const GET = authMiddleware(createAnalyzedSession);
+export const POST = authMiddleware(createAnalyzedSession);
