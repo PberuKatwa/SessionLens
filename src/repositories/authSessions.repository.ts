@@ -34,7 +34,7 @@ export async function getAuthSession(sessionId: string):Promise<BaseAuthSession>
     const pgPool = getPgPool();
     const result = await pgPool.query(
       `
-      SELECT user_id
+      SELECT id, user_id
       FROM auth_sessions
       WHERE id = $1
         AND status != 'trash'
