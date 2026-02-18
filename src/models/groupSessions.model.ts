@@ -19,7 +19,7 @@ export async function createGroupSessionsTable() {
 
         FOREIGN KEY (user_id)
           REFERENCES users(id)
-          ON DELETE CASCADE
+          ON DELETE RESTRICT
       );
     `);
 

@@ -15,8 +15,8 @@ export async function initializeTypes() {
 
       DO $$
       BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'risk_status') THEN
-          CREATE TYPE risk_status AS ENUM ('risk','safe');
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'review_status') THEN
+          CREATE TYPE review_status AS ENUM ('unreviewed','accepted','rejected');
         END IF;
       END
       $$;
