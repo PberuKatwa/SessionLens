@@ -97,3 +97,49 @@ export async function getAllAnalyzedSessions(pageInput?: number,limitInput?: num
     throw error;
   }
 }
+
+export async function reviewAnalyzedSession( payload: ReviewerUpdatePayload): Promise<void> {
+  try {
+    const pgPool = getPgPool();
+
+    const {
+      id,
+      is_safe,
+      review_status,
+      content_coverage,
+      facilitation_quality,
+      protocol_safety,
+      reviewer_id,
+      reviewer_comments
+    } = payload;
+
+    const query = `
+      UPDATE analyzed_sessions
+      SET
+        is_safe = $1,
+        review_status = $2,
+        content_coverage = $3,
+        facilitation_quality = $4,
+        protocol_safety = $5,
+        reviewer_id = $6,
+        reviewer_comments = $7
+      WHERE id = $8;
+    `;
+
+    await pgPool.query(query, [
+      is_safe,
+      review_status,
+      content_coverage,
+      facilitation_quality,
+      protocol_safety,
+      reviewer_id,
+      reviewer_comments || null,
+      id,
+    ]);
+
+    logger.info(`Successfully reviewed analyzed session ID: ${id}`);
+
+  } catch (error) {
+    throw error;
+  }
+}
