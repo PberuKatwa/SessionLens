@@ -52,3 +52,48 @@ export async function getAnalyzedSessionById(id: number): Promise<AnalyzedSessio
     throw error;
   }
 }
+
+export async function getAllAnalyzedSessions(pageInput?: number,limitInput?: number): Promise<PaginatedAnalyzedSessions> {
+  try {
+    logger.warn(`Trying to fetch analyzed sessions`);
+
+    const page = pageInput ?? 1;
+    const limit = limitInput ?? 10;
+    const offset = (page - 1) * limit;
+
+    const dataQuery = `
+      SELECT session_id, is_safe, content_coverage, facilitation_quality, protocol_safety, summary, created_at, llm_evaluation
+      FROM analyzed_sessions
+      WHERE row_status != 'trash'
+      ORDER BY id DESC
+      LIMIT $1 OFFSET $2;
+    `;
+
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM analyzed_sessions
+      WHERE row_status != 'trash';
+    `;
+
+    const pgPool = getPgPool();
+
+    const [dataResult, countResult] = await Promise.all([
+      pgPool.query(dataQuery, [limit, offset]),
+      pgPool.query(countQuery),
+    ]);
+
+    const totalCount = parseInt(countResult.rows[0].count);
+
+    return {
+      analyzedSessions: dataResult.rows,
+      pagination: {
+        totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+      },
+    };
+
+  } catch (error) {
+    throw error;
+  }
+}
