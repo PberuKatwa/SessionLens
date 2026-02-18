@@ -9,6 +9,7 @@ import { authMiddleware } from "@/lib/auth.middleware";
 
 async function getSession(
   req: NextRequest,
+  session:BaseAuthSession,
   { params }: { params: { id: number } }
 ) {
   try {
@@ -35,5 +36,4 @@ async function getSession(
   }
 }
 
-// export const GET = authMiddleware(getSession);
-export const GET = getSession;
+export const GET = authMiddleware(getSession);
