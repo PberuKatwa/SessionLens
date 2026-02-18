@@ -1,7 +1,7 @@
 import { getPgPool } from "@/lib/database";
 import { logger } from "@/lib/logger";
 
-export async function createGroupSessions() {
+export async function createGroupSessionsTable() {
   try {
 
     const pgPool = getPgPool();
