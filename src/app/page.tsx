@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 export default function SupervisorLanding() {
@@ -24,7 +23,7 @@ export default function SupervisorLanding() {
         </Link>
       </nav>
 
-      <main className="relative z-10 flex min-h-[80vh] flex-col items-center justify-center px-4 md:px-16 lg:px-24 text-center">
+      <main className="relative z-10 flex min-h-[80vh] flex-col items-center justify-center px-4 md:px-16 lg:px-24 text-center m-10">
         {/* Tier 2 Status Pill */}
         <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-8 text-sm text-white/90">
           <span className="bg-[#1a8fe3] text-white text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Tier 2</span>
