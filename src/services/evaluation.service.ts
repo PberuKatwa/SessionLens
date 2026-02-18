@@ -30,10 +30,6 @@ export async function evaluateSession(groupSessionId:number) {
       protocol_safety: llmEvaluation.metrics.protocol_safety.score
     });
 
-    // console.log("llm evaluation", llmEvaluation)
-    console.log("analyzedd", analyzedSession);
-    // console.log("llm evaluation", llmEvaluation)
-
     return analyzedSession;
   } catch (error) {
     throw error;
