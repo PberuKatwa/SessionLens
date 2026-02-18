@@ -4,14 +4,6 @@ export interface GlobalEnvironment{
   cookieIdName: string;
 }
 
-export interface S3Config{
-  s3Endpoint: string;
-  s3Region:string;
-  s3AccessKey:string;
-  s3SecretKey:string;
-  s3Bucket: string;
-}
-
 export interface PostgresEnv{
   pgHost: string;
   pgPort: string;
@@ -20,7 +12,7 @@ export interface PostgresEnv{
   pgDatabase: string;
 }
 
-export type EnvConfig = PostgresEnv | S3Config | GlobalEnvironment
+export type EnvConfig = PostgresEnv | GlobalEnvironment
 
 export type SuffixChecker = (value:string,suffix:string) => boolean;
 export type GlobalEnvironmentChecker = () => string;

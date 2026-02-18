@@ -6,10 +6,8 @@ import { BaseAuthSession } from "@/types/authSession.types";
 export function authMiddleware(handler: Function) {
   return async (req: NextRequest, ...args: any[]) => {
     try {
+
       const { authSessionId } = await getCookieId();
-
-      console.log("auth session id", authSessionId)
-
       const session:BaseAuthSession = await getAuthSession(authSessionId);
       return handler(req, session, ...args);
     } catch (error) {

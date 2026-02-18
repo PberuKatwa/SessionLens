@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { registerUser } from "@/services/auth.service";
 import { logger } from "@/lib/logger";
 import { ProfileApiResponse, UserApiResponse } from "@/types/user.types";
-import { getAuthSession } from "@/repositories/authSessions.repository";
 import { findUserById } from "../../../../repositories/users.repository";
 import { authMiddleware } from "@/lib/auth.middleware";
-import { getCookieId } from "@/lib/cookies";
 import { BaseAuthSession } from "@/types/authSession.types";
 
 async function getProfile(req:NextRequest, authSession:BaseAuthSession) {
