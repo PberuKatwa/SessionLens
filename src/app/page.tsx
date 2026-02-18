@@ -1,6 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+export default function SupervisorLanding() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a2540] via-[#0d3d5f] to-[#0a4d3a] font-sans relative overflow-hidden">
       {/* Decorative background elements */}
@@ -10,67 +11,74 @@ export default function Home() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full border border-white/5" />
       </div>
 
-      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 md:px-16 lg:px-24 text-center">
+      {/* Navigation Header */}
+      <nav className="relative z-20 flex justify-between items-center px-8 py-6 md:px-16">
+        <div className="text-white font-bold text-2xl tracking-tight">
+          SHAMIRI<span className="text-[#00c97a]">.</span>
+        </div>
+        <Link
+          href="/login"
+          className="px-6 py-2 rounded-full border border-[#00c97a] text-[#00c97a] font-medium hover:bg-[#00c97a] hover:text-white transition-all"
+        >
+          Supervisor Login
+        </Link>
+      </nav>
 
-        {/* Stats pill */}
+      <main className="relative z-10 flex min-h-[80vh] flex-col items-center justify-center px-4 md:px-16 lg:px-24 text-center">
+        {/* Tier 2 Status Pill */}
         <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full mb-8 text-sm text-white/90">
-          <div className="flex items-center -space-x-2">
-            <img
-              className="size-7 rounded-full border-2 border-white/40 object-cover"
-              src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=50"
-              alt="Youth provider 1"
-            />
-            <img
-              className="size-7 rounded-full border-2 border-white/40 object-cover"
-              src="https://images.unsplash.com/photo-1507152832244-10d45c7eda57?q=80&w=50"
-              alt="Youth provider 2"
-            />
-            <img
-              className="size-7 rounded-full border-2 border-white/40 object-cover"
-              src="https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?q=80&w=50"
-              alt="Youth provider 3"
-            />
-          </div>
-          <span className="font-semibold">185,000+</span>
+          <span className="bg-[#1a8fe3] text-white text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Tier 2</span>
           <div className="h-4 w-px bg-white/30" />
-          <span>Youth served across East Africa</span>
+          <span className="font-semibold text-[#00c97a]">Supervisor Oversight Portal</span>
           <div className="h-4 w-px bg-white/30" />
-          <span className="bg-[#00c97a] text-white text-xs font-bold px-2 py-0.5 rounded-full">$7–10/youth</span>
+          <span>Monitoring Tier 1 Fellows</span>
         </div>
 
         {/* Headline */}
-        <h1 className="text-5xl md:text-7xl font-bold text-white max-w-3xl leading-[1.1] tracking-tight mb-6">
-          Mental health care where{" "}
+        <h1 className="text-5xl md:text-7xl font-bold text-white max-w-4xl leading-[1.1] tracking-tight mb-6">
+          Empowering Fellows through{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00c97a] to-[#1a8fe3]">
-            young people thrive
+            Data-Driven Oversight
           </span>
         </h1>
 
         {/* Subheadline */}
-        <p className="text-white/60 text-lg md:text-xl max-w-xl leading-relaxed mb-10">
-          Africa&apos;s largest youth mental health provider — delivering effective, affordable care at scale through community-based, for-youth-by-youth support.
+        <p className="text-white/60 text-lg md:text-xl max-w-2xl leading-relaxed mb-10">
+          Review 1-hour therapy sessions, access AI-generated session analyses, and provide critical support to our Tier 1 Fellows as they deliver evidence-based care across East Africa.
         </p>
 
-        {/* CTAs */}
+        {/* Primary Actions */}
         <div className="flex flex-col sm:flex-row items-center gap-4">
-          <a
-            href="https://shamiri.io"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/dashboard"
             className="px-8 py-3.5 rounded-full bg-gradient-to-r from-[#00c97a] to-[#00a862] text-white font-semibold text-base hover:opacity-90 transition-opacity shadow-lg shadow-[#00c97a]/20 w-full sm:w-auto text-center"
           >
-            Learn More
-          </a>
-          <a
-            href="https://shamiri.io/get-support"
-            target="_blank"
-            rel="noopener noreferrer"
+            Enter Admin Dashboard
+          </Link>
+
+          <Link
+            href="/guidelines"
             className="px-8 py-3.5 rounded-full border border-white/20 bg-white/5 backdrop-blur text-white font-semibold text-base hover:bg-white/10 transition-colors w-full sm:w-auto text-center"
           >
-            Get Support
-          </a>
+            Protocol & Guidelines
+          </Link>
         </div>
 
+        {/* Tier Context Cards (Optional visual aid) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20 w-full max-w-5xl">
+          <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-left">
+            <h3 className="text-[#00c97a] font-bold mb-2">Fellows (Tier 1)</h3>
+            <p className="text-white/50 text-sm">Community-led group interventions and core-belief skill building.</p>
+          </div>
+          <div className="p-6 rounded-2xl bg-white/10 border border-[#00c97a]/30 text-left scale-105 shadow-xl shadow-[#00c97a]/5">
+            <h3 className="text-white font-bold mb-2">Supervisors (Tier 2)</h3>
+            <p className="text-white/70 text-sm">Oversight, 1-on-1 support, and AI session analysis review.</p>
+          </div>
+          <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-left">
+            <h3 className="text-[#1a8fe3] font-bold mb-2">Experts (Tier 3)</h3>
+            <p className="text-white/50 text-sm">Specialized psychiatric care and complex case management.</p>
+          </div>
+        </div>
       </main>
     </div>
   );
