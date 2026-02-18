@@ -53,5 +53,6 @@ export interface PaginatedAnalyzedSessions {
   };
 }
 
+export interface BaseAnalyzedSessionApiResponse extends ApiResponse<BaseAnalyzedSession> { };
 export interface CompleteAnalyzedSessionApiResponse extends ApiResponse<AnalyzedSession> {}
 export interface PaginatedAnalyzedSessionApiResponse extends ApiResponse<PaginatedAnalyzedSessions> {}

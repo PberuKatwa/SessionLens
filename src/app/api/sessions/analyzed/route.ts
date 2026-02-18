@@ -4,15 +4,16 @@ import { ApiResponse } from "@/types/api.types";
 import { BaseAuthSession } from "@/types/authSession.types";
 import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "@/lib/auth.middleware";
+import { BaseAnalyzedSessionApiResponse, CreateAnalyzedSessionPayload } from "@/types/analyzedSession.types";
 
 async function createSession( req: NextRequest,session: BaseAuthSession) {
   try {
 
-    const body = await req.json();
+    const body:CreateAnalyzedSessionPayload = await req.json();
 
     const analyzedSession = await createAnalyzedSession(body);
 
-    const response: ApiResponse = {
+    const response: BaseAnalyzedSessionApiResponse = {
       success: true,
       message: "Successfully created analyzed session",
       data: analyzedSession
