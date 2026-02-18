@@ -1,10 +1,9 @@
 import { logger } from "@/lib/logger";
-import { createGroupSession, getGroupSessionById } from "@/repositories/groupSessions.repository";
+import { getGroupSessionById } from "@/repositories/groupSessions.repository";
 import { ApiResponse } from "@/types/api.types";
 import { BaseAuthSession } from "@/types/authSession.types";
 import { CompleteGroupSessionApiResponse, SingleGroupSessionApiResponse } from "@/types/groupSession.types";
 import { NextRequest, NextResponse } from "next/server";
-import { parseJsonFile } from "@/lib/json.manager";
 import { authMiddleware } from "@/lib/auth.middleware";
 
 async function getSession(
