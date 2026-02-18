@@ -7,8 +7,8 @@ export async function createAnalyzedSessionsTable() {
     const pgPool = getPgPool();
 
     await pgPool.query(`
-      CREATE TABLE analyzed_sessions IF NOT EXISTS(
-        id PRIMARY KEY,
+      CREATE TABLE IF NOT EXISTS analyzed_sessions(
+        id SERIAL PRIMARY KEY,
         session_id INTEGER NOT NULL,
         is_reviewed BOOLEAN NOT NULL DEFAULT FALSE,
         row_status row_status DEFAULT 'active',
@@ -19,12 +19,12 @@ export async function createAnalyzedSessionsTable() {
         protocol_safety INTEGER NOT NULL DEFAULT 0,
         summary VARCHAR(240) NOT NULL,
 
-        created_at TIMESTAMPZ DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
 
         llm_evaluation JSONB,
 
         FOREIGN KEY (session_id)
-          REFERENCES sessions(id)
+          REFERENCES group_sessions(id)
           ON DELETE CASCADE
       )
     `)
