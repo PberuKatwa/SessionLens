@@ -17,7 +17,7 @@ export async function createAnalyzedSessionsTable() {
         content_coverage INTEGER NOT NULL DEFAULT 0,
         facilitation_quality INTEGER NOT NULL DEFAULT 0,
         protocol_safety INTEGER NOT NULL DEFAULT 0,
-        summary VARCHAR(240) NOT NULL,
+        summary TEXT NOT NULL,
 
         reviewer_id INTEGER,
         reviewer_comments TEXT,
