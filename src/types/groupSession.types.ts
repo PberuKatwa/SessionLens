@@ -19,6 +19,4 @@ export interface CreateGroupSessionPayload {
   transcript: object;
 }
 
-export interface UpdateGroupSessionPayload {
-  is_processed: boolean;
-}
+export interface UpdateGroupSessionPayload extends BaseGroupSession { };

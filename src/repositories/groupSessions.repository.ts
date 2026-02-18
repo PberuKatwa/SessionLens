@@ -20,16 +20,16 @@ export async function createGroupSession(payload: CreateGroupSessionPayload): Pr
 
     const result = await pgPool.query(query, [user_id, group_id, fellow_name, transcript]);
     logger.info(`Successfully created group session for fellow: ${fellow_name}`);
-    return result.rows[0];
+
+    const groupSession = result.rows[0];
+    return groupSession;
   } catch (error) {
     logger.error("Error in createGroupSession");
     throw error;
   }
 }
 
-/**
- * READ: Get a single session by ID
- */
+
 export async function getGroupSessionById(id: number): Promise<GroupSession> {
   try {
     const pgPool = getPgPool();
@@ -40,59 +40,32 @@ export async function getGroupSessionById(id: number): Promise<GroupSession> {
 
     if (result.rowCount === 0) throw new Error("Group session not found");
 
-    return result.rows[0];
+    const getSingleSession = result.rows[0];
+    return getSingleSession;
   } catch (error) {
     throw error;
   }
 }
 
-/**
- * UPDATE: Update general session data (transcript/processed status)
- */
-export async function updateGroupSession(id: number, payload: UpdateGroupSessionPayload): Promise<GroupSession> {
+export async function updateProcessedStatus(payload: UpdateGroupSessionPayload): Promise<void> {
   try {
     const pgPool = getPgPool();
-    const { is_processed, transcript, fellow_name } = payload;
+    const { id, is_processed } = payload;
 
-    // Standard pattern for dynamic updates if needed,
-    // but here we'll keep it direct for the table structure
     const query = `
       UPDATE group_sessions
-      SET
-        is_processed = COALESCE($1, is_processed),
-        transcript = COALESCE($2, transcript),
-        fellow_name = COALESCE($3, fellow_name)
-      WHERE id = $4
-      RETURNING *;
+      SET is_processed = $1
+      WHERE id = $2;
     `;
 
-    const result = await pgPool.query(query, [is_processed, transcript, fellow_name, id]);
+    await pgPool.query(query, [is_processed, id]);
     logger.info(`Successfully updated group session ID: ${id}`);
-    return result.rows[0];
   } catch (error) {
     throw error;
   }
 }
 
-/**
- * STATUS UPDATE: Specifically change the row_status (Review Status)
- */
-export async function updateGroupSessionStatus(id: number, status: RowStatus): Promise<void> {
-  try {
-    const pgPool = getPgPool();
-    await pgPool.query(
-      `UPDATE group_sessions SET row_status = $1 WHERE id = $2;`,
-      [status, id]
-    );
-    logger.info(`Successfully updated status to ${status} for session ID: ${id}`);
-  } catch (error) {
-    throw error;
-  }
-}
 
-/**
- * DELETE: Move to 'trash' status (Soft Delete)
- */
 export async function trashGroupSession(id: number): Promise<void> {
   try {
     const pgPool = getPgPool();
