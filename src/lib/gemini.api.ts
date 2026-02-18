@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Session } from "../types/pruner.types.js";
-import { LLMEvaluation } from "../types/evaluation.types.js";
-import {  LLMEvaluationSchema } from "../validators/evaluation.schema.js";
-import { llmConfig } from "@/config/config.js";
+import { Session } from "../types/pruner.types";
+import { LLMEvaluation } from "../types/evaluation.types";
+import {  LLMEvaluationSchema } from "../validators/evaluation.schema";
+import { llmConfig } from "@/config/config";
 
 export async function useGeminiLLMApi(systemPrompt: string, finalTranscript: Session): Promise<LLMEvaluation>{
   try {
