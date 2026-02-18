@@ -4,13 +4,10 @@ import {
   GroupSession,
   CreateGroupSessionPayload,
   UpdateGroupSessionPayload,
-  RowStatus
+  BaseGroupSession
 } from "@/types/groupSession.types";
 
-/**
- * CREATE: Create a new group session
- */
-export async function createGroupSession(payload: CreateGroupSessionPayload): Promise<GroupSession> {
+export async function createGroupSession(payload: CreateGroupSessionPayload): Promise<BaseGroupSession> {
   try {
     const pgPool = getPgPool();
     const { user_id, group_id, fellow_name, transcript } = payload;
@@ -18,7 +15,7 @@ export async function createGroupSession(payload: CreateGroupSessionPayload): Pr
     const query = `
       INSERT INTO group_sessions (user_id, group_id, fellow_name, transcript)
       VALUES ($1, $2, $3, $4)
-      RETURNING *;
+      RETURNING id, is_processed;
     `;
 
     const result = await pgPool.query(query, [user_id, group_id, fellow_name, transcript]);
