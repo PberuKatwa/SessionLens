@@ -1,5 +1,5 @@
-import { Lexicons, PrunedSession, Session } from '../../types/pruner.types.js';
-import { initializePruner } from '../transcriptPruner/index.pruner.js';
+import { Lexicons, PrunedSession, Session } from '../../types/pruner.types';
+import { initializePruner } from '../transcriptPruner/index.pruner';
 
 export async function getPrunedSession(lexicons: Lexicons, session: Session):Promise<PrunedSession>{
   try {

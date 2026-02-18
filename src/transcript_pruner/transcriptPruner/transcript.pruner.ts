@@ -2,7 +2,7 @@ import {
   Lexicons, PruneContext, PrunedSession, PruneMetadata,
   RawTurn, Session, SignalIndices, SignalRegexSet, TurnIndices,
   CompleteIndices
-} from "../../types/pruner.types.js";
+} from "../../types/pruner.types";
 
 export class TranscriptPrunner{
 

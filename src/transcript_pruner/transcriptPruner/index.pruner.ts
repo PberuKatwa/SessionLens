@@ -1,4 +1,4 @@
-import { TranscriptPrunner } from "./transcript.pruner.js";
+import { TranscriptPrunner } from "./transcript.pruner";
 
 export function initializePruner(
   windowPadding: number,

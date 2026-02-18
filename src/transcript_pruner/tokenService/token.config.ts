@@ -1,4 +1,4 @@
-import { Lexicons } from "../../types/pruner.types.js";
+import { Lexicons } from "../../types/pruner.types";
 
 export const safetyWords: string[] = [
 

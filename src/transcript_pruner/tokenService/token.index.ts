@@ -1,13 +1,11 @@
-import { Session } from "../../types/pruner.types.js";
-import { getPrunedSession } from "./token.service.js";
-import { allLexicons } from "./token.config.js";
-import { SessionSchema } from "../../validators/session.schema.js";
-import { LLMEvaluationResult } from "../../types/evaluation.types.js";
-import { useGeminiLLMApi } from "../../lib/gemini.api.js";
-import { logger } from "@/lib/logger.js";
-import { safeJsonParse } from "@/lib/json.manager.js";
-
-
+import { Session } from "../../types/pruner.types";
+import { getPrunedSession } from "./token.service";
+import { allLexicons } from "./token.config";
+import { SessionSchema } from "../../validators/session.schema";
+import { LLMEvaluationResult } from "../../types/evaluation.types";
+import { useGeminiLLMApi } from "../../lib/gemini.api";
+import { logger } from "@/lib/logger";
+import { safeJsonParse } from "@/lib/json.manager";
 
 export async function getLLMEvaluation( jsonData: string): Promise<LLMEvaluationResult> {
   try {
