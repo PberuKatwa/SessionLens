@@ -5,9 +5,7 @@ export async function createGroupSessionsTable() {
   try {
 
     const pgPool = getPgPool();
-
     await pgPool.query(`
-
       CREATE TABLE IF NOT EXISTS group_sessions(
         id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL,
@@ -23,7 +21,6 @@ export async function createGroupSessionsTable() {
           REFERENCES users(id)
           ON DELETE CASCADE
       );
-
     `);
 
     logger.info("Successfully group session table");

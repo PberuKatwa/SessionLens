@@ -34,6 +34,3 @@ export async function createAnalyzedSessionsTable() {
     throw error;
   }
 }
-
-// Fellow Name, Date, Group ID, and a Status (e.g.,
-// Processed, Flagged for Review, Safe).
