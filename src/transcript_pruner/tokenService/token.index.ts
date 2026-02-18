@@ -5,25 +5,14 @@ import { SessionSchema } from "../../validators/session.schema.js";
 import { LLMEvaluationResult } from "../../types/evaluation.types.js";
 import { useGeminiLLMApi } from "../../lib/gemini.api.js";
 import { logger } from "@/lib/logger.js";
+import { safeJsonParse } from "@/lib/json.manager.js";
 
 
 
 export async function getLLMEvaluation( jsonData: string): Promise<LLMEvaluationResult> {
-  logger.info("Starting LLM evaluation pipeline");
-
   try {
-    let parsedJson: Session;
-
-
-    try {
-      parsedJson = JSON.parse(jsonData);
-    } catch (parseError) {
-      logger.error("Failed to parse session JSON", {
-        error: parseError instanceof Error ? parseError.message : parseError,
-      });
-      throw new Error("Invalid JSON input");
-    }
-
+    logger.info("Starting LLM evaluation pipeline");
+    const parsedJson = safeJsonParse<Session>(jsonData);
 
     const validationResult = SessionSchema.safeParse(parsedJson);
     if (!validationResult.success) {
