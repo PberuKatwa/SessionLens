@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Session } from "../transcript_pruner/types/pruner.types.js";
-import { LLMEvaluation } from "../transcript_pruner/types/evaluation.types.js";
+import { Session } from "../types/pruner.types.js";
+import { LLMEvaluation } from "../types/evaluation.types.js";
 import {  LLMEvaluationSchema } from "../validators/evaluation.schema.js";
 import { llmConfig } from "@/config/config.js";
 

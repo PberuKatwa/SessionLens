@@ -1,8 +1,8 @@
-import { Session } from "../types/pruner.types.js";
+import { Session } from "../../types/pruner.types.js";
 import { getPrunedSession } from "./token.service.js";
 import { allLexicons } from "./token.config.js";
 import { SessionSchema } from "../../validators/session.schema.js";
-import { LLMEvaluationResult } from "../types/evaluation.types.js";
+import { LLMEvaluationResult } from "../../types/evaluation.types.js";
 import { useGeminiLLMApi } from "../../lib/gemini.api.js";
 import { logger } from "../utils/logger/index.logger.js";
 
