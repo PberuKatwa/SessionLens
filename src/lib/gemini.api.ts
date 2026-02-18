@@ -1,27 +1,26 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Session } from "../transcript_pruner/types/pruner.types.js";
-import dotenv from 'dotenv';
 import { LLMEvaluation } from "../transcript_pruner/types/evaluation.types.js";
-import {  LLMEvaluationSchema } from "../transcript_pruner/validators/evaluation.schema.js";
+import {  LLMEvaluationSchema } from "../validators/evaluation.schema.js";
+import { llmConfig } from "@/config/config.js";
 dotenv.config();
 
 export async function useGeminiLLMApi(systemPrompt: string, finalTranscript: Session): Promise<LLMEvaluation>{
-
-  const api_key = process.env.GEMINI_API_KEY;
-  if (!api_key) throw new Error(`NO api key for gemini was found`)
-
-  const genAI = new GoogleGenerativeAI(api_key);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    generationConfig: { responseMimeType: "application/json" }
-  });
-
-  const promptInput = `
-    Session Topic: ${finalTranscript.session_topic}
-    Payload: ${JSON.stringify(finalTranscript.transcript)}
-  `;
-
   try {
+
+    const { geminiApiKey } = llmConfig();
+
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const promptInput = `
+      Session Topic: ${finalTranscript.session_topic}
+      Payload: ${JSON.stringify(finalTranscript.transcript)}
+    `;
+
     const result = await model.generateContent([systemPrompt, promptInput]);
     const rawText = result.response.text();
 

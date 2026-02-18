@@ -2,7 +2,8 @@ import {
   GlobalEnvironmentChecker,
   GetEnv,
   GlobalEnvironment,
-  PostgresEnv
+  PostgresEnv,
+  LLMApiEnvironment
 } from "../types/env.types"
 
 const getGlobalEnvironment: GlobalEnvironmentChecker = function (): string {
@@ -46,4 +47,8 @@ export const globalConfig = (): GlobalEnvironment => ({
   environment: getGlobalEnvironment(),
   port: getEnv(getGlobalEnvironment, "PORT"),
   cookieIdName:getEnv(getGlobalEnvironment,"COOKIE_ID_NAME")
+});
+
+export const llmConfig = (): LLMApiEnvironment => ({
+  geminiApiKey: getEnv(getGlobalEnvironment, "GEMINI_API_KEY")
 });
