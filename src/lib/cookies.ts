@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { globalConfig } from "@/config/config";
+import { BaseCookie } from "@/types/cookies.types";
 
 export async function setCookies(authSessionId: string) {
   try {
@@ -23,7 +24,7 @@ export async function setCookies(authSessionId: string) {
   }
 }
 
-export async function getCookieId() {
+export async function getCookieId():Promise<BaseCookie> {
   try {
 
     const cookieStore = await cookies();
@@ -37,7 +38,7 @@ export async function getCookieId() {
   }
 }
 
-export async function deleteCookie() {
+export async function deleteCookie():Promise<string> {
   try {
     const { cookieStore, authSessionId } = await getCookieId()
     cookieStore.delete("auth_session_id");

@@ -1,7 +1,7 @@
 import { authMiddleware } from "@/lib/auth.middleware";
 import { deleteCookie } from "@/lib/cookies";
 import { logger } from "@/lib/logger";
-import { trashAuthSession } from "@/repositories/sessions.repository";
+import { trashAuthSession } from "@/repositories/authSessions.repository";
 import { ApiResponse } from "@/types/api.types";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
