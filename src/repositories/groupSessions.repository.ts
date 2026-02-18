@@ -4,7 +4,8 @@ import {
   GroupSession,
   CreateGroupSessionPayload,
   UpdateGroupSessionPayload,
-  BaseGroupSession
+  BaseGroupSession,
+  PaginatedGroupSessions
 } from "@/types/groupSession.types";
 
 export async function createGroupSession(payload: CreateGroupSessionPayload): Promise<BaseGroupSession> {
@@ -41,6 +42,60 @@ export async function getGroupSessionById(id: number): Promise<GroupSession> {
 
     const getSingleSession = result.rows[0];
     return getSingleSession;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getAllGroupSessions( pageInput?: number, limitInput?: number): Promise<PaginatedGroupSessions> {
+  try {
+
+    logger.warn(`Trying to fetch all group sessions from database.`);
+
+    const page = pageInput ?? 1;
+    const limit = limitInput ?? 10;
+    const offset = (page - 1) * limit;
+
+    const dataQuery = `
+      SELECT
+        id,
+        user_id,
+        group_id,
+        is_processed,
+        fellow_name,
+        created_at,
+        transcript
+      FROM group_sessions
+      WHERE row_status != 'trash'
+      ORDER BY id DESC
+      LIMIT $1 OFFSET $2;
+    `;
+
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM group_sessions
+      WHERE row_status != 'trash';
+    `;
+    const pgPool = getPgPool();
+
+    const [dataResult, countResult] = await Promise.all([
+      pgPool.query(dataQuery, [limit, offset]),
+      pgPool.query(countQuery),
+    ]);
+
+    logger.info(`Successfully fetched group sessions`);
+
+    const totalCount = parseInt(countResult.rows[0].count);
+
+    return {
+      groupSessions: dataResult.rows,
+      pagination: {
+        totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+      },
+    };
+
   } catch (error) {
     throw error;
   }
