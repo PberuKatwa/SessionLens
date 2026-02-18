@@ -4,13 +4,14 @@ import { ApiResponse } from "@/types/api.types";
 import { BaseAuthSession } from "@/types/authSession.types";
 import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "@/lib/auth.middleware";
+import { ReviewerUpdatePayload } from "@/types/analyzedSession.types";
 
 async function reviewSession(
   req: NextRequest,
   session: BaseAuthSession
 ) {
   try {
-    const body = await req.json();
+    const body:ReviewerUpdatePayload = await req.json();
 
     await reviewAnalyzedSession(body);
 
