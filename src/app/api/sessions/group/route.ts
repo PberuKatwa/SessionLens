@@ -1,10 +1,14 @@
 import { logger } from "@/lib/logger";
+import { createGroupSession } from "@/repositories/groupSessions.repository";
 import { ApiResponse } from "@/types/api.types";
 import { BaseAuthSession } from "@/types/authSession.types";
+import { SingleGroupSessionApiResponse } from "@/types/groupSession.types";
+import { GroupSessionTranscript } from "@/types/json.types";
 import { NextRequest, NextResponse } from "next/server";
+import { parseJsonFile } from "@/lib/json.manager";
 
 
-async function createGroupSession(req: NextRequest, session:BaseAuthSession) {
+async function createSession(req: NextRequest, session:BaseAuthSession) {
   try {
 
     const formData = await req.formData();
@@ -13,12 +17,22 @@ async function createGroupSession(req: NextRequest, session:BaseAuthSession) {
     const groupId = formData.get("groupId") as string;
     const transcriptFile = formData.get("transcriptFile") as File;
 
-    if (!transcriptFile || !fellowName || !groupId) return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const parsedJson = await parseJsonFile<GroupSessionTranscript>(transcriptFile)
 
-    if (transcriptFile.type !== "application/json" && !transcriptFile.name.endsWith('.json')) {
-      return NextResponse.json({ error: "File must be a valid JSON" }, { status: 400 });
+    const groupSession = await createGroupSession({
+      user_id: session.user_id,
+      group_id: parseInt(groupId),
+      fellow_name: fellowName,
+      transcript: parsedJson
+    });
+
+    const response: SingleGroupSessionApiResponse = {
+      success: true,
+      message: "Successfully created group session",
+      data:groupSession
     }
 
+    return NextResponse.json(response, { status: 500 });
   } catch (error: any) {
 
     logger.error(`error in creating group session`, error);

@@ -1,3 +1,5 @@
+import { ApiResponse } from "./api.types";
+
 export interface BaseGroupSession{
   id: number;
   is_processed: boolean;
@@ -20,3 +22,4 @@ export interface CreateGroupSessionPayload {
 }
 
 export interface UpdateGroupSessionPayload extends BaseGroupSession { };
+export interface SingleGroupSessionApiResponse extends ApiResponse<BaseGroupSession> { };

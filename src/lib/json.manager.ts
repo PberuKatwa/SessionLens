@@ -1,4 +1,3 @@
-import { logger } from "@/lib/logger";
 
 export async function parseJsonFile<T>(file: File | null): Promise<T> {
   try {
