@@ -29,7 +29,6 @@ export async function createGroupSession(payload: CreateGroupSessionPayload): Pr
   }
 }
 
-
 export async function getGroupSessionById(id: number): Promise<GroupSession> {
   try {
     const pgPool = getPgPool();

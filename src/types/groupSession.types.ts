@@ -23,3 +23,4 @@ export interface CreateGroupSessionPayload {
 
 export interface UpdateGroupSessionPayload extends BaseGroupSession { };
 export interface SingleGroupSessionApiResponse extends ApiResponse<BaseGroupSession> { };
+export interface CompleteGroupSessionApiResponse extends ApiResponse<GroupSession> { };

@@ -1,8 +1,8 @@
 import { logger } from "@/lib/logger";
-import { createGroupSession } from "@/repositories/groupSessions.repository";
+import { createGroupSession, getGroupSessionById } from "@/repositories/groupSessions.repository";
 import { ApiResponse } from "@/types/api.types";
 import { BaseAuthSession } from "@/types/authSession.types";
-import { SingleGroupSessionApiResponse } from "@/types/groupSession.types";
+import { CompleteGroupSessionApiResponse, SingleGroupSessionApiResponse } from "@/types/groupSession.types";
 import { GroupSessionTranscript } from "@/types/json.types";
 import { NextRequest, NextResponse } from "next/server";
 import { parseJsonFile } from "@/lib/json.manager";
@@ -33,7 +33,7 @@ async function createSession(req: NextRequest, session:BaseAuthSession) {
       data:groupSession
     }
 
-    return NextResponse.json(response, { status: 400 });
+    return NextResponse.json(response, { status: 200 });
   } catch (error: any) {
 
     logger.error(`error in creating group session`, error);
@@ -45,4 +45,35 @@ async function createSession(req: NextRequest, session:BaseAuthSession) {
   }
 }
 
+async function getSession(
+  req: NextRequest,
+  session: BaseAuthSession,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const sessionId = parseInt(id);
+
+    if (isNaN(sessionId)) return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
+    const session = await getGroupSessionById(sessionId);
+
+    const response: CompleteGroupSessionApiResponse = {
+      success: true,
+      message: "Successfully fetched response",
+      data:session
+    }
+
+    return NextResponse.json(response, { status: 200 });
+  } catch (error:any) {
+
+    logger.error(`error in fetching group session`, error);
+    const response: ApiResponse = {
+      success: false,
+      message:`${error.message}`
+    }
+    return NextResponse.json(response, { status: 500 });
+  }
+}
+
 export const POST = authMiddleware(createSession);
+export const GET = authMiddleware(getSession);
