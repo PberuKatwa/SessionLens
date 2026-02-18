@@ -23,7 +23,7 @@ export async function setCookies(authSessionId: string) {
   }
 }
 
-export async function getCookieId():Promise<string> {
+export async function getCookieId() {
   try {
 
     const cookieStore = await cookies();
@@ -31,12 +31,17 @@ export async function getCookieId():Promise<string> {
     const sessionId = sessionCookie?.value;
 
     if (!sessionId) throw new Error(`No session cookie was found`);
-    return sessionId;
+    return cookieStore;
   } catch (error) {
     throw error;
   }
 }
 
-async function deleteCookie() {
+export async function deleteCookie() {
+  try {
+    const cookieStore = await getCookieId()
 
+  } catch (error) {
+    throw error;
+  }
 }
