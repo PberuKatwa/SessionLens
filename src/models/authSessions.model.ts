@@ -1,14 +1,14 @@
 import { getPgPool } from "../lib/database";
 import { logger } from "@/lib/logger";
 
-export async function createSessionsTable() {
+export async function createAuthSessionsTable() {
   try {
     const pgPool = getPgPool();
 
     const query = `
       CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-      CREATE TABLE IF NOT EXISTS sessions (
+      CREATE TABLE IF NOT EXISTS auth_sessions (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         user_id INTEGER NOT NULL,
         status row_status DEFAULT 'active',
@@ -23,7 +23,7 @@ export async function createSessionsTable() {
     `;
 
     await pgPool.query(query);
-    logger.info("sessions table created successfully");
+    logger.info("Auth sessions table created successfully");
   } catch (error) {
     throw error;
   }
