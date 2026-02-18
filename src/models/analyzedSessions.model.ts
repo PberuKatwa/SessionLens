@@ -10,22 +10,26 @@ export async function createGroupSessions() {
       CREATE TABLE analyzed_sessions IF NOT EXISTS(
         id PRIMARY KEY,
         session_id INTEGER NOT NULL,
-        group_id INTEGER NOT NULL,
-
-        is_processed BOOLEAN NOT NULL DEFAULT FALSE,
         is_reviewed BOOLEAN NOT NULL DEFAULT FALSE,
+        row_status row_status DEFAULT 'active',
 
         status risk_status DEFAULT 'safe',
+        content_coverage INTEGER NOT NULL DEFAULT 0,
+        facilitation_quality INTEGER NOT NULL DEFAULT 0,
+        protocol_safety INTEGER NOT NULL DEFAULT 0,
         summary VARCHAR(240) NOT NULL,
-        fellow_name VARCHAR(15) NOT NULL,
+
         created_at TIMESTAMPZ DEFAULT CURRENT_TIMESTAMP,
 
-        transcript JSONB,
-        llm_evaluation JSONB
+        llm_evaluation JSONB,
+
+        FOREIGN KEY (session_id)
+          REFERENCES sessions(id)
+          ON DELETE CASCADE
       )
     `)
 
-    logger.info("Successfully analyzed group session table");
+    logger.info("Successfully created analyzed session table");
   } catch (error) {
     throw error;
   }
