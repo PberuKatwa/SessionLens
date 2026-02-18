@@ -4,6 +4,10 @@ export interface GlobalEnvironment{
   cookieIdName: string;
 }
 
+export interface LLMApiEnvironment{
+  geminiApiKey: string;
+}
+
 export interface PostgresEnv{
   pgHost: string;
   pgPort: string;
