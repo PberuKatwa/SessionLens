@@ -35,3 +35,4 @@ export interface PaginatedGroupSessionAnalysis {
 }
 
 export interface PaginatedGroupSessionAnalysisApiResponse extends ApiResponse<PaginatedGroupSessionAnalysis> { };
+export interface GroupSessionAnalysisApiResponse extends ApiResponse<GroupSessionAnalysis> { };
