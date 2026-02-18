@@ -1,10 +1,10 @@
 import { createAnalyzedSession } from "@/repositories/analyzedSessions.repository";
-import { getGroupSessionById, updateProcessedStatus } from "@/repositories/groupSessions.repository";
+import { getUnprocessedGroupSessionById, updateProcessedStatus } from "@/repositories/groupSessions.repository";
 import { getLLMEvaluation } from "@/transcript_pruner/tokenService/token.index";
 
 export async function evaluateSession(groupSessionId:number) {
   try {
-    const groupSession = await getGroupSessionById(groupSessionId);
+    const groupSession = await getUnprocessedGroupSessionById(groupSessionId);
 
     const transcript = JSON.stringify(groupSession.transcript);
     const { llmEvaluation } = await getLLMEvaluation(transcript);
