@@ -6,6 +6,8 @@ import { CompleteGroupSessionApiResponse, SingleGroupSessionApiResponse } from "
 import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "@/lib/auth.middleware";
 import { evaluateSession } from "@/services/evaluation.service";
+import { getAnalyzedSessionById } from "@/repositories/analyzedSessions.repository";
+import { CompleteAnalyzedSessionApiResponse } from "@/types/analyzedSession.types";
 
 async function createAnalyzedSession(
   req: NextRequest,
@@ -36,4 +38,37 @@ async function createAnalyzedSession(
   }
 }
 
+async function getSession(
+  req: NextRequest,
+  session: BaseAuthSession,
+  { params }: { params: { id: number } }
+) {
+  try {
+
+    const { id } = await params;
+
+    if (isNaN(id)) return NextResponse.json({ success:false, message: "Invalid ID" }, { status: 400 });
+
+    const analyzedSession = await getAnalyzedSessionById(id);
+
+    const response: CompleteAnalyzedSessionApiResponse = {
+      success: true,
+      message: "Successfully fetched analyzed session",
+      data: analyzedSession
+    };
+
+    return NextResponse.json(response, { status: 200 });
+
+  } catch (error: any) {
+
+    logger.error("error fetching analyzed session", error);
+
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 export const POST = authMiddleware(createAnalyzedSession);
+export const GET = authMiddleware(getSession);
