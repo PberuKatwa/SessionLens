@@ -143,3 +143,17 @@ export async function reviewAnalyzedSession( payload: ReviewerUpdatePayload): Pr
     throw error;
   }
 }
+
+export async function trashAnalyzedSession(id: number): Promise<void> {
+  try {
+    const pgPool = getPgPool();
+    await pgPool.query(
+      `UPDATE analyzed_sessions SET row_status = 'trash' WHERE id = $1;`,
+      [id]
+    );
+
+    logger.info(`Successfully trashed analyzed session ID: ${id}`);
+  } catch (error) {
+    throw error;
+  }
+}
