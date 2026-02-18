@@ -6,6 +6,7 @@ import { SingleGroupSessionApiResponse } from "@/types/groupSession.types";
 import { GroupSessionTranscript } from "@/types/json.types";
 import { NextRequest, NextResponse } from "next/server";
 import { parseJsonFile } from "@/lib/json.manager";
+import { authMiddleware } from "@/lib/auth.middleware";
 
 
 async function createSession(req: NextRequest, session:BaseAuthSession) {
@@ -32,7 +33,7 @@ async function createSession(req: NextRequest, session:BaseAuthSession) {
       data:groupSession
     }
 
-    return NextResponse.json(response, { status: 500 });
+    return NextResponse.json(response, { status: 400 });
   } catch (error: any) {
 
     logger.error(`error in creating group session`, error);
@@ -43,3 +44,5 @@ async function createSession(req: NextRequest, session:BaseAuthSession) {
     return NextResponse.json(response, { status: 500 });
   }
 }
+
+export const POST = authMiddleware(createSession);
