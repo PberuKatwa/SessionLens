@@ -9,23 +9,9 @@ import { setCookies } from "@/lib/cookies";
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
-    const { environment } = globalConfig();
 
     const user = await validatePassword(email, password);
     const authSession = await createAuthSession(user.id);
-    // const cookieStore = await cookies();
-
-    // let isSecure = false;
-    // if (environment === "PRODUCTION") isSecure = true;
-
-    // cookieStore.set("auth_session_id", authSession.id, {
-    //   httpOnly: true,
-    //   secure: isSecure,
-    //   sameSite: "lax",
-    //   path: "/",
-    //   maxAge:86400
-    // });
-
     await setCookies(authSession.id);
 
     const response: AuthUserApiResponse = {

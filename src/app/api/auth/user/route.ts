@@ -6,16 +6,12 @@ import { ProfileApiResponse, UserApiResponse } from "@/types/user.types";
 import { getAuthSession } from "@/repositories/sessions.repository";
 import { findUserById } from "../../../../repositories/users.repository";
 import { authMiddleware } from "@/lib/auth.middleware";
+import { getCookieId } from "@/lib/cookies";
 
 async function getProfile() {
   try {
 
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("session_id");
-    const authSessionId = sessionCookie?.value;
-
-    if (!authSessionId) return NextResponse.json({ error: "No session found" }, { status: 401 });
-
+    const { authSessionId } = await getCookieId();
     const authSession = await getAuthSession(authSessionId);
     const user = await findUserById(authSession.user_id);
 
