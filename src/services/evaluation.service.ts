@@ -17,6 +17,8 @@ export async function evaluateSession(groupSessionId:number) {
     console.log("llm evaluation", llmEvaluation)
     console.log("llm evaluation", llmEvaluation)
 
+    return llmEvaluation;
+
 
 
 

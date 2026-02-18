@@ -5,6 +5,7 @@ import { BaseAuthSession } from "@/types/authSession.types";
 import { CompleteGroupSessionApiResponse, SingleGroupSessionApiResponse } from "@/types/groupSession.types";
 import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "@/lib/auth.middleware";
+import { evaluateSession } from "@/services/evaluation.service";
 
 async function createAnalyzedSession(
   req: NextRequest,
@@ -15,18 +16,18 @@ async function createAnalyzedSession(
     const { id } = await params;
 
     if (isNaN(id)) return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
-    const session = await getGroupSessionById(id);
+    const analyzedSession = await evaluateSession(id);
 
-    const response: CompleteGroupSessionApiResponse = {
+    const response: ApiResponse = {
       success: true,
-      message: "Successfully fetched response",
-      data:session
+      message: "Successfully anlayzed session",
+      data:analyzedSession
     }
 
     return NextResponse.json(response, { status: 200 });
   } catch (error:any) {
 
-    logger.error(`error in fetching group session`, error);
+    logger.error(`error in fetching analyzed session`, error);
     const response: ApiResponse = {
       success: false,
       message:`${error.message}`
@@ -35,4 +36,4 @@ async function createAnalyzedSession(
   }
 }
 
-export const GET = authMiddleware(getSession);
+export const GET = authMiddleware(createAnalyzedSession);
