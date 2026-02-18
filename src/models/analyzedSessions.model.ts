@@ -27,7 +27,7 @@ export async function createAnalyzedSessionsTable() {
 
         FOREIGN KEY (session_id)
           REFERENCES group_sessions(id)
-          ON DELETE CASCADE
+          ON DELETE CASCADE,
 
         FOREIGN KEY(reviewer_id)
           REFERENCES users(id)
