@@ -30,7 +30,6 @@ export async function createAnalyzedSession(payload: CreateAnalyzedSessionPayloa
     const analyzedSession: BaseAnalyzedSession = result.rows[0];
     return analyzedSession;
   } catch (error) {
-    logger.error("Error in createAnalyzedSession");
     throw error;
   }
 }

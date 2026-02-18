@@ -1,19 +1,12 @@
-import { parseJsonFile, safeJsonParse } from "@/lib/json.manager";
 import { createAnalyzedSession } from "@/repositories/analyzedSessions.repository";
-import { getGroupSessionById } from "@/repositories/groupSessions.repository";
+import { getGroupSessionById, updateProcessedStatus } from "@/repositories/groupSessions.repository";
 import { getLLMEvaluation } from "@/transcript_pruner/tokenService/token.index";
-import { Session } from "@/types/pruner.types";
-
 
 export async function evaluateSession(groupSessionId:number) {
   try {
     const groupSession = await getGroupSessionById(groupSessionId);
 
     const transcript = JSON.stringify(groupSession.transcript);
-    console.log("group session", groupSession)
-    console.log("trpe session", typeof(groupSession.transcript))
-    // const parsedSession = await parseJsonFile<Session>(groupSession.transcript);
-
     const { llmEvaluation } = await getLLMEvaluation(transcript);
 
     let isContentSafe = true;
@@ -29,6 +22,10 @@ export async function evaluateSession(groupSessionId:number) {
       facilitation_quality: llmEvaluation.metrics.facilitation_quality.score,
       protocol_safety: llmEvaluation.metrics.protocol_safety.score
     });
+
+    if (!analyzedSession) throw new Error(`No analyzed session was found`);
+
+    await updateProcessedStatus({ id: groupSession.id, is_processed: true });
 
     return analyzedSession;
   } catch (error) {

@@ -47,6 +47,23 @@ export async function getGroupSessionById(id: number): Promise<GroupSession> {
   }
 }
 
+export async function getUnprocessedGroupSessionById(id: number): Promise<GroupSession> {
+  try {
+    const pgPool = getPgPool();
+    const result = await pgPool.query(
+      `SELECT * FROM group_sessions WHERE id = $1 AND row_status != 'trash' AND is_processed IS FALSE; ;`,
+      [id]
+    );
+
+    if (result.rowCount === 0) throw new Error("Group session not found");
+
+    const getSingleSession = result.rows[0];
+    return getSingleSession;
+  } catch (error) {
+    throw error;
+  }
+}
+
 export async function getAllGroupSessions( pageInput?: number, limitInput?: number): Promise<PaginatedGroupSessions> {
   try {
 
