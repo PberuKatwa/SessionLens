@@ -1,12 +1,11 @@
-// @/types/groupSession.types.ts
-
-export type RowStatus = 'active' | 'trash' | 'archived';
-
-export interface GroupSession {
+export interface BaseGroupSession{
   id: number;
+  is_processed: boolean;
+}
+
+export interface GroupSession extends BaseGroupSession {
   user_id: number;
   group_id: number;
-  row_status: RowStatus;
   is_processed: boolean;
   fellow_name: string;
   created_at: Date;
