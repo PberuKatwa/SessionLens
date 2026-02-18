@@ -2,17 +2,18 @@ import { getAuthSession } from "@/repositories/authSessions.repository";
 import { NextRequest, NextResponse } from "next/server";
 import { getCookieId } from "./cookies";
 import { BaseAuthSession } from "@/types/authSession.types";
-import { ApiResponse } from "@/types/api.types";
 
 export function authMiddleware(handler: Function) {
   return async (req: NextRequest, ...args: any[]) => {
     try {
       const { authSessionId } = await getCookieId();
 
+      console.log("auth session id", authSessionId)
+
       const session:BaseAuthSession = await getAuthSession(authSessionId);
       return handler(req, session, ...args);
     } catch (error) {
-      return NextResponse.json({ error: "Invalid Session" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid Session" }, { status: 403 });
     }
   };
 }

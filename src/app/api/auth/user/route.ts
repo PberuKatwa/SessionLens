@@ -7,14 +7,12 @@ import { getAuthSession } from "@/repositories/authSessions.repository";
 import { findUserById } from "../../../../repositories/users.repository";
 import { authMiddleware } from "@/lib/auth.middleware";
 import { getCookieId } from "@/lib/cookies";
+import { BaseAuthSession } from "@/types/authSession.types";
 
-async function getProfile() {
+async function getProfile(req:NextRequest, authSession:BaseAuthSession) {
   try {
 
-    const { authSessionId } = await getCookieId();
-    const authSession = await getAuthSession(authSessionId);
     const user = await findUserById(authSession.user_id);
-
     const response: ProfileApiResponse = {
       success: true,
       message: "Successfully fetched profile",

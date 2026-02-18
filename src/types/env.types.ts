@@ -1,8 +1,7 @@
 export interface GlobalEnvironment{
   environment: string;
   port: string;
-  sessionName: string;
-  sessionSecret: string;
+  cookieIdName: string;
 }
 
 export interface S3Config{

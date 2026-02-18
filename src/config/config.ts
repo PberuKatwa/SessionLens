@@ -45,6 +45,5 @@ export const postgresEnv = (): PostgresEnv => ({
 export const globalConfig = (): GlobalEnvironment => ({
   environment: getGlobalEnvironment(),
   port: getEnv(getGlobalEnvironment, "PORT"),
-  sessionName: getEnv(getGlobalEnvironment, "SESSION_NAME"),
-  sessionSecret:getEnv(getGlobalEnvironment,"SESSION_SECRET")
+  cookieIdName:getEnv(getGlobalEnvironment,"COOKIE_ID_NAME")
 });
