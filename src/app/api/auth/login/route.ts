@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validatePassword } from "../../../../repositories/users.repository";
-import { createSession } from "../../../../repositories/sessions.repository";
+import { createAuthSession } from "../../../../repositories/sessions.repository";
 import { globalConfig } from "@/config/config";
 import { AuthUserApiResponse } from "@/types/user.types";
+import { setCookies } from "@/lib/cookies";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,18 +12,21 @@ export async function POST(req: NextRequest) {
     const { environment } = globalConfig();
 
     const user = await validatePassword(email, password);
-    const sessionId = await createSession(user.id);
-    const cookieStore = await cookies();
+    const authSession = await createAuthSession(user.id);
+    // const cookieStore = await cookies();
 
-    let isSecure = false;
-    if (environment === "PRODUCTION") isSecure = true;
+    // let isSecure = false;
+    // if (environment === "PRODUCTION") isSecure = true;
 
-    cookieStore.set("session_id", sessionId.id, {
-      httpOnly: true,
-      secure: isSecure,
-      sameSite: "lax",
-      path: "/",
-    });
+    // cookieStore.set("auth_session_id", authSession.id, {
+    //   httpOnly: true,
+    //   secure: isSecure,
+    //   sameSite: "lax",
+    //   path: "/",
+    //   maxAge:86400
+    // });
+
+    await setCookies(authSession.id);
 
     const response: AuthUserApiResponse = {
       success: true,

@@ -1,6 +1,6 @@
 import { authMiddleware } from "@/lib/auth.middleware";
 import { logger } from "@/lib/logger";
-import { trashSession } from "@/repositories/sessions.repository";
+import { trashAuthSession } from "@/repositories/sessions.repository";
 import { ApiResponse } from "@/types/api.types";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -18,7 +18,7 @@ async function logout() {
 
     cookieStore.delete("session_id");
     logger.info(`Succesfully logged out user`)
-    await trashSession(sessionId)
+    await trashAuthSession(sessionId)
 
     const response: ApiResponse = {
       success: false,

@@ -57,7 +57,7 @@ export async function trashAuthSession(id:string) {
     const pgPool = getPgPool();
 
     await pgPool.query(`UPDATE auth_sessions SET status=$1 WHERE id=$2;`,["trash", id])
-    logger.info("Successfully trashed session");
+    logger.info("Successfully trashed auth session");
   } catch (error) {
     throw error;
   }
