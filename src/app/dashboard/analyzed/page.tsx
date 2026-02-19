@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faSpinner} from "@fortawesome/free-solid-svg-icons";
+import { faEye, faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { analyzedService } from "../../../services/client/analyzed.service";
 import { BooleanStatusBadge, ReviewStatusBadge, ScoreBadge } from "@/components/ui/StatusBadge";
 import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
@@ -78,6 +78,30 @@ export default function AnalyzedSessionsPage() {
 
     } catch (err: any) {
       toast.error(err.message || "Failed to fetch analyzed sessions");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const viewSession = async function viewSession(id:number) {
+    try {
+      toast.success("Successfully viewed session")
+    } catch(error) {
+      console.error(`Error in viewing session`, error)
+    }
+  }
+
+  const evaluateSessionLLM = async function (id: number) {
+    try {
+
+      setLoading(true);
+      const result = await analyzedService.evaluateSessionClient(id);
+      if(!result.data) throw new Error(`Session anlaysis failed`)
+
+      toast.success(result.message)
+    } catch (error:any) {
+      console.error(`Error in evaluating session`, error);
+      toast.error(`${error.message}`)
     } finally {
       setLoading(false);
     }
@@ -221,19 +245,34 @@ export default function AnalyzedSessionsPage() {
                   <td style={{ padding: 12 }}><ScoreBadge value={session.protocol_safety}/></td>
 
                   {/* Actions */}
-                  <td style={{ padding: 12 }}>
-                    <button
-                      onClick={() => toast("View session coming soon")}
-                      style={{
-                        padding: "6px 10px",
-                        borderRadius: 6,
-                        border: "1px solid #E5E7EB",
-                        background: "#fff",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faEye} />
-                    </button>
+                  <td className="p-3">
+                    <div className="flex items-center gap-2">
+
+                      {/* Evaluate button — primary navy */}
+                      <button
+                        onClick={() => toast("Evaluate coming soon")}
+                        className="px-3 py-1.5 rounded-md bg-[#12245B] text-white text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+                      >
+                        Evaluate
+                      </button>
+
+                      {/* View button — ghost */}
+                      <button
+                        onClick={() => toast("View session coming soon")}
+                        className="px-2.5 py-1.5 rounded-md border border-gray-200 bg-white text-gray-500 hover:border-[#12245B] hover:text-[#12245B] transition-colors cursor-pointer"
+                      >
+                        <FontAwesomeIcon icon={faEye} />
+                      </button>
+
+                      {/* Delete button — danger red */}
+                      <button
+                        onClick={() => toast("Delete coming soon")}
+                        className="px-2.5 py-1.5 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors cursor-pointer"
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+
+                    </div>
                   </td>
 
                 </tr>

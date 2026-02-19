@@ -68,7 +68,7 @@ export const analyzedService = {
     }
   },
 
-  async evaluateSession(sessionId:number):Promise<BaseAnalyzedSessionApiResponse> {
+  async evaluateSessionClient(sessionId:number):Promise<BaseAnalyzedSessionApiResponse> {
     try {
 
       const response = await apiClient.post(`/sessions/analyzed/${sessionId}`);
