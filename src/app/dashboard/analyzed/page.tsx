@@ -1,13 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import toast from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEye,
-  faSpinner,
-} from "@fortawesome/free-solid-svg-icons";
+import { faEye, faSpinner} from "@fortawesome/free-solid-svg-icons";
 import { analyzedService } from "../../../services/client/analyzed.service";
 import { BooleanStatusBadge, ReviewStatusBadge, ScoreBadge } from "@/components/ui/StatusBadge";
 import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
