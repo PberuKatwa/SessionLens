@@ -36,7 +36,7 @@ export default function LoginPage() {
       className="min-h-screen bg-white flex justify-center items-center font-sans"
       style={{ fontFamily: "'DM Sans', 'Inter', sans-serif" }}
     >
-      <div className="max-w-screen-xl w-full m-0 sm:m-10 bg-white border border-gray-200 sm:rounded-2xl flex flex-1 shadow-sm overflow-hidden" style={{ minHeight: '600px' }}>
+      <div className="max-w-screen-7xl w-full m-0 sm:m-10 bg-white border border-gray-200 sm:rounded-2xl flex flex-1 shadow-sm overflow-hidden" style={{ minHeight: '600px' }}>
 
         {/* ── LEFT PANEL ── */}
         <div className="lg:w-1/2 xl:w-5/12 p-8 sm:p-12 flex flex-col justify-between relative">

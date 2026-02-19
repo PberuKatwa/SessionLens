@@ -2,12 +2,12 @@ import Link from "next/link";
 
 export default function SupervisorLanding() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0a2540] via-[#0d3d5f] to-[#0a4d3a] font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-b from-[#0a2540] via-[#0d3d5f] to-[#0a4d3a] font-sans relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-[#00c97a]/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#1a8fe3]/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full border border-white/5" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-white/2 rounded-full border border-white/5" />
       </div>
 
       {/* Navigation Header */}
@@ -36,7 +36,7 @@ export default function SupervisorLanding() {
         {/* Headline */}
         <h1 className="text-5xl md:text-7xl font-bold text-white max-w-4xl leading-[1.1] tracking-tight mb-6">
           Empowering Fellows through{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00c97a] to-[#1a8fe3]">
+          <span className="text-transparent bg-clip-text bg-linear-to- from-[#00c97a] to-[#1a8fe3]">
             Data-Driven Oversight
           </span>
         </h1>
@@ -50,7 +50,7 @@ export default function SupervisorLanding() {
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <Link
             href="https://shamiri.co/science"
-            className="px-8 py-3.5 rounded-full bg-gradient-to-r from-[#00c97a] to-[#00a862] text-white font-semibold text-base hover:opacity-90 transition-opacity shadow-lg shadow-[#00c97a]/20 w-full sm:w-auto text-center"
+            className="px-8 py-3.5 rounded-full bg-linear-to-r from-[#00c97a] to-[#00a862] text-white font-semibold text-base hover:opacity-90 transition-opacity shadow-lg shadow-[#00c97a]/20 w-full sm:w-auto text-center"
           >
             Our Scientific Method
           </Link>
