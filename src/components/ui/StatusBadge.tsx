@@ -16,7 +16,7 @@ export function BooleanStatusBadge({
 
   const baseStyles = "text-xs font-medium px-2 py-0.5 rounded";
 
-  const successStyles = "bg-green-100 text-green-700";
+  const successStyles = "px-3 py-1.5 rounded-md bg-green-100 text-green-700 text-xs font-semibold";
   const dangerStyles = "bg-red-100 text-red-700";
   const warningStyles = "bg-yellow-100 text-yellow-700";
 
@@ -57,7 +57,7 @@ export function ReviewStatusBadge({
 
   const baseStyles = "text-xs font-medium px-2 py-0.5 rounded";
 
-  const successStyles = "bg-green-100 text-green-700";
+  const successStyles = "px-3 py-1.5 rounded-md bg-green-100 text-green-700 text-xs font-semibold";
   const dangerStyles = "bg-red-100 text-red-700";
   const warningStyles = "bg-yellow-100 text-yellow-700";
 
@@ -90,7 +90,7 @@ export function ScoreBadge({ value }: ScoreBadgeProps) {
 
   const baseStyles = "text-xs font-medium px-2 py-0.5 rounded";
 
-  const successStyles = "bg-green-100 text-green-700";
+  const successStyles = "px-3 py-1.5 rounded-md bg-green-100 text-green-700 text-xs font-semibold";
   const warningStyles = "bg-yellow-100 text-yellow-700";
   const dangerStyles = "bg-red-100 text-red-700";
 
