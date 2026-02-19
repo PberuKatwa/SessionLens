@@ -1,5 +1,6 @@
 import type { AuthUser, AuthUserApiResponse, ProfileApiResponse } from "@/types/user.types";
 import { apiClient } from "@/lib/apiClient";
+import { redirect } from "next/navigation";
 
 export const authService = {
 
@@ -32,6 +33,7 @@ export const authService = {
   async logout(): Promise<void>{
     try {
       await apiClient.post("/auth/logout");
+      redirect("/")
     } catch (error) {
       throw error;
     }
