@@ -9,7 +9,7 @@ import { faChartLine, faUsers, faUser, faRightFromBracket } from "@fortawesome/f
 
 const navItems = [
   { path: "/dashboard/analyzed", label: "Analyzed Sessions", icon: faChartLine },
-  { path: "/dashboard/group", label: "Group Sessions", icon: faUsers },
+  { path: "/dashboard/groups", label: "Group Sessions", icon: faUsers },
   { path: "/dashboard/profile", label: "Profile", icon: faUser },
 ];
 
@@ -41,14 +41,6 @@ export const Sidebar = () => {
         <Image src="/images/shamiri.png" alt="Shamiri" width={100} height={32} style={{ objectFit: "contain", filter: "brightness(0) invert(1)", maxHeight: 28 }} />
       </div>
 
-      {/* AI Badge */}
-      <div style={{ padding: "16px 20px 8px" }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 100, padding: "4px 10px" }}>
-          <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#B4F000", boxShadow: "0 0 0 2px rgba(180,240,0,0.25)" }} />
-          <span style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.5)", fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase" }}>shamiriAI Active</span>
-        </div>
-      </div>
-
       {/* Nav */}
       <nav style={{ flex: 1, padding: "8px 12px" }}>
         <div style={{ fontSize: 9, fontWeight: 600, color: "rgba(255,255,255,0.25)", fontFamily: "'DM Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", padding: "8px 8px 10px" }}>Navigation</div>
@@ -76,20 +68,6 @@ export const Sidebar = () => {
         })}
       </nav>
 
-      {/* User area */}
-      <div style={{ padding: "16px 12px 0", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
-        <button onClick={handleLogout} style={{
-          width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 10px",
-          borderRadius: 9, background: "transparent", border: "none", cursor: "pointer", transition: "background 0.15s",
-          color: "#F87171"
-        }}
-          onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
-          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
-        >
-          <FontAwesomeIcon icon={faRightFromBracket} />
-          Logout
-        </button>
-      </div>
     </aside>
   );
 };
