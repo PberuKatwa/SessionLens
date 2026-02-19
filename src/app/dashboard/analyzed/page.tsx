@@ -27,17 +27,18 @@ const initialState: MinimalAnalysis = {
 
 export default function AnalyzedSessionsPage() {
   const [loading, setLoading] = useState(true);
+  const [aiLoading, setAiLoading] = useState(false);
   const [sessions, setSessions] = useState<MinimalAnalysis[]>([initialState]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
-  const [itemlimit, setItemlimit] = useState<number>(5);
+  const [itemlimit, setItemlimit] = useState<number>(10);
   const [statusFilter, setStatusFilter] = useState<keyof MinimalAnalysisFilters | "all">("all");
   const [reviewStatusFilter, setReviewStatusFilter] = useState<ReviewStatus | "all">("all");
 
   const booleanFilters: (keyof MinimalAnalysisFilters)[] = ["is_processed", "is_safe"];
   const reviewFilters: ReviewStatus[] = ["unreviewed", "accepted", "rejected"];
 
-  const tableHeaders = ["Date","GroupId","Fellow","Is Evaluated","Safety Status","Review Status","Content","Facilitaion","Safety","Actions"]
+  const tableHeaders = ["Date","GroupId","Fellow","Is Processed","Safety Status","Review Status","Content","Facilitaion","Safety","Actions"]
 
   const buildFilters = (): MinimalAnalysisFilters => {
     return {
@@ -94,16 +95,18 @@ export default function AnalyzedSessionsPage() {
   const evaluateSessionLLM = async function (id: number) {
     try {
 
-      setLoading(true);
+      setAiLoading(true);
       const result = await analyzedService.evaluateSessionClient(id);
-      if(!result.data) throw new Error(`Session anlaysis failed`)
+      if (!result.data) throw new Error(`Session anlaysis failed`)
+
+      getAllSessions(currentPage, itemlimit);
 
       toast.success(result.message)
     } catch (error:any) {
       console.error(`Error in evaluating session`, error);
       toast.error(`${error.message}`)
     } finally {
-      setLoading(false);
+      setAiLoading(false);
     }
   }
 
@@ -115,6 +118,62 @@ export default function AnalyzedSessionsPage() {
     return (
       <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
         <FontAwesomeIcon icon={faSpinner} spin size="2x" />
+      </div>
+    );
+  }
+
+  if (aiLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-6 py-16">
+
+        {/* Animated orb cluster */}
+        <div className="relative flex items-center justify-center w-20 h-20">
+          {/* Outer pulse ring */}
+          <div className="absolute w-20 h-20 rounded-full bg-[#12245B] opacity-10 animate-ping" />
+          {/* Mid ring */}
+          <div className="absolute w-14 h-14 rounded-full bg-[#12245B] opacity-20 animate-pulse" />
+          {/* Core */}
+          <div className="w-10 h-10 rounded-full bg-[#12245B] flex items-center justify-center shadow-lg">
+            {/* Gemini star icon (two triangles) */}
+            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#B4F000] animate-spin [animation-duration:3s]">
+              <path d="M12 2C12 2 14.5 9.5 22 12C14.5 14.5 12 22 12 22C12 22 9.5 14.5 2 12C9.5 9.5 12 2 12 2Z" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Bouncing dots */}
+        <div className="flex items-end gap-1.5">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="w-1.5 rounded-full bg-[#12245B] animate-bounce"
+              style={{
+                height: i === 0 || i === 3 ? 8 : i === 1 || i === 2 ? 12 : 8,
+                animationDelay: `${i * 0.15}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Shimmer text */}
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-sm font-semibold text-[#12245B] tracking-wide">
+            Gemini is thinking
+          </p>
+          <p className="text-xs text-gray-400">Analyzing session data...</p>
+        </div>
+
+        {/* Shimmer bar */}
+        <div className="w-48 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+          <div className="h-full w-1/2 rounded-full bg-[#B4F000] animate-[shimmer_1.5s_ease-in-out_infinite]"
+            style={{
+              animation: "shimmer 1.5s ease-in-out infinite",
+              background: "linear-gradient(90deg, #12245B 0%, #B4F000 50%, #12245B 100%)",
+              backgroundSize: "200% 100%",
+            }}
+          />
+        </div>
+
       </div>
     );
   }
@@ -250,7 +309,7 @@ export default function AnalyzedSessionsPage() {
 
                       {/* Evaluate button — primary navy */}
                       <button
-                        onClick={() => toast("Evaluate coming soon")}
+                        onClick={() => evaluateSessionLLM(session.session_id)}
                         className="px-3 py-1.5 rounded-md bg-[#12245B] text-white text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
                       >
                         Evaluate
@@ -265,12 +324,12 @@ export default function AnalyzedSessionsPage() {
                       </button>
 
                       {/* Delete button — danger red */}
-                      <button
+                      {/*<button
                         onClick={() => toast("Delete coming soon")}
                         className="px-2.5 py-1.5 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors cursor-pointer"
                       >
                         <FontAwesomeIcon icon={faTrash} />
-                      </button>
+                      </button>*/}
 
                     </div>
                   </td>

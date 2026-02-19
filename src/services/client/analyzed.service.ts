@@ -77,6 +77,17 @@ export const analyzedService = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+
+  // async trashSessionClient(sessionId:number):Promise<BaseAnalyzedSessionApiResponse> {
+  //   try {
+
+  //     const response = await apiClient.post(`/sessions/analyzed/${sessionId}`);
+  //     const session:BaseAnalyzedSessionApiResponse = response.data;
+  //     return session
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
 };
