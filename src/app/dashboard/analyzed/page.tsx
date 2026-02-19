@@ -10,7 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { analyzedService } from "../../../services/client/analyzed.service";
 import { RiskStatus, RiskStatusBadge } from "@/components/ui/RiskStatusBadge";
-import { BooleanStatusBadge, ReviewStatusBadge } from "@/components/ui/StatusBadge";
+import { BooleanStatusBadge, ReviewStatusBadge, ScoreBadge } from "@/components/ui/StatusBadge";
 import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
 
 const initialState: MinimalAnalysis = {
@@ -152,9 +152,9 @@ export default function AnalyzedSessionsPage() {
                   <td style={{ padding: 12 }}>
                     <ReviewStatusBadge value={session.review_status}/>
                   </td>
-                  <td style={{ padding: 12 }}> {session.content_coverage} </td>
-                  <td style={{ padding: 12 }}>{session.facilitation_quality}</td>
-                  <td style={{ padding: 12 }}>{session.protocol_safety}</td>
+                  <td style={{ padding: 12 }}> <ScoreBadge value={session.content_coverage} /> </td>
+                  <td style={{ padding: 12 }}><ScoreBadge value={session.facilitation_quality}/></td>
+                  <td style={{ padding: 12 }}><ScoreBadge value={session.protocol_safety}/></td>
 
                   {/* Actions */}
                   <td style={{ padding: 12 }}>

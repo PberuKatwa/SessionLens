@@ -81,3 +81,40 @@ export function ReviewStatusBadge({
     </span>
   );
 }
+
+type ScoreBadgeProps = {
+  value?: number | null;
+};
+
+export function ScoreBadge({ value }: ScoreBadgeProps) {
+
+  const baseStyles = "text-xs font-medium px-2 py-0.5 rounded";
+
+  const successStyles = "bg-green-100 text-green-700";
+  const warningStyles = "bg-yellow-100 text-yellow-700";
+  const dangerStyles = "bg-red-100 text-red-700";
+
+  let styles = warningStyles;
+  let label = "Unscored";
+
+  if (value === 1) {
+    styles = dangerStyles;
+    label = "1";
+  }
+
+  if (value === 2) {
+    styles = warningStyles;
+    label = "2";
+  }
+
+  if (value === 3) {
+    styles = successStyles;
+    label = "3";
+  }
+
+  return (
+    <span className={`${baseStyles} ${styles}`}>
+      {label}
+    </span>
+  );
+}
