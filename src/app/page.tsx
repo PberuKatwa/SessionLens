@@ -49,17 +49,17 @@ export default function SupervisorLanding() {
         {/* Primary Actions */}
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <Link
-            href="/dashboard"
+            href="https://shamiri.co/science"
             className="px-8 py-3.5 rounded-full bg-gradient-to-r from-[#00c97a] to-[#00a862] text-white font-semibold text-base hover:opacity-90 transition-opacity shadow-lg shadow-[#00c97a]/20 w-full sm:w-auto text-center"
           >
-            Enter Admin Dashboard
+            Our Scientific Method
           </Link>
 
           <Link
-            href="/guidelines"
+            href="https://shamiri.co/model"
             className="px-8 py-3.5 rounded-full border border-white/20 bg-white/5 backdrop-blur text-white font-semibold text-base hover:bg-white/10 transition-colors w-full sm:w-auto text-center"
           >
-            Protocol & Guidelines
+            Learn About Our Model
           </Link>
         </div>
 
