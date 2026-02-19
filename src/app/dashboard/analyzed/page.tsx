@@ -104,7 +104,7 @@ export default function AnalyzedSessionsPage() {
       toast.success(result.message)
     } catch (error:any) {
       console.error(`Error in evaluating session`, error);
-      toast.error(`${error.message}`)
+      toast.error(`Json format is invalid`)
     } finally {
       setAiLoading(false);
     }
@@ -308,12 +308,19 @@ export default function AnalyzedSessionsPage() {
                     <div className="flex items-center gap-2">
 
                       {/* Evaluate button — primary navy */}
-                      <button
-                        onClick={() => evaluateSessionLLM(session.session_id)}
-                        className="px-3 py-1.5 rounded-md bg-[#12245B] text-white text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
-                      >
-                        Evaluate
-                      </button>
+                      {session.is_processed ? (
+                        <span className="px-3 py-1.5 rounded-md bg-green-100 text-green-700 text-xs font-semibold">
+                          Evaluated
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => evaluateSessionLLM(session.session_id)}
+                          className="px-3 py-1.5 rounded-md bg-[#12245B] text-white text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+                        >
+                          Evaluate
+                        </button>
+                      )}
+
 
                       {/* View button — ghost */}
                       <button
