@@ -4,7 +4,7 @@ import { authMiddleware } from "@/lib/auth.middleware";
 import { BaseAuthSession } from "@/types/authSession.types";
 import { ApiResponse } from "@/types/api.types";
 import { GroupSessionAnalysis, GroupSessionAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
-import { getSessionWithAnalysisBySessionId } from "@/models/groupSessionAnalysis.repository";
+import { getSessionWithAnalysisBySessionId } from "@/repositories/groupSessionAnalysis.repository";
 
 async function getCombinedSessionById(
   req: NextRequest,

@@ -125,3 +125,69 @@ export async function getAllSessionsWithAnalysis(pageInput?: number, limitInput?
     throw error;
   }
 }
+
+export async function minimalSessionsWithAnalysis(pageInput?: number, limitInput?: number):
+  Promise<PaginatedGroupSessionAnalysis> {
+  try {
+
+    logger.warn("Fetching sessions with analysis");
+
+    const page = pageInput ?? 1;
+    const limit = limitInput ?? 10;
+    const offset = (page - 1) * limit;
+
+    const dataQuery = `
+      SELECT
+        gs.id AS session_id,
+        gs.group_id,
+        gs.fellow_name,
+        gs.is_processed,
+
+        ans.id AS analyzed_id,
+        ans.is_safe,
+        ans.review_status,
+        ans.content_coverage,
+        ans.facilitation_quality,
+        ans.protocol_safety,
+        ans.created_at AS analysis_created_at
+
+      FROM group_sessions gs
+      LEFT JOIN analyzed_sessions ans
+        ON gs.id = ans.session_id
+
+      WHERE gs.row_status != 'trash'
+        AND (ans.row_status IS NULL OR ans.row_status != 'trash')
+
+      ORDER BY gs.id DESC
+      LIMIT $1 OFFSET $2;
+    `;
+
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM group_sessions gs
+      WHERE gs.row_status != 'trash';
+    `;
+
+    const pgPool = getPgPool();
+
+    const [dataResult, countResult] = await Promise.all([
+      pgPool.query(dataQuery, [limit, offset]),
+      pgPool.query(countQuery),
+    ]);
+
+    const totalCount = parseInt(countResult.rows[0].count);
+
+    return {
+      data: dataResult.rows,
+      pagination: {
+        totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+      },
+    };
+
+  } catch (error) {
+    logger.error("Error fetching paginated sessions with analysis", error);
+    throw error;
+  }
+}

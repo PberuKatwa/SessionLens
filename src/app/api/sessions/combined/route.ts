@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "@/lib/auth.middleware";
 import { BaseAuthSession } from "@/types/authSession.types";
 import {  PaginatedGroupSessionAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
-import { getAllSessionsWithAnalysis } from "@/models/groupSessionAnalysis.repository";
+import { getAllSessionsWithAnalysis } from "@/repositories/groupSessionAnalysis.repository";
 
 
 
