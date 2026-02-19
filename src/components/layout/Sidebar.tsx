@@ -1,4 +1,3 @@
-// ─── Sidebar.tsx ─────────────────────────────────────────────────────────────
 "use client";
 
 import Image from "next/image";
@@ -9,16 +8,8 @@ import { faChartLine, faUsers, faUser, faRightFromBracket } from "@fortawesome/f
 
 const navItems = [
   { path: "/dashboard/analyzed", label: "Analyzed Sessions", icon: faChartLine },
-  { path: "/dashboard/groups", label: "Group Sessions", icon: faUsers },
   { path: "/dashboard/profile", label: "Profile", icon: faUser },
 ];
-
-// Fake user placeholder
-const USER = {
-  name: "John Doe",
-  role: "Admin",
-  avatar: "JD",
-};
 
 export const Sidebar = () => {
   const pathname = usePathname();

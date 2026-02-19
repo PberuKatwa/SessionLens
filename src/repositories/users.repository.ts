@@ -51,7 +51,7 @@ export async function findUserById(id: number):Promise<UserProfile> {
   try {
     const pgPool = getPgPool();
     const result = await pgPool.query(
-      `SELECT id, first_name, last_name FROM users WHERE id = $1`,
+      `SELECT id, first_name, last_name, email, role, created_at FROM users WHERE id = $1`,
       [id]
     );
     const user:UserProfile = result.rows[0];

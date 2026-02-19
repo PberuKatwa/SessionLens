@@ -29,6 +29,9 @@ export interface LoginUser extends AuthUser {
 export interface UserProfile extends BaseUser {
   id: number;
   last_name: string;
+  email: string;
+  role: string;
+  created_at: Date;
 }
 
 export interface UserApiResponse extends ApiResponse<BaseUser> { };

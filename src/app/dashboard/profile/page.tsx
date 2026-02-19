@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 const FAKE_USER = {
   name: "Nomusa Dlamini",
   role: "Senior Supervisor",
@@ -40,35 +38,6 @@ export default function Profile() {
         <p className="text-sm text-gray-400">
           Your account details and supervision overview.
         </p>
-      </div>
-
-      {/* Sign Out */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 m-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold text-[#12245B] mb-0.5">Sign out of your account</p>
-            <p className="text-xs text-gray-400">You will be returned to the login screen.</p>
-          </div>
-          <button
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-red-600 transition-all hover:bg-red-50 hover:border-red-200"
-          >
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            Sign Out
-          </button>
-        </div>
       </div>
 
       {/* Bottom grid: Account details + AI Access */}
