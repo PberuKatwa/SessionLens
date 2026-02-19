@@ -14,17 +14,18 @@ export const analyzedService = {
 
       if (filters) {
         if (filters.is_processed !== null) {
-          params.append("is_processed", String(filters.is_processed));
+          params.append("isProcessed", String(filters.is_processed));
         }
         if (filters.is_safe !== null) {
-          params.append("is_safe", String(filters.is_safe));
+          params.append("isSafe", String(filters.is_safe));
         }
         if (filters.review_status !== null) {
-          params.append("review_status", filters.review_status);
+          params.append("reviewStatus", filters.review_status);
         }
       }
 
-      const response = await apiClient.get(`/sessions/combined/minimal/?${params.toString()}`);
+      const allParams = params.toString()
+      const response = await apiClient.get(`/sessions/combined/minimal/?${allParams}`);
 
       const analyzed: PaginatedMinimalAnalysisApiResponse = response.data;
       return analyzed;

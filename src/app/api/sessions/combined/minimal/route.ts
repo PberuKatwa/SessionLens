@@ -25,6 +25,7 @@ async function getMinimalCombinedSessions(
       review_status: parseReviewStatus(searchParams.get("reviewStatus")),
     };
 
+    console.log("filete", filters)
     const result = await minimalSessionsWithAnalysis(page, limit,filters);
 
     const response: PaginatedMinimalAnalysisApiResponse = {

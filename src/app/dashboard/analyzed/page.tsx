@@ -37,29 +37,36 @@ export default function AnalyzedSessionsPage() {
   const [itemlimit, setItemlimit] = useState<number>(5);
   const [filter, setFilter] = useState<keyof MinimalAnalysisFilters | ReviewStatus | "all" | null>("all");
 
+  const [statusFilter, setStatusFilter] =
+    useState<keyof MinimalAnalysisFilters | "all">("all");
+
+  const [reviewStatusFilter, setReviewStatusFilter] =
+    useState<ReviewStatus | "all">("all");
+
+
   const booleanFilters: (keyof MinimalAnalysisFilters)[] = ["is_processed", "is_safe"];
   const reviewFilters: ReviewStatus[] = ["unreviewed", "accepted", "rejected"];
 
   const tableHeaders = ["Date","GroupId","Fellow","Is Evaluated","Safety Status","Review Status","Content","Facilitaion","Safety","Actions"]
 
   const buildFilters = (): MinimalAnalysisFilters => {
-    if (filter === "all" || !filter) {
-      return {
-        is_processed: null,
-        is_safe: null,
-        review_status: null,
-      };
-    }
-
     return {
-      is_processed: filter === "is_processed" ? true : null,
-      is_safe: filter === "is_safe" ? true : null,
-      review_status: reviewFilters.includes(filter as ReviewStatus)
-        ? (filter as ReviewStatus)
-        : null,
+      is_processed:
+        statusFilter === "is_processed"
+          ? true
+          : null,
+
+      is_safe:
+        statusFilter === "is_safe"
+          ? true
+          : null,
+
+      review_status:
+        reviewStatusFilter !== "all"
+          ? reviewStatusFilter
+          : null,
     };
   };
-
 
   const getAllSessions = async function (page: number, limit: number) {
     try {
@@ -144,7 +151,7 @@ export default function AnalyzedSessionsPage() {
                   name="booleanFilter"
                   value={f}
                   checked={filter === f}
-                  onChange={() => setFilter(f)}
+                  onChange={() => setStatusFilter(f as keyof MinimalAnalysisFilters | "all")}
                   className="accent-[#B4F000] w-3 h-3"
                 />
                 {f === "all" ? "All" : f.replace(/_/g, " ")}
@@ -160,8 +167,8 @@ export default function AnalyzedSessionsPage() {
         <div className="flex flex-col gap-1.5">
           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Review Status</span>
           <select
-            value={reviewFilters.includes(filter) ? filter : "all"}
-            onChange={(e) => setFilter(e.target.value)}
+            value={reviewStatusFilter}
+            onChange={(e) => setReviewStatusFilter(e.target.value as ReviewStatus | "all")}
             className="px-3 py-1.5 rounded-lg text-xs border-[1.5px] border-gray-200 text-gray-500 bg-white cursor-pointer
                        hover:border-[#12245B] focus:border-[#12245B] focus:outline-none transition-colors"
           >
