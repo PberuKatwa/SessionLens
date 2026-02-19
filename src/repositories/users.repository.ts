@@ -71,9 +71,8 @@ export async function validatePassword(email: string, password: string):Promise<
       [email]
     )
 
+    if(result.rowCount === 0) throw new Error(`Invalid email or password`)
     const user: LoginUser = result.rows[0];
-    if (!user.password || !password) throw new Error(`The user didnt provide a password`);
-
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) throw new Error(`Email or password provided is invalid`);
 
