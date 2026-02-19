@@ -10,6 +10,7 @@ These colors are the foundation of the Shamiri identity. The palette balances pr
 | Accent Lime | `#B4F000` | `bg-shamiri-lime` | Call-to-actions, highlights, icons. |
 | Neutral White | `#FFFFFF` | `bg-white` | Body text on dark backgrounds, card surfaces. |
 | Soft Gray | `#F3F4F6` | `bg-gray-100` | Secondary backgrounds and borders. |
+|Global Background|	`#FFFFFF`	|`bg-white`|Mandatory for all page body and main containers. |
 
 ---
 
