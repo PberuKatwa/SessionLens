@@ -1,0 +1,194 @@
+# Shamiri — Application Context & Objectives
+
+## Purpose of This Platform
+
+Shamiri is building one of the world’s most cost‑effective and scalable youth mental health care models through a **for‑youth‑by‑youth** delivery approach.
+
+To make this model work at scale, quality assurance and supervision are essential.
+
+This application exists to support that layer.
+
+It is a **Supervisor Intelligence Dashboard** designed to ensure that the care delivered by Shamiri Fellows remains:
+
+* Safe
+* Effective
+* Curriculum-aligned
+* Consistently delivered at scale
+
+In a system where young lay-providers deliver mental health interventions in communities, technology must act as a force multiplier — not replacing human judgment, but strengthening it.
+
+This platform operationalizes that philosophy.
+
+---
+
+## What This Application Is
+
+This is a web-based dashboard that enables Shamiri Supervisors to:
+
+* Log in securely
+* View therapy sessions conducted by Fellows under their supervision
+* Access AI-generated insights from those sessions
+* Monitor quality and safety
+* Participate in final human validation
+
+Each session represents a **1-hour group intervention** grounded in Shamiri’s strengths-based curriculum (e.g., Growth Mindset).
+
+The platform transforms raw session transcripts into structured insights that support supervision, fidelity monitoring, and risk detection.
+
+---
+
+## Core Functional Objectives
+
+### 1. Session Visibility
+
+Supervisors must be able to view a structured list of completed sessions.
+
+Each session includes:
+
+* Fellow Name
+* Session Date
+* Group ID
+* Session Status
+
+  * Processed
+  * Flagged for Review
+  * Safe
+
+The system operates on session transcripts representing real-world delivery of Shamiri interventions.
+
+---
+
+### 2. AI-Powered Session Insight
+
+When a Supervisor selects a session, the system generates a **Session Insight Card** powered by an LLM.
+
+This analysis transforms long-form session transcripts into structured supervisory intelligence.
+
+The AI must produce:
+
+#### a) Session Summary
+
+A concise 3-sentence synthesis of the session.
+
+#### b) Quality Evaluation
+
+The session is evaluated using a simplified 3‑Point Quality Index based on Shamiri’s delivery standards.
+
+##### Metric 1: Content Coverage (Teaching Fidelity)
+
+Did the Fellow effectively teach the assigned concept (e.g., Growth Mindset)?
+
+Score:
+
+* 1 — Missed
+* 2 — Partial
+* 3 — Complete
+
+AI looks for:
+
+* Accurate explanation of core ideas
+* Practical examples
+* Engagement with participants
+
+---
+
+##### Metric 2: Facilitation Quality (Delivery Style)
+
+How well did the Fellow engage the group?
+
+Score:
+
+* 1 — Poor
+* 2 — Adequate
+* 3 — Excellent
+
+AI evaluates:
+
+* Empathy
+* Open-ended engagement
+* Validation of participant voices
+* Warmth and clarity
+
+---
+
+##### Metric 3: Protocol Safety (Scope Adherence)
+
+Did the Fellow stay within the Shamiri curriculum and boundaries?
+
+Score:
+
+* 1 — Violation
+* 2 — Minor Drift
+* 3 — Adherent
+
+AI checks for:
+
+* Unauthorized advice
+* Diagnosing behavior
+* Medical or relationship guidance
+* Curriculum deviation
+
+---
+
+#### c) Risk Detection (Critical Safeguard)
+
+The system must identify whether the transcript contains indicators of:
+
+* Self-harm
+* Severe emotional crisis
+
+Output:
+
+* SAFE
+* RISK
+
+If flagged, the AI extracts the exact quote for review.
+
+---
+
+### 3. Human-in-the-Loop Supervision
+
+AI supports — but does not replace — human judgment.
+
+Supervisors must be able to:
+
+* Validate AI findings
+* Reject AI findings
+* Update session status
+* Add contextual notes
+
+Example:
+AI flags a session as "Risk," but the Supervisor determines it was a misunderstanding and reclassifies it as "Safe."
+
+This preserves:
+
+* Accountability
+* Contextual judgment
+* Clinical responsibility
+
+---
+
+## Strategic Role of This Platform
+
+Within the Shamiri ecosystem, this platform enables:
+
+* Scalable supervision
+* Quality assurance across large provider networks
+* Early detection of safety risks
+* Continuous improvement of Fellow delivery
+* Data-informed program strengthening
+
+It ensures that as Shamiri expands access to youth mental health care, it does so without compromising safety or effectiveness.
+
+---
+
+## Desired Outcome
+
+This application strengthens Shamiri’s ability to deliver:
+
+* Clinically grounded care
+* At population scale
+* With consistent quality
+* Supported by both AI insight and human oversight
+
+Ultimately, it helps ensure that every young person reached through Shamiri receives support that is not only accessible — but effective and safe.
