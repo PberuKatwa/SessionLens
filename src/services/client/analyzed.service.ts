@@ -3,11 +3,9 @@ import { PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysi
 import { MinimalAnalysisFilters } from "../../types/analysisFilters.types";
 
 export const analyzedService = {
-  async fetchMinimalAnalysis(
-    page: number,
-    limit: number,
-    filters?: MinimalAnalysisFilters
-  ): Promise<PaginatedMinimalAnalysisApiResponse> {
+
+  async fetchMinimalAnalysis(page: number, limit: number, filters?: MinimalAnalysisFilters):
+    Promise<PaginatedMinimalAnalysisApiResponse> {
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -34,4 +32,5 @@ export const analyzedService = {
       throw error;
     }
   },
+
 };

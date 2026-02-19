@@ -12,6 +12,8 @@ import { analyzedService } from "../../../services/client/analyzed.service";
 import { RiskStatus, RiskStatusBadge } from "@/components/ui/RiskStatusBadge";
 import { BooleanStatusBadge, ReviewStatusBadge, ScoreBadge } from "@/components/ui/StatusBadge";
 import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
+import { MinimalAnalysisFilters } from "@/types/analysisFilters.types";
+import { ReviewStatus } from "@/types/globalTypes.types";
 
 const initialState: MinimalAnalysis = {
   session_id: 0,
@@ -30,17 +32,44 @@ const initialState: MinimalAnalysis = {
 export default function AnalyzedSessionsPage() {
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<MinimalAnalysis[]>([initialState]);
-  const [filter, setFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [itemlimit, setItemlimit] = useState<number>(5);
+  const [filter, setFilter] = useState<keyof MinimalAnalysisFilters | ReviewStatus | "all" | null>("all");
 
-  const filters = ["All", "Safe", "Flagged", "Processed"];
+  const booleanFilters: (keyof MinimalAnalysisFilters)[] = ["is_processed", "is_safe"];
+  const reviewFilters: ReviewStatus[] = ["unreviewed", "accepted", "rejected"];
+
   const tableHeaders = ["Date","GroupId","Fellow","Is Evaluated","Safety Status","Review Status","Content","Facilitaion","Safety","Actions"]
+
+  const buildFilters = (): MinimalAnalysisFilters => {
+    if (filter === "all" || !filter) {
+      return {
+        is_processed: null,
+        is_safe: null,
+        review_status: null,
+      };
+    }
+
+    return {
+      is_processed: filter === "is_processed" ? true : null,
+      is_safe: filter === "is_safe" ? true : null,
+      review_status: reviewFilters.includes(filter as ReviewStatus)
+        ? (filter as ReviewStatus)
+        : null,
+    };
+  };
+
 
   const getAllSessions = async function (page: number, limit: number) {
     try {
-      const response = await analyzedService.fetchMinimalAnalysis(page,limit);
+      const filters = buildFilters();
+
+      const response = await analyzedService.fetchMinimalAnalysis(
+        page,
+        limit,
+        filters
+      );
 
       if (!response.data) throw new Error(`No sessions were found`);
 
@@ -58,8 +87,8 @@ export default function AnalyzedSessionsPage() {
   }
 
   useEffect(() => {
-    getAllSessions(currentPage,itemlimit);
-  }, [currentPage, itemlimit]);
+    getAllSessions(currentPage, itemlimit);
+  }, [currentPage, itemlimit, filter]);
 
   if (loading) {
     return (
@@ -95,25 +124,56 @@ export default function AnalyzedSessionsPage() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
-        {filters.map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            style={{
-              padding: "6px 14px",
-              borderRadius: 8,
-              fontSize: 12,
-              border: "1.5px solid",
-              borderColor: filter === f ? "#12245B" : "#E5E7EB",
-              background: filter === f ? "#12245B" : "#fff",
-              color: filter === f ? "#fff" : "#6B7280",
-              cursor: "pointer",
-            }}
+      <div className="flex flex-row flex-wrap items-end gap-6 mb-4">
+
+        {/* Boolean filters — Radio group */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</span>
+          <div className="flex flex-row gap-2">
+            {["all", ...booleanFilters].map((f) => (
+              <label
+                key={f}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs border-[1.5px] cursor-pointer transition-colors
+                  ${filter === f
+                    ? "bg-[#12245B] border-[#12245B] text-white"
+                    : "bg-white border-gray-200 text-gray-500 hover:border-[#12245B]"
+                  }`}
+              >
+                <input
+                  type="radio"
+                  name="booleanFilter"
+                  value={f}
+                  checked={filter === f}
+                  onChange={() => setFilter(f)}
+                  className="accent-[#B4F000] w-3 h-3"
+                />
+                {f === "all" ? "All" : f.replace(/_/g, " ")}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="w-px self-stretch bg-gray-200" />
+
+        {/* Review status — Dropdown */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Review Status</span>
+          <select
+            value={reviewFilters.includes(filter) ? filter : "all"}
+            onChange={(e) => setFilter(e.target.value)}
+            className="px-3 py-1.5 rounded-lg text-xs border-[1.5px] border-gray-200 text-gray-500 bg-white cursor-pointer
+                       hover:border-[#12245B] focus:border-[#12245B] focus:outline-none transition-colors"
           >
-            {f}
-          </button>
-        ))}
+            <option value="all">All</option>
+            {reviewFilters.map((f) => (
+              <option key={f} value={f}>
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+
       </div>
 
       {/* Table */}
