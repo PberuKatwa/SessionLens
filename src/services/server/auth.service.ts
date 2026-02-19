@@ -1,4 +1,4 @@
-import { createUser } from "../repositories/users.repository"
+import { createUser } from "../../repositories/users.repository"
 import { CreateUserPayload } from "@/types/user.types";
 
 export async function registerUser(payload: CreateUserPayload) {

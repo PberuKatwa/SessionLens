@@ -1,11 +1,9 @@
 import { logger } from "@/lib/logger";
-import { getGroupSessionById } from "@/repositories/groupSessions.repository";
 import { ApiResponse } from "@/types/api.types";
 import { BaseAuthSession } from "@/types/authSession.types";
-import { CompleteGroupSessionApiResponse, SingleGroupSessionApiResponse } from "@/types/groupSession.types";
 import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "@/lib/auth.middleware";
-import { evaluateSession } from "@/services/evaluation.service";
+import { evaluateSession } from "@/services/server/evaluation.service";
 import { getAnalyzedSessionById } from "@/repositories/analyzedSessions.repository";
 import { CompleteAnalyzedSessionApiResponse } from "@/types/analyzedSession.types";
 
