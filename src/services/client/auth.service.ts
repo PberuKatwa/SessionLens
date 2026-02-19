@@ -33,7 +33,6 @@ export const authService = {
   async logout(): Promise<void>{
     try {
       await apiClient.post("/auth/logout");
-      redirect("/")
     } catch (error) {
       throw error;
     }

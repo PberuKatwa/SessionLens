@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import toast from "react-hot-toast";
+import { redirect, usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine, faUsers, faUser, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { authService } from "@/services/client/auth.service";
@@ -61,37 +62,25 @@ export const Sidebar = () => {
       </nav>
 
       {/* Divider */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", margin: "12px 0" }} />
+      <div className="border-t border-white/20 my-2 mx-3" />
 
       {/* Logout Button */}
       <button
         onClick={async () => {
           try {
             await authService.logout();
+            redirect("/")
           } catch (error) {
             console.error("Logout failed", error);
-            alert("Failed to logout. Please try again.");
+            toast.error("Failed to logout. Please try again.");
           }
         }}
-        style={{
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "10px 10px",
-          borderRadius: 9,
-          background: "transparent",
-          color: "rgba(255,255,255,0.7)",
-          fontSize: 13,
-          fontWeight: 500,
-          cursor: "pointer",
-          transition: "all 0.15s",
-          fontFamily: "'DM Sans', sans-serif",
-        }}
+        className="flex items-center gap-3 px-4 py-2 mx-3 rounded-lg text-white text-sm font-medium hover:bg-white/10 transition-colors"
       >
         <FontAwesomeIcon icon={faRightFromBracket} />
         Logout
       </button>
+
 
     </aside>
   );
