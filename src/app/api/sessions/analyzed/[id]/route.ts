@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "@/lib/auth.middleware";
 import { evaluateSession } from "@/services/server/evaluation.service";
 import { getAnalyzedSessionById } from "@/repositories/analyzedSessions.repository";
-import { CompleteAnalyzedSessionApiResponse } from "@/types/analyzedSession.types";
+import { BaseAnalyzedSessionApiResponse, CompleteAnalyzedSessionApiResponse } from "@/types/analyzedSession.types";
 
 async function createAnalyzedSession(
   req: NextRequest,
@@ -18,7 +18,7 @@ async function createAnalyzedSession(
     if (isNaN(id)) return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     const analyzedSession = await evaluateSession(id);
 
-    const response: ApiResponse = {
+    const response: BaseAnalyzedSessionApiResponse = {
       success: true,
       message: "Successfully anlayzed session",
       data:analyzedSession
