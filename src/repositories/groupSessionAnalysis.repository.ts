@@ -2,7 +2,8 @@ import { getPgPool } from "@/lib/database";
 import { logger } from "@/lib/logger";
 import {
   GroupSessionAnalysis,
-  PaginatedGroupSessionAnalysis
+  PaginatedGroupSessionAnalysis,
+  PaginatedMinimalAnalysis
 } from "@/types/groupSessionAnalysis.types";
 
 export async function getSessionWithAnalysisBySessionId(sessionId: number): Promise<GroupSessionAnalysis> {
@@ -127,7 +128,7 @@ export async function getAllSessionsWithAnalysis(pageInput?: number, limitInput?
 }
 
 export async function minimalSessionsWithAnalysis(pageInput?: number, limitInput?: number):
-  Promise<PaginatedGroupSessionAnalysis> {
+  Promise<PaginatedMinimalAnalysis> {
   try {
 
     logger.warn("Fetching sessions with analysis");
