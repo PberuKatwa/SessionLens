@@ -18,18 +18,12 @@ export default function LoginPage() {
     try {
 
       setLoading(true);
-      console.log("passworrdddd", password)
       await authService.login(email, password);
       toast.success("Successfully logged in");
 
       router.push("/dashboard");
     } catch (error: any) {
-
-      toast.error(
-        error?.response?.data?.message ||
-        "Invalid email or password"
-      );
-
+      toast.error("Invalid email or password");
     } finally {
       setLoading(false);
     }
