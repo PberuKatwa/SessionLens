@@ -1,6 +1,14 @@
 import { apiClient } from "@/lib/apiClient";
 import { PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "../../types/analysisFilters.types";
+import { SingleGroupSessionApiResponse } from "@/types/groupSession.types";
+
+export type CreateGroupSessionPayload = {
+  fellowName: string;
+  groupId: number;
+  transcriptFile: File | null;
+};
+
 
 export const analyzedService = {
 
@@ -33,5 +41,31 @@ export const analyzedService = {
       throw error;
     }
   },
+
+  async createSession(payload: CreateGroupSessionPayload):Promise<SingleGroupSessionApiResponse> {
+    try {
+      const form = new FormData();
+
+      form.append("fellowName", payload.fellowName);
+      form.append("groupId", String(payload.groupId));
+
+      if (!payload.transcriptFile) throw new Error("Transcript JSON file is required");
+      form.append("transcriptFile", payload.transcriptFile);
+
+      const response = await apiClient.post(
+        "/sessions",
+        form,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 
 };
