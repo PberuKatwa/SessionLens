@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { registerUser } from "@/services/auth.service";
+import { registerUser } from "../../../../services/server/auth.service";
 import { logger } from "@/lib/logger";
 import { ProfileApiResponse, UserApiResponse } from "@/types/user.types";
 import { findUserById } from "../../../../repositories/users.repository";

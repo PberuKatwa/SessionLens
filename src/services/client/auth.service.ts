@@ -1,21 +1,33 @@
-import type { AuthUserApiResponse, ProfileApiResponse } from "@/types/user.types";
+import type { AuthUser, AuthUserApiResponse, ProfileApiResponse } from "@/types/user.types";
 import { apiClient } from "@/lib/apiClient";
 
 export const authService = {
 
   async login(email: string, password: string): Promise<AuthUserApiResponse> {
-    const response = await apiClient.post("/auth/login", {
-      email,
-      password
-    });
 
-    return response.data;
+    try {
+      const response = await apiClient.post("/auth/login", {
+        email,
+        password
+      });
+
+      const user: AuthUserApiResponse = response.data;
+      return user
+    } catch (error) {
+      throw error
+    }
+
   },
 
   async profile(): Promise<ProfileApiResponse> {
-    const response = await apiClient.get("/auth/profile");
+    try {
+      const response = await apiClient.get("/auth/profile");
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+
   }
 
 };
