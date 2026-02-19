@@ -9,7 +9,6 @@ import {
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { analyzedService } from "../../../services/client/analyzed.service";
-import { RiskStatus, RiskStatusBadge } from "@/components/ui/RiskStatusBadge";
 import { BooleanStatusBadge, ReviewStatusBadge, ScoreBadge } from "@/components/ui/StatusBadge";
 import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "@/types/analysisFilters.types";
