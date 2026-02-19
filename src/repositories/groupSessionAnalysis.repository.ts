@@ -145,21 +145,18 @@ export async function minimalSessionsWithAnalysis(
     const values: any[] = [];
     let paramIndex = 1;
 
-    // Processed
     if (filters?.is_processed !== null && filters?.is_processed !== undefined) {
       conditions.push(`gs.is_processed = $${paramIndex}`);
       values.push(filters.is_processed);
       paramIndex++;
     }
 
-    // Safe
     if (filters?.is_safe !== null && filters?.is_safe !== undefined) {
       conditions.push(`ans.is_safe = $${paramIndex}`);
       values.push(filters.is_safe);
       paramIndex++;
     }
 
-    // Review status
     if (filters?.review_status) {
       conditions.push(`ans.review_status = $${paramIndex}`);
       values.push(filters.review_status);
@@ -168,8 +165,8 @@ export async function minimalSessionsWithAnalysis(
 
     const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    values.push(limit);   // paramIndex
-    values.push(offset);  // paramIndex + 1
+    values.push(limit);
+    values.push(offset);
 
     const dataQuery = `
       SELECT
@@ -208,7 +205,7 @@ export async function minimalSessionsWithAnalysis(
 
     const [dataResult, countResult] = await Promise.all([
       pgPool.query(dataQuery, values),
-      pgPool.query(countQuery, values.slice(0, paramIndex - 1)), // only filter values
+      pgPool.query(countQuery, values.slice(0, paramIndex - 1)),
     ]);
 
     const totalCount = parseInt(countResult.rows[0].count);
