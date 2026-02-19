@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { analyzedService, CreateGroupSessionPayload } from "../services/client/analyzed.service";
+import { analyzedService, CreateGroupSessionPayload } from "../../../services/client/analyzed.service";
 import toast from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faUpload, faCircleNotch } from "@fortawesome/free-solid-svg-icons";

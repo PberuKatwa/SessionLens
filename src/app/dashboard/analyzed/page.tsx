@@ -9,7 +9,7 @@ import { BooleanStatusBadge, ReviewStatusBadge, ScoreBadge } from "@/components/
 import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "@/types/analysisFilters.types";
 import { ReviewStatus } from "@/types/globalTypes.types";
-import CreateGroupSessionButton from "@/components/CreateGroupSessionButton";
+import CreateGroupSessionButton from "@/components/ui/groupSessions/CreateGroupSessionButton";
 
 const initialState: MinimalAnalysis = {
   session_id: 0,
@@ -122,6 +122,10 @@ export default function AnalyzedSessionsPage() {
 
       {/* Filters */}
       <div className="flex flex-row flex-wrap items-end gap-6 mb-4">
+        <CreateGroupSessionButton onCreated={() => getAllSessions(1, itemlimit)} />
+
+        {/* Divider */}
+        <div className="w-px self-stretch bg-gray-200" />
 
         {/* Boolean filters — Radio group */}
         <div className="flex flex-col gap-1.5">
@@ -152,8 +156,6 @@ export default function AnalyzedSessionsPage() {
 
           </div>
         </div>
-
-        <CreateGroupSessionButton onCreated={() => getAllSessions(1, itemlimit)} />
 
         {/* Divider */}
         <div className="w-px self-stretch bg-gray-200" />
