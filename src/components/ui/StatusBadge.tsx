@@ -2,26 +2,36 @@ type StatusBadgeProps = {
   value?: boolean | null;
   trueLabel?: string;
   falseLabel?: string;
+  nullLabel?: string;
 };
 
-export function StatusBadge({
+export function BooleanStatusBadge({
   value,
   trueLabel = "Active",
   falseLabel = "Inactive",
+  nullLabel = "Unknown",
 }: StatusBadgeProps) {
 
-  const isSuccess = value === true;
-  const baseStyles = "text-xs font-medium px-1.5 py-0.5 rounded";
-  const successStyles = "bg-success-soft text-fg-success-strong";
-  const dangerStyles = "bg-danger-soft text-fg-danger-strong";
+  const baseStyles = "text-xs font-medium px-2 py-0.5 rounded";
+
+  const successStyles = "bg-green-100 text-green-700";
+  const dangerStyles = "bg-red-100 text-red-700";
+  const warningStyles = "bg-yellow-100 text-yellow-700";
+
+  let styles = warningStyles;
+  let label = nullLabel;
+
+  if (value === true) {
+    styles = successStyles;
+    label = trueLabel;
+  } else if (value === false) {
+    styles = dangerStyles;
+    label = falseLabel;
+  }
 
   return (
-    <span
-      className={`${baseStyles} ${
-        isSuccess ? successStyles : dangerStyles
-      }`}
-    >
-      {isSuccess ? trueLabel : falseLabel}
+    <span className={`${baseStyles} ${styles}`}>
+      {label}
     </span>
   );
 }
