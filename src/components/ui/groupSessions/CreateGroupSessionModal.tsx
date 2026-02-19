@@ -63,13 +63,13 @@ export default function CreateGroupSessionModal({
     try {
       setLoading(true);
 
-      await analyzedService.createGroupSession({
+     const groupSession = await analyzedService.createGroupSession({
         fellowName: data.fellowName,
         groupId: Number(data.groupId),
         transcriptFile: data.transcriptFile
       });
 
-      toast.success("Session created");
+      toast.success(groupSession.message);
       onCreated?.();
       onClose();
       setData(initialState);
