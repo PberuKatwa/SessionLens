@@ -9,7 +9,6 @@ export type CreateGroupSessionPayload = {
   transcriptFile: File | null;
 };
 
-
 export const analyzedService = {
 
   async fetchMinimalAnalysis(page: number, limit: number, filters?: MinimalAnalysisFilters):
@@ -42,7 +41,7 @@ export const analyzedService = {
     }
   },
 
-  async createSession(payload: CreateGroupSessionPayload):Promise<SingleGroupSessionApiResponse> {
+  async createGroupSession(payload: CreateGroupSessionPayload):Promise<SingleGroupSessionApiResponse> {
     try {
       const form = new FormData();
 
@@ -53,7 +52,7 @@ export const analyzedService = {
       form.append("transcriptFile", payload.transcriptFile);
 
       const response = await apiClient.post(
-        "/sessions",
+        "/sessions/group",
         form,
         {
           headers: {

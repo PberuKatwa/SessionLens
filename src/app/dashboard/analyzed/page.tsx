@@ -9,6 +9,7 @@ import { BooleanStatusBadge, ReviewStatusBadge, ScoreBadge } from "@/components/
 import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "@/types/analysisFilters.types";
 import { ReviewStatus } from "@/types/globalTypes.types";
+import CreateGroupSessionButton from "@/components/CreateGroupSessionButton";
 
 const initialState: MinimalAnalysis = {
   session_id: 0,
@@ -151,6 +152,8 @@ export default function AnalyzedSessionsPage() {
 
           </div>
         </div>
+
+        <CreateGroupSessionButton onCreated={() => getAllSessions(1, itemlimit)} />
 
         {/* Divider */}
         <div className="w-px self-stretch bg-gray-200" />
