@@ -2,8 +2,8 @@ import { logger } from "@/lib/logger";
 import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "@/lib/auth.middleware";
 import { BaseAuthSession } from "@/types/authSession.types";
-import {  PaginatedGroupSessionAnalysisApiResponse, PaginatedMinimalAnalysis, PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
-import { getAllSessionsWithAnalysis, minimalSessionsWithAnalysis } from "@/repositories/groupSessionAnalysis.repository";
+import { PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
+import { minimalSessionsWithAnalysis } from "@/repositories/groupSessionAnalysis.repository";
 
 
 
