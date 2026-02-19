@@ -110,6 +110,21 @@ export default function AnalyzedSessionsPage() {
     }
   }
 
+  const trashSession = async function (id: number) {
+    try {
+      setLoading(true);
+      const result = await analyzedService.trashSessionClient(id);
+      if (!result.message) throw new Error(`Session anlaysis failed`)
+      getAllSessions(currentPage, itemlimit);
+      toast.success(result.message)
+
+    } catch (error) {
+      toast.error(`Error in trashing session`)
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     getAllSessions(currentPage, itemlimit);
   }, [currentPage, itemlimit, statusFilter, reviewStatusFilter]);
@@ -331,12 +346,12 @@ export default function AnalyzedSessionsPage() {
                       </button>
 
                       {/* Delete button — danger red */}
-                      {/*<button
-                        onClick={() => toast("Delete coming soon")}
+                      <button
+                        onClick={() => trashSession(session.session_id)}
                         className="px-2.5 py-1.5 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors cursor-pointer"
                       >
                         <FontAwesomeIcon icon={faTrash} />
-                      </button>*/}
+                      </button>
 
                     </div>
                   </td>
