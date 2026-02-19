@@ -1,17 +1,40 @@
 "use client";
+
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { useState } from "react";
+import { authService } from "@/services/client/auth.service";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
+    if (loading) return;
+    try {
+
+      setLoading(true);
+      await authService.login(email, password);
+      toast.success("Successfully logged in");
+
+      router.push("/dashboard");
+
+    } catch (error: any) {
+
+      toast.error(
+        error?.response?.data?.message ||
+        "Invalid email or password"
+      );
+
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div
