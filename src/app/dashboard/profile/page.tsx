@@ -1,32 +1,57 @@
 "use client";
 
-const FAKE_USER = {
-  name: "Nomusa Dlamini",
-  role: "Senior Supervisor",
-  avatar: "ND",
-  email: "n.dlamini@shamiri.institute",
-  organisation: "Shamiri Institute",
-  region: "Nairobi, Kenya",
-  fellowsSupervised: "4 active fellows",
-  joined: "March 2023",
-};
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { authService } from "@/services/client/auth.service";
+import { UserProfile } from "../../../types/user.types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
-const ACCOUNT_ROWS = [
-  { label: "Email", value: FAKE_USER.email },
-  { label: "Role", value: FAKE_USER.role },
-  { label: "Organisation", value: FAKE_USER.organisation },
-  { label: "Region", value: FAKE_USER.region },
-  { label: "Fellows Supervised", value: FAKE_USER.fellowsSupervised },
-  { label: "Member Since", value: FAKE_USER.joined },
-];
-
-const STATS = [
-  { value: "4", label: "Fellows" },
-  { value: "6", label: "Sessions" },
-  { value: "80%", label: "Avg Safety" },
+const ACCOUNT_FIELDS = [
+  { label: "First Name", key: "first_name" },
+  { label: "Last Name", key: "last_name" },
+  { label: "Email", key: "email" },
+  { label: "Role", key: "role" },
+  { label: "Member Since", key: "created_at" },
 ];
 
 export default function Profile() {
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
+  const getProfile = async () => {
+    try {
+      const response = await authService.profile();
+      if (!response.data) throw new Error("Failed to load profile");
+
+      setProfile(response.data);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to fetch profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getProfile();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-16">
+        <FontAwesomeIcon icon={faSpinner} spin size="2x" />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="text-center py-16 text-gray-500">
+        No profile data available.
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-[85%] mx-auto py-8 px-2">
 
@@ -49,21 +74,25 @@ export default function Profile() {
             Account Details
           </div>
           <div className="divide-y divide-gray-50">
-            {ACCOUNT_ROWS.map((row) => (
-              <div
-                key={row.label}
-                className="flex justify-between items-center py-3"
-              >
-                <span className="text-xs text-gray-400 font-mono">{row.label}</span>
-                <span className="text-sm font-medium text-[#12245B]">{row.value}</span>
-              </div>
-            ))}
+            {ACCOUNT_FIELDS.map((field) => {
+              let value: any = (profile as any)[field.key];
+              if (field.key === "created_at") value = new Date(profile.created_at).toLocaleDateString();
+
+              return (
+                <div
+                  key={field.label}
+                  className="flex justify-between items-center py-3"
+                >
+                  <span className="text-xs text-gray-400 font-mono">{field.label}</span>
+                  <span className="text-sm font-medium text-[#12245B]">{value ?? "—"}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* Platform access card */}
         <div className="flex flex-col gap-4">
-          {/* shamiriAI card */}
           <div className="bg-[#12245B] rounded-2xl p-6 flex-1">
             <div className="flex items-center gap-2 mb-4">
               <span
@@ -91,7 +120,6 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Security note */}
           <div className="bg-white border border-gray-200 rounded-2xl p-5">
             <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest font-mono mb-3">
               Access
@@ -102,9 +130,6 @@ export default function Profile() {
           </div>
         </div>
       </div>
-
-
-
     </div>
   );
 }
