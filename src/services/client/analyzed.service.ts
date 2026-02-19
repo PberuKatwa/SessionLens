@@ -4,9 +4,10 @@ import { PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysi
 
 export const analyzedService = {
 
-  async fetchMinimalAnalysis():Promise<PaginatedMinimalAnalysisApiResponse> {
+  async fetchMinimalAnalysis(page: number, limit: number): Promise<PaginatedMinimalAnalysisApiResponse> {
     try {
-      const response = await apiClient.get("/sessions/combined/minimal")
+      // ?page=1&limit=1
+      const response = await apiClient.get(`/sessions/combined/minimal/?page=${page}&limit=${limit}`)
 
       const analyzed:PaginatedMinimalAnalysisApiResponse = response.data;
       return analyzed;

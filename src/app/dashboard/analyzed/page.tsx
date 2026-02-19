@@ -1,92 +1,66 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { analyzedService } from "../../../services/client/analyzed.service";
+
 import toast from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
   faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
+import { analyzedService } from "../../../services/client/analyzed.service";
+import { RiskStatus, RiskStatusBadge } from "@/components/ui/RiskStatusBadge";
+import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
 
-type Status = "Safe" | "Flagged" | "Processed";
-
-function StatusBadge({ status }: { status: Status }) {
-  const map: Record<Status, { bg: string; color: string }> = {
-    Safe: { bg: "rgba(180,240,0,0.12)", color: "#5a7a00" },
-    Flagged: { bg: "rgba(239,68,68,0.1)", color: "#DC2626" },
-    Processed: { bg: "rgba(18,36,91,0.07)", color: "#12245B" },
-  };
-
-  const s = map[status];
-
-  return (
-    <span
-      style={{
-        padding: "3px 10px",
-        borderRadius: 100,
-        fontSize: 11,
-        fontWeight: 600,
-        background: s.bg,
-        color: s.color,
-        fontFamily: "'DM Mono', monospace",
-      }}
-    >
-      {status}
-    </span>
-  );
-}
-
-function ScoreDot({ score }: { score?: number }) {
-  if (!score) return <span style={{ color: "#9CA3AF" }}>—</span>;
-
-  const color =
-    score > 80 ? "#B4F000" :
-    score > 50 ? "#FACC15" :
-    "#DC2626";
-
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-      <div
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: "50%",
-          background: color,
-        }}
-      />
-      <span style={{ fontSize: 12 }}>{score}</span>
-    </div>
-  );
+const initialAnalysis: MinimalAnalysis = {
+  session_id: 0,
+  group_id:0,
+  fellow_name: "null",
+  is_processed: false,
+  analyzed_id: 0,
+  is_safe: false,
+  review_status: "unreviewed",
+  content_coverage: 0,
+  facilitation_quality: 0,
+  protocol_safety: 0,
+  analysis_created_at: new Date()
 }
 
 export default function AnalyzedSessionsPage() {
   const [loading, setLoading] = useState(true);
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<any[] | MinimalAnalysis[]>([]);
   const [filter, setFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [itemlimit, setItemlimit] = useState<number>(5);
 
   const filters = ["All", "Safe", "Flagged", "Processed"];
 
+  const getAllSessions = async function (page: number, limit: number) {
+    try {
+      const response = await analyzedService.fetchMinimalAnalysis(page,limit);
+
+      if (!response.data) throw new Error(`No sessions were found`);
+
+      setSessions(response.data.data);
+      setCurrentPage(response.data.pagination.currentPage);
+      setTotalPages(response.data.pagination.totalPages);
+
+      toast.success(response.message);
+
+    } catch (err: any) {
+      toast.error(err.message || "Failed to fetch analyzed sessions");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    const fetch = async () => {
-      try {
-        const res = await analyzedService.fetchMinimalAnalysis();
-
-        if (!res.success) throw new Error(res.message);
-
-        setSessions(res.data?.data ?? []);
-      } catch (err: any) {
-        toast.error(err.message || "Failed to fetch analyzed sessions");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetch();
-  }, []);
+    getAllSessions(currentPage,itemlimit);
+  }, [currentPage, itemlimit]);
 
   const mappedSessions = sessions.map((s) => {
-    let status: Status = "Processed";
+    let status: RiskStatus = "Processed";
     if (s.is_safe === false) status = "Flagged";
     else if (s.is_safe === true) status = "Safe";
 
@@ -181,17 +155,52 @@ export default function AnalyzedSessionsPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((s, i) => (
+            {
+              sessions.map((session, index) => (
+                <tr key={session.id}>
+                  <td style={{ padding: 12 }}>{session.id}</td>
+                  <td style={{ padding: 12 }}>{session.fellow}</td>
+                  <td style={{ padding: 12 }}>{session.date}</td>
+                  <td style={{ padding: 12 }}>{session.topic}</td>
+                  <td style={{ padding: 12 }}>{session.scores.content}</td>
+                  <td style={{ padding: 12 }}> {session.scores.facilitation} </td>
+                  <td style={{ padding: 12 }}>{session.scores.safety}</td>
+                  <td style={{ padding: 12 }}>{session.risk}</td>
+                  <td style={{ padding: 12 }}><RiskStatusBadge status={s.status} /></td>
+
+                  {/* Actions */}
+                  <td style={{ padding: 12 }}>
+                    <button
+                      onClick={() => toast("View session coming soon")}
+                      style={{
+                        padding: "6px 10px",
+                        borderRadius: 6,
+                        border: "1px solid #E5E7EB",
+                        background: "#fff",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faEye} />
+                    </button>
+                  </td>
+
+                </tr>
+
+              ))
+            }
+
+            {filtered.map(
+              (s, i) => (
               <tr key={s.id}>
                 <td style={{ padding: 12 }}>{s.id}</td>
                 <td style={{ padding: 12 }}>{s.fellow}</td>
                 <td style={{ padding: 12 }}>{s.date}</td>
                 <td style={{ padding: 12 }}>{s.topic}</td>
-                <td style={{ padding: 12 }}><ScoreDot score={s.scores.content} /></td>
-                <td style={{ padding: 12 }}><ScoreDot score={s.scores.facilitation} /></td>
-                <td style={{ padding: 12 }}><ScoreDot score={s.scores.safety} /></td>
+                <td style={{ padding: 12 }}>{s.scores.content}</td>
+                <td style={{ padding: 12 }}> {s.scores.facilitation} </td>
+                <td style={{ padding: 12 }}>{s.scores.safety}</td>
                 <td style={{ padding: 12 }}>{s.risk}</td>
-                <td style={{ padding: 12 }}><StatusBadge status={s.status} /></td>
+                <td style={{ padding: 12 }}><RiskStatusBadge status={s.status} /></td>
 
                 {/* Actions */}
                 <td style={{ padding: 12 }}>
