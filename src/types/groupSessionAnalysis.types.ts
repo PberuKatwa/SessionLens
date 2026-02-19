@@ -1,4 +1,5 @@
 import { ApiResponse } from "./api.types";
+import { ReviewStatus } from "./globalTypes.types";
 
 export interface GroupSessionAnalysis {
   session_id: number;
@@ -36,7 +37,7 @@ export interface MinimalAnalysis {
   // Analysis
   analyzed_id?: number;
   is_safe?: boolean;
-  review_status?: "unreviewed" | "approved" | "rejected";
+  review_status?: ReviewStatus;
   content_coverage?: number;
   facilitation_quality?: number;
   protocol_safety?: number;
