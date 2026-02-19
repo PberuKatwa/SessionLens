@@ -35,14 +35,8 @@ export default function AnalyzedSessionsPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [itemlimit, setItemlimit] = useState<number>(5);
-  const [filter, setFilter] = useState<keyof MinimalAnalysisFilters | ReviewStatus | "all" | null>("all");
-
-  const [statusFilter, setStatusFilter] =
-    useState<keyof MinimalAnalysisFilters | "all">("all");
-
-  const [reviewStatusFilter, setReviewStatusFilter] =
-    useState<ReviewStatus | "all">("all");
-
+  const [statusFilter, setStatusFilter] = useState<keyof MinimalAnalysisFilters | "all">("all");
+  const [reviewStatusFilter, setReviewStatusFilter] = useState<ReviewStatus | "all">("all");
 
   const booleanFilters: (keyof MinimalAnalysisFilters)[] = ["is_processed", "is_safe"];
   const reviewFilters: ReviewStatus[] = ["unreviewed", "accepted", "rejected"];
@@ -95,7 +89,7 @@ export default function AnalyzedSessionsPage() {
 
   useEffect(() => {
     getAllSessions(currentPage, itemlimit);
-  }, [currentPage, itemlimit, filter]);
+  }, [currentPage, itemlimit, statusFilter, reviewStatusFilter]);
 
   if (loading) {
     return (
@@ -141,7 +135,7 @@ export default function AnalyzedSessionsPage() {
               <label
                 key={f}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs border-[1.5px] cursor-pointer transition-colors
-                  ${filter === f
+                  ${statusFilter === f
                     ? "bg-[#12245B] border-[#12245B] text-white"
                     : "bg-white border-gray-200 text-gray-500 hover:border-[#12245B]"
                   }`}
@@ -150,13 +144,16 @@ export default function AnalyzedSessionsPage() {
                   type="radio"
                   name="booleanFilter"
                   value={f}
-                  checked={filter === f}
-                  onChange={() => setStatusFilter(f as keyof MinimalAnalysisFilters | "all")}
+                  checked={statusFilter === f}
+                  onChange={() =>
+                    setStatusFilter(f as keyof MinimalAnalysisFilters | "all")
+                  }
                   className="accent-[#B4F000] w-3 h-3"
                 />
                 {f === "all" ? "All" : f.replace(/_/g, " ")}
               </label>
             ))}
+
           </div>
         </div>
 
