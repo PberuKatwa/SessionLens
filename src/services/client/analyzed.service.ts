@@ -1,7 +1,6 @@
 import { apiClient } from "@/lib/apiClient";
 import { PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "../../types/analysisFilters.types";
-import { ReviewStatus } from "@/types/globalTypes.types";
 
 export const analyzedService = {
   async fetchMinimalAnalysis(
