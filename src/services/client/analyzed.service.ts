@@ -3,6 +3,7 @@ import { PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysi
 import { MinimalAnalysisFilters } from "../../types/analysisFilters.types";
 import { SingleGroupSessionApiResponse } from "@/types/groupSession.types";
 import { BaseAnalyzedSessionApiResponse } from "@/types/analyzedSession.types";
+import { ApiResponse } from "@/types/api.types";
 
 export type CreateGroupSessionPayload = {
   fellowName: string;
@@ -79,15 +80,15 @@ export const analyzedService = {
     }
   },
 
-  // async trashSessionClient(sessionId:number):Promise<BaseAnalyzedSessionApiResponse> {
-  //   try {
+  async trashSessionClient(sessionId:number):Promise<ApiResponse> {
+    try {
 
-  //     const response = await apiClient.post(`/sessions/analyzed/${sessionId}`);
-  //     const session:BaseAnalyzedSessionApiResponse = response.data;
-  //     return session
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
+      const response = await apiClient.post(`/sessions/group/${sessionId}/trash`);
+      const session:ApiResponse = response.data;
+      return session
+    } catch (error) {
+      throw error;
+    }
+  }
 
 };
