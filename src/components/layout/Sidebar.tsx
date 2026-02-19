@@ -11,9 +11,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const navItems = [
-  { path: "/dashboard/analyzed", label: "Analyzed", icon: faChartLine },
-  { path: "/dashboard/group", label: "Group", icon: faUsers },
-  { path: "/dashboard/profile", label: "Profile", icon: faUser },
+  { path: "/analyzed", label: "Analyzed", icon: faChartLine },
+  { path: "/group", label: "Group", icon: faUsers },
+  { path: "/profile", label: "Profile", icon: faUser },
 ];
 
 export const Sidebar = () => {

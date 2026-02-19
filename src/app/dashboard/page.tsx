@@ -1,16 +1,14 @@
-import { Sidebar } from "@/components/layout/Sidebar";
+"use client";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex">
-      <Sidebar />
-      <main className="flex-1 p-6 bg-gray-50 min-h-screen">
-        {children}
-      </main>
-    </div>
-  );
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function DashboardPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/dashboard");
+  }, [router]);
+
+  return null;
 }
