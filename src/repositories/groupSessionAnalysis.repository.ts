@@ -1,5 +1,6 @@
 import { getPgPool } from "@/lib/database";
 import { logger } from "@/lib/logger";
+import { MinimalAnalysisFilters } from "@/types/analysisFilters.types";
 import {
   GroupSessionAnalysis,
   PaginatedGroupSessionAnalysis,
@@ -127,8 +128,11 @@ export async function getAllSessionsWithAnalysis(pageInput?: number, limitInput?
   }
 }
 
-export async function minimalSessionsWithAnalysis(pageInput?: number, limitInput?: number):
-  Promise<PaginatedMinimalAnalysis> {
+export async function minimalSessionsWithAnalysis(
+  pageInput?: number,
+  limitInput?: number,
+  filters?:MinimalAnalysisFilters
+):Promise<PaginatedMinimalAnalysis> {
   try {
 
     logger.warn("Fetching sessions with analysis");
@@ -136,6 +140,36 @@ export async function minimalSessionsWithAnalysis(pageInput?: number, limitInput
     const page = pageInput ?? 1;
     const limit = limitInput ?? 10;
     const offset = (page - 1) * limit;
+
+    const conditions: string[] = ["gs.row_status != 'trash'", "(ans.row_status IS NULL OR ans.row_status != 'trash')"];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    // Processed
+    if (filters?.is_processed !== null && filters?.is_processed !== undefined) {
+      conditions.push(`gs.is_processed = $${paramIndex}`);
+      values.push(filters.is_processed);
+      paramIndex++;
+    }
+
+    // Safe
+    if (filters?.is_safe !== null && filters?.is_safe !== undefined) {
+      conditions.push(`ans.is_safe = $${paramIndex}`);
+      values.push(filters.is_safe);
+      paramIndex++;
+    }
+
+    // Review status
+    if (filters?.review_status) {
+      conditions.push(`ans.review_status = $${paramIndex}`);
+      values.push(filters.review_status);
+      paramIndex++;
+    }
+
+    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    values.push(limit);   // paramIndex
+    values.push(offset);  // paramIndex + 1
 
     const dataQuery = `
       SELECT
@@ -156,24 +190,25 @@ export async function minimalSessionsWithAnalysis(pageInput?: number, limitInput
       LEFT JOIN analyzed_sessions ans
         ON gs.id = ans.session_id
 
-      WHERE gs.row_status != 'trash'
-        AND (ans.row_status IS NULL OR ans.row_status != 'trash')
+      ${whereClause}
 
       ORDER BY gs.id DESC
-      LIMIT $1 OFFSET $2;
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1};
     `;
 
     const countQuery = `
       SELECT COUNT(*)
       FROM group_sessions gs
-      WHERE gs.row_status != 'trash';
+      LEFT JOIN analyzed_sessions ans
+        ON gs.id = ans.session_id
+      ${whereClause};
     `;
 
     const pgPool = getPgPool();
 
     const [dataResult, countResult] = await Promise.all([
-      pgPool.query(dataQuery, [limit, offset]),
-      pgPool.query(countQuery),
+      pgPool.query(dataQuery, values),
+      pgPool.query(countQuery, values.slice(0, paramIndex - 1)), // only filter values
     ]);
 
     const totalCount = parseInt(countResult.rows[0].count);

@@ -15,7 +15,7 @@ export interface GroupSessionAnalysis {
   // Analysis
   analyzed_id?: number;
   is_safe?: boolean;
-  review_status?: "unreviewed" | "approved" | "rejected";
+  review_status?: ReviewStatus;
   content_coverage?: number;
   facilitation_quality?: number;
   protocol_safety?: number;
