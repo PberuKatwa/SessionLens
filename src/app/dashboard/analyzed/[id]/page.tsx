@@ -1,8 +1,6 @@
 "use client";
 
 import toast from "react-hot-toast";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ReviewStatus } from "@/types/globalTypes.types";
 import { GroupSessionAnalysis } from "@/types/groupSessionAnalysis.types";
 import { useState, useEffect } from "react";
@@ -10,6 +8,7 @@ import { ScoreBar, ScoreLabel, SectionHeader, MetaCell, ScoreDescription } from 
 import { redirect, useParams } from "next/navigation";
 import { analyzedService } from "@/services/client/analyzed.service";
 import { ShamiriLoader, AiEvaluationLoader } from "@/components/Loader";
+import { TranscriptModal, LLMEvaluationModal, Session, LLMEvaluation } from "@/components/ui/SessionModals";
 
 const initialState: GroupSessionAnalysis = {
   session_id: 0,
@@ -37,6 +36,8 @@ export default function EvaluationPage() {
   const [loading, setLoading] = useState(true);
   const [sessionData, setSessionData] = useState<GroupSessionAnalysis>(initialState)
   const [aiLoading, setAiLoading] = useState(false);
+  const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [llmOpen, setLlmOpen] = useState(false);
 
   const params = useParams();
   const id = Number(params.id);
@@ -51,6 +52,7 @@ export default function EvaluationPage() {
 
       if (!response.data) throw new Error(`No session was found`);
       setSessionData(response.data);
+      console.log("session dataaaa", response.data)
       toast.success(response.message);
 
     } catch (error) {
@@ -220,7 +222,7 @@ export default function EvaluationPage() {
               <div className="p-5 col-span-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Session Transcript</p>
                 <button
-                  onClick={() => toast.success("Opening original transcript…")}
+                  onClick={() => setTranscriptOpen(true)}
                   className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg border-2 transition-colors"
                   style={{ borderColor: "#12245B", color: "#12245B" }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#12245B"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
@@ -320,7 +322,7 @@ export default function EvaluationPage() {
                   <div className="flex items-start justify-between gap-4 mb-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">AI Session Summary</p>
                     <button
-                      onClick={() => toast.success("Opening LLM evaluation object…")}
+                      onClick={() => setLlmOpen(true)}
                       className="shrink-0 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border-2 transition-colors"
                       style={{ borderColor: "#12245B", color: "#12245B" }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#12245B"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
@@ -394,6 +396,17 @@ export default function EvaluationPage() {
             </div>
           )}
         </section>
+
+        <TranscriptModal
+          open={transcriptOpen}
+          onClose={() => setTranscriptOpen(false)}
+          session={sessionData.transcript as Session}
+        />
+        <LLMEvaluationModal
+          open={llmOpen}
+          onClose={() => setLlmOpen(false)}
+          evaluation={sessionData.llm_evaluation as LLMEvaluation}
+        />
 
       </main>
     </div>
