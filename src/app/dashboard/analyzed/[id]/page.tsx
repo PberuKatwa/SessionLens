@@ -263,22 +263,30 @@ export default function EvaluationPage() {
             <>
 
               {/* Status Badges */}
-              <div className="flex flex-wrap gap-3 mb-5">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${s.is_safe ? "bg-green-100 text-green-800" : "bg-red-100 text-red-700"}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${sessionData.is_safe ? "bg-green-500" : "bg-red-500"}`} />
-                  {sessionData.is_safe ? "SAFE — No Risk Indicators" : "RISK — Flagged for Review"}
-                </span>
+              <div className="flex flex-wrap items-center gap-3 mb-5">
 
+                {/* Safety badge — large and prominent, alarming when at risk */}
+                {sessionData.is_safe ? (
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-green-100 text-green-800 border border-green-200">
+                    <span className="w-2 h-2 rounded-full bg-green-500" />
+                    SAFE — No Risk Indicators
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-sm font-extrabold border-2 border-red-500 bg-red-50 text-red-700 shadow-sm shadow-red-100">
+                    <span className="relative flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600" />
+                    </span>
+                    RISK — Flagged for Immediate Review
+                  </span>
+                )}
+
+                {/* Review status */}
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${rb.bg}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${rb.dot}`} />
                   Review Status: {rb.label}
                 </span>
 
-                {sessionData.analyzed_id && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
-                    Analysis ID: #{sessionData.analyzed_id}
-                  </span>
-                )}
               </div>
 
               {/* Score Cards */}
@@ -377,7 +385,8 @@ export default function EvaluationPage() {
               <div>
                 <p className="text-sm font-semibold" style={{ color: "#12245B" }}>No evaluation found</p>
                 <p className="text-xs text-gray-400 mt-1">This session has not been processed yet. Run an evaluation to generate AI insights.</p>
-              </div>
+                </div>
+
               <button
                 onClick={() => evaluateSessionLLM()}
                 className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg mt-1"
@@ -387,7 +396,7 @@ export default function EvaluationPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653z" />
                 </svg>
                 Evaluate Session
-              </button>
+                </button>
             </div>
           )}
         </section>
