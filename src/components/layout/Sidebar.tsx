@@ -16,11 +16,6 @@ const navItems = [
 export const Sidebar = () => {
   const pathname = usePathname();
 
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    window.location.href = "/login";
-  };
-
   return (
     <aside style={{
       width: 220, background: "#12245B", display: "flex", flexDirection: "column",
