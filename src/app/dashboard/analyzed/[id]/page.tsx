@@ -105,7 +105,6 @@ export default function EvaluationPage() {
   if (loading) return <ShamiriLoader />;
   if (aiLoading) return <AiEvaluationLoader />;
 
-  const s = sessionData;
 
   const reviewBadge: Record<ReviewStatus, { bg: string; dot: string; label: string }> = {
     unreviewed:  { bg: "bg-yellow-100 text-yellow-800", dot: "bg-yellow-400", label: "Pending Review" },
@@ -113,7 +112,7 @@ export default function EvaluationPage() {
     rejected: { bg: "bg-red-100 text-red-700",      dot: "bg-red-500",    label: "Rejected" },
   };
 
-  const rb = reviewBadge[s.review_status ?? "unreviewed"];
+  const rb = reviewBadge[sessionData.review_status ?? "unreviewed"];
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
@@ -292,9 +291,9 @@ export default function EvaluationPage() {
               {/* Score Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
                 {[
-                  { key: "content",      label: "Content Coverage",     value: s.content_coverage,     metric: "content" },
-                  { key: "facilitation", label: "Facilitation Quality", value: s.facilitation_quality, metric: "facilitation" },
-                  { key: "safety",       label: "Protocol Safety",      value: s.protocol_safety,      metric: "safety" },
+                  { key: "content",      label: "Content Coverage",     value: sessionData.content_coverage,     metric: "content" },
+                  { key: "facilitation", label: "Facilitation Quality", value: sessionData.facilitation_quality, metric: "facilitation" },
+                  { key: "safety",       label: "Protocol Safety",      value: sessionData.protocol_safety,      metric: "safety" },
                 ].map(({ key, label, value, metric }) => (
                   <div
                     key={key}
@@ -357,7 +356,7 @@ export default function EvaluationPage() {
                     {sessionData.reviewer_comments && (
                       <div>
                         <p className="text-xs text-gray-400 mb-0.5">Comments</p>
-                        <p className="text-sm text-gray-600 italic leading-snug">"{s.reviewer_comments}"</p>
+                        <p className="text-sm text-gray-600 italic leading-snug">"{sessionData.reviewer_comments}"</p>
                       </div>
                     )}
                   </div>
