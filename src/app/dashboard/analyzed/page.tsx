@@ -10,6 +10,7 @@ import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "@/types/analysisFilters.types";
 import { ReviewStatus } from "@/types/globalTypes.types";
 import CreateGroupSessionButton from "@/components/ui/groupSessions/CreateGroupSessionButton";
+import { ShamiriLoader, AiEvaluationLoader } from "@/components/Loader";
 
 const initialState: MinimalAnalysis = {
   session_id: 0,
@@ -129,69 +130,8 @@ export default function AnalyzedSessionsPage() {
     getAllSessions(currentPage, itemlimit);
   }, [currentPage, itemlimit, statusFilter, reviewStatusFilter]);
 
-  if (loading) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
-        <FontAwesomeIcon icon={faSpinner} spin size="2x" />
-      </div>
-    );
-  }
-
-  if (aiLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-6 py-16">
-
-        {/* Animated orb cluster */}
-        <div className="relative flex items-center justify-center w-20 h-20">
-          {/* Outer pulse ring */}
-          <div className="absolute w-20 h-20 rounded-full bg-[#12245B] opacity-10 animate-ping" />
-          {/* Mid ring */}
-          <div className="absolute w-14 h-14 rounded-full bg-[#12245B] opacity-20 animate-pulse" />
-          {/* Core */}
-          <div className="w-10 h-10 rounded-full bg-[#12245B] flex items-center justify-center shadow-lg">
-            {/* Gemini star icon (two triangles) */}
-            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#B4F000] animate-spin [animation-duration:3s]">
-              <path d="M12 2C12 2 14.5 9.5 22 12C14.5 14.5 12 22 12 22C12 22 9.5 14.5 2 12C9.5 9.5 12 2 12 2Z" />
-            </svg>
-          </div>
-        </div>
-
-        {/* Bouncing dots */}
-        <div className="flex items-end gap-1.5">
-          {[0, 1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="w-1.5 rounded-full bg-[#12245B] animate-bounce"
-              style={{
-                height: i === 0 || i === 3 ? 8 : i === 1 || i === 2 ? 12 : 8,
-                animationDelay: `${i * 0.15}s`,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Shimmer text */}
-        <div className="flex flex-col items-center gap-1">
-          <p className="text-sm font-semibold text-[#12245B] tracking-wide">
-            Gemini is thinking
-          </p>
-          <p className="text-xs text-gray-400">Analyzing session data...</p>
-        </div>
-
-        {/* Shimmer bar */}
-        <div className="w-48 h-1.5 rounded-full bg-gray-100 overflow-hidden">
-          <div className="h-full w-1/2 rounded-full bg-[#B4F000] animate-[shimmer_1.5s_ease-in-out_infinite]"
-            style={{
-              animation: "shimmer 1.5s ease-in-out infinite",
-              background: "linear-gradient(90deg, #12245B 0%, #B4F000 50%, #12245B 100%)",
-              backgroundSize: "200% 100%",
-            }}
-          />
-        </div>
-
-      </div>
-    );
-  }
+  if (loading) return <ShamiriLoader />;
+  if (aiLoading) return <AiEvaluationLoader />;
 
   return (
     <div>

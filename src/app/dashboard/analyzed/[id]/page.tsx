@@ -7,8 +7,9 @@ import { ReviewStatus } from "@/types/globalTypes.types";
 import { GroupSessionAnalysis } from "@/types/groupSessionAnalysis.types";
 import { useState, useEffect } from "react";
 import { ScoreBar, ScoreLabel, SectionHeader, MetaCell, ScoreDescription } from "@/components/ui/analyzed/ScoreComponents";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import { analyzedService } from "@/services/client/analyzed.service";
+import { ShamiriLoader, AiEvaluationLoader } from "@/components/Loader";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -39,6 +40,7 @@ const SESSION_DATA: GroupSessionAnalysis = {
 export default function EvaluationPage() {
   const [loading, setLoading] = useState(true);
   const [sessionData, setSessionData] = useState<GroupSessionAnalysis>(SESSION_DATA)
+  const [aiLoading, setAiLoading] = useState(false);
 
   const params = useParams();
   const id = Number(params.id);
@@ -67,14 +69,41 @@ export default function EvaluationPage() {
     fetchSession();
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
-        <FontAwesomeIcon icon={faSpinner} spin size="2x" />
-      </div>
-    );
+  const evaluateSessionLLM = async function () {
+    try {
+
+      setAiLoading(true);
+      const result = await analyzedService.evaluateSessionClient(id);
+      if (!result.data) throw new Error(`Session anlaysis failed`)
+
+      fetchSession()
+
+      toast.success(result.message)
+    } catch (error:any) {
+      console.error(`Error in evaluating session`, error);
+      toast.error(`Json format is invalid`)
+    } finally {
+      setAiLoading(false);
+    }
   }
 
+  const trashSession = async function () {
+    try {
+      setLoading(true);
+      const result = await analyzedService.trashSessionClient(id);
+      if (!result.message) throw new Error(`Session anlaysis failed`)
+      toast.success(result.message);
+      redirect("/dashboard/analyzed/")
+
+    } catch (error) {
+      toast.error(`Error in trashing session`)
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) return <ShamiriLoader />;
+  if (aiLoading) return <AiEvaluationLoader />;
 
   const s = SESSION_DATA;
 
@@ -93,7 +122,6 @@ export default function EvaluationPage() {
 
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-      <Toast msg={toast.msg} visible={toast.visible} />
 
       {/* ── Header ── */}
       <header
@@ -125,7 +153,7 @@ export default function EvaluationPage() {
         <div className="flex flex-wrap items-center gap-3 mb-10">
           {/* Evaluate */}
           <button
-            onClick={() => show("Session sent for AI evaluation")}
+            onClick={() => evaluateSessionLLM()}
             className="flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all hover:brightness-105"
             style={{ backgroundColor: "#B4F000", color: "#12245B" }}
           >
@@ -137,7 +165,7 @@ export default function EvaluationPage() {
 
           {/* Review */}
           <button
-            onClick={() => show("Session marked for human review")}
+            onClick={() => toast.success("Session marked for human review")}
             className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border-2 transition-colors hover:text-white"
             style={{ borderColor: "#12245B", color: "#12245B" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#12245B"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
@@ -152,7 +180,7 @@ export default function EvaluationPage() {
 
           {/* Trash */}
           <button
-            onClick={() => show("Session moved to trash")}
+            onClick={() => trashSession()}
             className="ml-auto flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
