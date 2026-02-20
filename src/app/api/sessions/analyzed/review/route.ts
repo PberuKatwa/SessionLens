@@ -11,7 +11,9 @@ async function reviewSession(
   session: BaseAuthSession
 ) {
   try {
-    const body:ReviewerUpdatePayload = await req.json();
+    let body: ReviewerUpdatePayload = await req.json();
+
+    body.reviewer_id = session.user_id;
 
     await reviewAnalyzedSession(body);
 

@@ -9,6 +9,7 @@ import { redirect, useParams } from "next/navigation";
 import { analyzedService } from "@/services/client/analyzed.service";
 import { ShamiriLoader, AiEvaluationLoader } from "@/components/Loader";
 import { TranscriptModal, LLMEvaluationModal, Session, LLMEvaluation } from "@/components/ui/SessionModals";
+import ReviewSessionModal from "@/components/ui/analyzed/ReviewSessionModal";
 
 const initialState: GroupSessionAnalysis = {
   session_id: 0,
@@ -38,6 +39,7 @@ export default function EvaluationPage() {
   const [aiLoading, setAiLoading] = useState(false);
   const [transcriptOpen, setTranscriptOpen] = useState(false);
   const [llmOpen, setLlmOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   const params = useParams();
   const id = Number(params.id);
@@ -167,7 +169,7 @@ export default function EvaluationPage() {
 
           {/* Review */}
           <button
-            onClick={() => toast.success("Session marked for human review")}
+            onClick={() => setReviewOpen(true)}
             className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border-2 transition-colors hover:text-white"
             style={{ borderColor: "#12245B", color: "#12245B" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#12245B"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
@@ -401,10 +403,18 @@ export default function EvaluationPage() {
           onClose={() => setTranscriptOpen(false)}
           session={sessionData.transcript as Session}
         />
+
         <LLMEvaluationModal
           open={llmOpen}
           onClose={() => setLlmOpen(false)}
           evaluation={sessionData.llm_evaluation as LLMEvaluation}
+        />
+
+        <ReviewSessionModal
+          isOpen={reviewOpen}
+          onClose={() => setReviewOpen(false)}
+          onReviewed={() => fetchSession()}
+          session={sessionData}
         />
 
       </main>
