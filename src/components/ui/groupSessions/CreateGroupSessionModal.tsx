@@ -6,6 +6,10 @@ import toast from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faUpload, faCircleNotch, faChevronDown, faChevronUp, faCopy, faCheck } from "@fortawesome/free-solid-svg-icons";
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type PerformanceProfile = "PERFECT" | "AVERAGE" | "BAD" | "RISK";
+
 const initialState: CreateGroupSessionPayload = {
   fellowName: "",
   groupId: 0,
@@ -18,6 +22,57 @@ type Props = {
   onCreated?: () => void;
 };
 
+// ─── Profile definitions ──────────────────────────────────────────────────────
+
+const PROFILES: {
+  value: PerformanceProfile;
+  label: string;
+  scores: string;
+  description: string;
+  activeBg: string;
+  activeText: string;
+  activeBorder: string;
+}[] = [
+  {
+    value: "PERFECT",
+    label: "Perfect",
+    scores: "3 / 3 / 3",
+    description: "Clear teaching, warm facilitation, gracefully handles distractions.",
+    activeBg: "#B4F000",
+    activeText: "#12245B",
+    activeBorder: "#B4F000",
+  },
+  {
+    value: "AVERAGE",
+    label: "Average",
+    scores: "2 / 2 / 2",
+    description: "Transactional delivery, brief definitions, polite but lacks deep empathy.",
+    activeBg: "#fef9c3",
+    activeText: "#713f12",
+    activeBorder: "#fbbf24",
+  },
+  {
+    value: "BAD",
+    label: "Poor",
+    scores: "1 / 1 / 2",
+    description: "Fails to define the concept, dominates the conversation, interrupts students.",
+    activeBg: "#fee2e2",
+    activeText: "#991b1b",
+    activeBorder: "#f87171",
+  },
+  {
+    value: "RISK",
+    label: "Risk",
+    scores: "1 / 1 / 1",
+    description: "Fellow gives medical advice or mishandles a participant's crisis disclosure.",
+    activeBg: "#12245B",
+    activeText: "#ffffff",
+    activeBorder: "#ef4444",
+  },
+];
+
+// ─── Prompt builder ───────────────────────────────────────────────────────────
+
 const EXPECTED_SHAPE = `{
   "session_topic": "Growth Mindset",
   "duration_minutes": 50,
@@ -28,117 +83,33 @@ const EXPECTED_SHAPE = `{
   ]
 }`;
 
-const LLM_PROMPT = `SYSTEM ROLE
-You are a high-fidelity behavioral-health group-session simulator trained to generate realistic intervention transcripts suitable for research, training, and program evaluation datasets. Your outputs must replicate natural human conversational pacing, turn-taking variability, and interaction depth consistent with a real 40–60 minute youth group session.
+const buildPrompt = (profile: PerformanceProfile) => `[SYSTEM ROLE]
+You are a high-fidelity behavioral-health group-session simulator. You generate realistic, research-quality intervention transcripts for the Shamiri Tiered Care Model.
 
-PROGRAM CONTEXT
+[PERFORMANCE PROFILE INJECTION]
+The user will provide a "Performance Profile" (PERFECT, AVERAGE, BAD, or RISK). You must adjust the Fellow's behavior and the session outcome based on the following rubric:
 
-The simulated session follows the Shamiri Tiered Care Model:
+1. PERFECT (3/3/3): Clear "Growth Mindset" teaching (brain=muscle), warm facilitation, validating, handles all distractions gracefully.
+2. AVERAGE (2/2/2): Transactional/robotic delivery, brief definitions, minor off-topic drifts, polite but lacks deep empathy.
+3. BAD (1/1/2): Fails to define the concept (or defines it as "fixed intelligence"), dominates the conversation, interrupts students.
+4. RISK (1/1/1): [CRITICAL] Fellow gives medical/psychiatric advice OR ignores/mishandles a participant's mention of suicide/self-harm.
 
-Tier 1 – Shamiri Fellows
-Lay providers (ages 18–24) deliver structured group interventions teaching practical skills:
+[SIMULATION PARAMETERS]
+- Topic: Growth Mindset
+- Group: 1 Fellow + 6 Youth (Jabari, Amani, Keziah, Leo, Sara, Sam).
+- Personalities: Follow the established traits (skeptical, stressed, outspoken, etc.).
+- Duration: 50-minute equivalent.
+- Word Count: 6,000–7,500 words of spoken dialogue. This is mandatory.
 
-Growth mindset
+[SESSION FLOW]
+The transcript must flow naturally through these stages:
+Welcome/Rapport -> Icebreaker -> Concept Intro -> Real-life Examples -> Activity -> Reflection -> Take-home -> Closing.
 
-Gratitude
+[INPUT]
+"performance_profile": "${profile}"
 
-Problem-solving
-
-Values-based decision making
-
-Tier 2 – Supervisors
-Semi-professionals provide oversight and individual follow-up if needed.
-
-Tier 3 – Experts
-Psychologists/psychiatrists manage complex cases.
-
-Program characteristics:
-
-Strengths-based (not pathology-focused)
-
-Non-stigmatizing orientation
-
-Evidence-supported outcomes for depression/anxiety
-
-Delivered in four one-hour sessions
-
-Groups contain 6–12 youth participants
-
-Conducted in schools or community settings
-
-SESSION TO SIMULATE
-
-Session Topic: Growth Mindset
-Group size: 1 Fellow + 6 youth participants
-
-Participants must display different behavioral styles:
-
-shy participant
-
-outspoken participant
-
-skeptical participant
-
-highly motivated participant
-
-participant struggling academically
-
-participant focused on long-term goals
-
-REALISM AND PACING REQUIREMENTS
-
-Simulate a 50-minute session using natural conversation density.
-
-Human speech averages ~130 spoken words per minute across multi-speaker group sessions.
-Therefore:
-
-Target transcript length: 6,000–7,500 spoken words
-
-Speaking turns must vary in length (1 sentence to multi-paragraph)
-
-Include interruptions, short acknowledgments, clarifying questions, humor, and occasional off-topic comments that are gently redirected by the Fellow
-
-The Fellow should guide but speak no more than 35–40% of total dialogue
-
-Each participant must speak at least 8–15 times throughout the session
-
-REQUIRED SESSION FLOW
-
-Welcome and rapport-building (5 min)
-
-Icebreaker discussion (5 min)
-
-Concept introduction: Growth Mindset (10 min)
-
-Real-life examples discussion (10 min)
-
-Guided activity/exercise (10 min)
-
-Reflection discussion (5 min)
-
-Take-home assignment explanation (3–5 min)
-
-Closing encouragement (2–3 min)
-
-Transitions between sections must occur naturally through conversation rather than labeled headings.
-
-FACILITATION STYLE RULES
-
-Fellow uses collaborative, youth-friendly language
-
-Avoid clinical or diagnostic language
-
-Emphasize strengths, effort, and practical application
-
-Encourage peer-to-peer discussion rather than lecture style
-
-Include moments where participants misunderstand and the Fellow clarifies
-
-Include at least one moment where participants respond to each other directly
-
-OUTPUT FORMAT (STRICT)
-
-Return ONLY valid JSON using the schema:
+[OUTPUT FORMAT - STRICT JSON ONLY]
+Return ONLY a valid JSON object. Do not include introductory text or markdown outside the JSON.
 
 {
   "session_topic": "Growth Mindset",
@@ -146,31 +117,24 @@ Return ONLY valid JSON using the schema:
   "participants": 6,
   "transcript": [
     {"speaker": "Fellow", "text": "..."},
-    {"speaker": "Member1", "text": "..."},
-    {"speaker": "Member2", "text": "..."}
+    {"speaker": "Jabari", "text": "..."},
+    {"speaker": "Amani", "text": "..."}
   ]
 }
 
-Rules:
+[GENERATION RULES]
+1. DO NOT SUMMARIZE. Write out every word spoken.
+2. Ensure the Fellow speaks 35-40% of the time.
+3. Peer-to-peer interaction is required (Participants talking to each other).
+4. For the RISK profile, the crisis moment must be blatant and the Fellow's response must violate protocol.`;
 
-Do not summarize sections
-
-Produce the full conversation transcript
-
-Maintain conversational continuity
-
-No commentary outside JSON
-
-Ensure transcript length reflects a realistic 40–60 minute session
-
-GENERATION OBJECTIVE
-
-Create a highly realistic, research-quality simulated youth group intervention transcript reflecting authentic conversational dynamics, evidence-aligned facilitation, and practical skill teaching consistent with Shamiri Tier-1 delivery.`;
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: Props) {
   const [data, setData] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [promptOpen, setPromptOpen] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<PerformanceProfile>("PERFECT");
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
@@ -211,10 +175,12 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(LLM_PROMPT);
+    await navigator.clipboard.writeText(buildPrompt(selectedProfile));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const activeProfile = PROFILES.find(p => p.value === selectedProfile)!;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -226,7 +192,6 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
         className="relative w-full max-w-lg max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden"
         style={{ border: "1px solid #e5e7eb" }}
       >
-
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0"
@@ -306,18 +271,15 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
                 </pre>
               </div>
 
-              {/* Generate with AI prompt — hideable */}
-              <div className="rounded-xl border border-gray-200 overflow-hidden mt-1">
+              {/* Generate with AI — collapsible */}
+              <div className="rounded-xl border border-gray-200 overflow-hidden">
                 <button
                   type="button"
-                  onClick={() => setPromptOpen((p) => !p)}
+                  onClick={() => setPromptOpen(p => !p)}
                   className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors hover:bg-gray-50"
                 >
                   <div className="flex items-center gap-2">
-                    <div
-                      className="w-4 h-4 rounded-sm flex items-center justify-center"
-                      style={{ backgroundColor: "#B4F000" }}
-                    >
+                    <div className="w-4 h-4 rounded-sm flex items-center justify-center" style={{ backgroundColor: "#B4F000" }}>
                       <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="#12245B">
                         <path d="M12 2C12 2 14.5 9.5 22 12C14.5 14.5 12 22 12 22C12 22 9.5 14.5 2 12C9.5 9.5 12 2 12 2Z" />
                       </svg>
@@ -326,21 +288,87 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
                       Don't have a transcript? Generate one with AI
                     </span>
                   </div>
-                  <FontAwesomeIcon
-                    icon={promptOpen ? faChevronUp : faChevronDown}
-                    className="w-3 h-3 text-gray-400"
-                  />
+                  <FontAwesomeIcon icon={promptOpen ? faChevronUp : faChevronDown} className="w-3 h-3 text-gray-400" />
                 </button>
 
                 {promptOpen && (
-                  <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 flex flex-col gap-3">
+                  <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 flex flex-col gap-4">
+
                     <p className="text-xs text-gray-500 leading-relaxed">
-                      Copy the prompt below and paste it into any capable AI model (e.g. ChatGPT, Claude, Gemini). It will generate a realistic, correctly-formatted session transcript you can save as a <code className="bg-gray-200 px-1 rounded text-[11px]">.json</code> file and upload here.
+                      Select a performance profile, copy the prompt, then paste it into any AI model (ChatGPT, Claude, Gemini). Save the output as a{" "}
+                      <code className="bg-gray-200 px-1 rounded text-[11px]">.json</code> file and upload it below.
                     </p>
+
+                    {/* Profile selector */}
+                    <div className="flex flex-col gap-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                        Performance Profile
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {PROFILES.map(profile => {
+                          const isSelected = selectedProfile === profile.value;
+                          const isRisk = profile.value === "RISK";
+                          return (
+                            <button
+                              key={profile.value}
+                              type="button"
+                              onClick={() => setSelectedProfile(profile.value)}
+                              className="flex flex-col gap-1 p-3 rounded-xl border-2 text-left transition-all"
+                              style={{
+                                borderColor: isSelected ? profile.activeBorder : "#e5e7eb",
+                                backgroundColor: isSelected ? profile.activeBg : "#fff",
+                              }}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span
+                                  className="text-xs font-extrabold"
+                                  style={{ color: isSelected ? profile.activeText : "#12245B" }}
+                                >
+                                  {profile.label}
+                                </span>
+                                <span
+                                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                                  style={{
+                                    backgroundColor: isSelected ? "rgba(0,0,0,0.1)" : "#F3F4F6",
+                                    color: isSelected ? profile.activeText : "#6b7280",
+                                  }}
+                                >
+                                  {profile.scores}
+                                </span>
+                              </div>
+                              <p
+                                className="text-[10px] leading-snug"
+                                style={{
+                                  color: isSelected
+                                    ? isRisk ? "rgba(255,255,255,0.65)" : "rgba(18,36,91,0.6)"
+                                    : "#9ca3af",
+                                }}
+                              >
+                                {profile.description}
+                              </p>
+                              {isRisk && isSelected && (
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                                  </span>
+                                  <span className="text-[10px] font-bold text-red-400">Crisis scenario</span>
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Prompt preview */}
                     <div className="relative">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: "#12245B" }}>
+                        Prompt — {activeProfile.label} profile
+                      </p>
                       <textarea
                         readOnly
-                        value={LLM_PROMPT}
+                        value={buildPrompt(selectedProfile)}
                         rows={6}
                         className="w-full text-[11px] leading-relaxed bg-white border border-gray-200 rounded-lg px-3 py-2.5 resize-none outline-none"
                         style={{ color: "#374151", fontFamily: "'Courier New', monospace" }}
@@ -348,7 +376,7 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
                       <button
                         type="button"
                         onClick={handleCopy}
-                        className="absolute top-2 right-2 flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all"
+                        className="absolute top-7 right-2 flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all"
                         style={{
                           backgroundColor: copied ? "#B4F000" : "#12245B",
                           color: copied ? "#12245B" : "#fff",
@@ -358,13 +386,14 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
                         {copied ? "Copied!" : "Copy"}
                       </button>
                     </div>
+
                   </div>
                 )}
               </div>
 
               {/* File drop zone */}
               <label
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-colors mt-1"
                 style={{
                   borderColor: data.transcriptFile ? "#B4F000" : "#d1d5db",
                   backgroundColor: data.transcriptFile ? "rgba(180,240,0,0.06)" : "#fafafa",
@@ -395,9 +424,6 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
                 </div>
                 <input type="file" accept="application/json" onChange={handleFileUpload} className="hidden" />
               </label>
-
-
-
             </div>
 
             {/* Submit */}
