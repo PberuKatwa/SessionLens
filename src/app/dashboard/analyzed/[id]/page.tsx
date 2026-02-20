@@ -4,6 +4,7 @@ import { ReviewStatus } from "@/types/globalTypes.types";
 import { GroupSessionAnalysis } from "@/types/groupSessionAnalysis.types";
 import { useState, useEffect } from "react";
 import { ScoreBar, ScoreLabel, SectionHeader, MetaCell, ScoreDescription } from "@/components/ui/analyzed/ScoreComponents";
+import { useParams } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -67,6 +68,13 @@ function Toast({ msg, visible }: { msg: string; visible: boolean }) {
 }
 
 export default function EvaluationPage() {
+
+  const params = useParams();
+  const id = params.id;
+
+
+
+
   const { toast, show } = useToast();
   const s = SESSION_DATA;
 

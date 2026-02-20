@@ -9,10 +9,9 @@ import { getSessionWithAnalysisBySessionId } from "@/repositories/groupSessionAn
 async function getCombinedSessionById(
   req: NextRequest,
   session: BaseAuthSession,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: { id: number } }) {
   try {
-    const id = parseInt(params.id);
+    const { id } = await params;
 
     if (isNaN(id)) {
       return NextResponse.json(
