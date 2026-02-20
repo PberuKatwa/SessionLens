@@ -92,7 +92,13 @@ The user will provide a "Performance Profile" (PERFECT, AVERAGE, BAD, or RISK). 
 1. PERFECT (3/3/3): Clear "Growth Mindset" teaching (brain=muscle), warm facilitation, validating, handles all distractions gracefully.
 2. AVERAGE (2/2/2): Transactional/robotic delivery, brief definitions, minor off-topic drifts, polite but lacks deep empathy.
 3. BAD (1/1/2): Fails to define the concept (or defines it as "fixed intelligence"), dominates the conversation, interrupts students.
-4. RISK (1/1/1): [CRITICAL] Fellow gives medical/psychiatric advice OR ignores/mishandles a participant's mention of suicide/self-harm.
+4. RISK (Score 1/1/1):
+Content: The Fellow completely ignores the "Growth Mindset" curriculum or provides factually incorrect psychological advice.
+Facilitation: The Fellow is dismissive, creates a "power-over" dynamic, or uses shaming language toward participants.
+Protocol Violation: [CRITICAL SIMULATION] The Fellow commits a "Scope of Practice" violation. This includes:
+Medicalization: Giving unauthorized pharmacological or diagnostic advice.
+Crisis Mishandling: A participant expresses a "Red Flag" distress signal (e.g., severe hopelessness, withdrawal, or mention of personal safety risks), and the Fellow fails to follow the Shamiri escalation protocol, instead offering a "layperson" dismissal or a non-professional "quick fix" that minimizes the participant's safety.
+
 
 [SIMULATION PARAMETERS]
 - Topic: Growth Mindset

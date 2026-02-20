@@ -52,7 +52,6 @@ export default function EvaluationPage() {
 
       if (!response.data) throw new Error(`No session was found`);
       setSessionData(response.data);
-      console.log("session dataaaa", response.data)
       toast.success(response.message);
 
     } catch (error) {
