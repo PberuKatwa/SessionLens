@@ -69,7 +69,8 @@ export const Sidebar = () => {
         onClick={async () => {
           try {
             await authService.logout();
-            redirect("/")
+
+            await authService.profile()
           } catch (error) {
             console.error("Logout failed", error);
             toast.error("Failed to logout. Please try again.");
