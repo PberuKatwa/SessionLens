@@ -1,4 +1,4 @@
-export function scoreLabel(metric: string, score: number): string {
+export function ScoreLabel(metric: string, score: number): string {
   const labels: Record<string, string[]> = {
     content:      ["", "Missed", "Partial", "Complete"],
     facilitation: ["", "Poor", "Adequate", "Excellent"],
@@ -49,4 +49,13 @@ export function MetaCell({ label, children }: { label: string; children: React.R
       <div className="text-sm font-semibold" style={{ color: "#12245B" }}>{children}</div>
     </div>
   );
+}
+
+export function ScoreDescription(metric: string, score: number): string {
+  const desc: Record<string, string[]> = {
+    content:      ["", "Core concept not taught.", "Introduced but examples limited.", "Fully taught with practical examples."],
+    facilitation: ["", "Minimal engagement observed.", "Adequate warmth and questioning.", "Strong empathy and open-ended engagement."],
+    safety:       ["", "Scope violation detected.", "Minor curriculum drift noted.", "No scope violations detected."],
+  };
+  return desc[metric]?.[score] ?? "";
 }
