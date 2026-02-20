@@ -12,6 +12,7 @@ import { MinimalAnalysisFilters } from "@/types/analysisFilters.types";
 import { ReviewStatus } from "@/types/globalTypes.types";
 import CreateGroupSessionButton from "@/components/ui/groupSessions/CreateGroupSessionButton";
 import { ShamiriLoader, AiEvaluationLoader } from "@/components/Loader";
+import { SessionFilters, ProcessedFilter, SafetyFilter } from "@/components/ui/analyzed/Filters";
 
 const initialState: MinimalAnalysis = {
   session_id: 0,
@@ -34,8 +35,10 @@ export default function AnalyzedSessionsPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [itemlimit, setItemlimit] = useState<number>(10);
-  const [statusFilter, setStatusFilter] = useState<keyof MinimalAnalysisFilters | "all">("all");
-  const [reviewStatusFilter, setReviewStatusFilter] = useState<ReviewStatus | "all">("all");
+  const [processedFilter,    setProcessedFilter]    = useState<ProcessedFilter>("all");
+  const [safetyFilter,       setSafetyFilter]        = useState<SafetyFilter>("all");
+  const [reviewStatusFilter, setReviewStatusFilter]  = useState<ReviewStatus | "all">("all");
+
   const booleanFilters: (keyof MinimalAnalysisFilters)[] = ["is_processed", "is_safe"];
   const reviewFilters: ReviewStatus[] = ["unreviewed", "accepted", "rejected"];
 
@@ -43,24 +46,15 @@ export default function AnalyzedSessionsPage() {
 
   const tableHeaders = ["Date","GroupId","Fellow","Is Processed","Safety Status","Review Status","Content","Facilitaion","Safety","Actions"]
 
-  const buildFilters = (): MinimalAnalysisFilters => {
-    return {
-      is_processed:
-        statusFilter === "is_processed"
-          ? true
-          : null,
-
-      is_safe:
-        statusFilter === "is_safe"
-          ? true
-          : null,
-
-      review_status:
-        reviewStatusFilter !== "all"
-          ? reviewStatusFilter
-          : null,
-    };
-  };
+  const buildFilters = (): MinimalAnalysisFilters => ({
+    is_processed: processedFilter === "processed" ? true
+                : processedFilter === "unprocessed" ? false
+                : null,
+    is_safe:      safetyFilter === "safe" ? true
+                : safetyFilter === "risk" ? false
+                : null,
+    review_status: reviewStatusFilter !== "all" ? reviewStatusFilter : null,
+  });
 
   const getAllSessions = async function (page: number, limit: number) {
     try {
@@ -130,7 +124,7 @@ export default function AnalyzedSessionsPage() {
 
   useEffect(() => {
     getAllSessions(currentPage, itemlimit);
-  }, [currentPage, itemlimit, statusFilter, reviewStatusFilter]);
+  }, [currentPage, itemlimit, processedFilter, safetyFilter, reviewStatusFilter]);
 
   if (loading) return <ShamiriLoader />;
   if (aiLoading) return <AiEvaluationLoader />;
@@ -161,64 +155,12 @@ export default function AnalyzedSessionsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-row flex-wrap items-end gap-6 mb-4">
-        <CreateGroupSessionButton onCreated={() => getAllSessions(1, itemlimit)} />
-
-        {/* Divider */}
-        <div className="w-px self-stretch bg-gray-200" />
-
-        {/* Boolean filters — Radio group */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</span>
-          <div className="flex flex-row gap-2">
-            {["all", ...booleanFilters].map((f) => (
-              <label
-                key={f}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs border-[1.5px] cursor-pointer transition-colors
-                  ${statusFilter === f
-                    ? "bg-[#12245B] border-[#12245B] text-white"
-                    : "bg-white border-gray-200 text-gray-500 hover:border-[#12245B]"
-                  }`}
-              >
-                <input
-                  type="radio"
-                  name="booleanFilter"
-                  value={f}
-                  checked={statusFilter === f}
-                  onChange={() =>
-                    setStatusFilter(f as keyof MinimalAnalysisFilters | "all")
-                  }
-                  className="accent-[#B4F000] w-3 h-3"
-                />
-                {f === "all" ? "All" : f.replace(/_/g, " ")}
-              </label>
-            ))}
-
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="w-px self-stretch bg-gray-200" />
-
-        {/* Review status — Dropdown */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Review Status</span>
-          <select
-            value={reviewStatusFilter}
-            onChange={(e) => setReviewStatusFilter(e.target.value as ReviewStatus | "all")}
-            className="px-3 py-1.5 rounded-lg text-xs border-[1.5px] border-gray-200 text-gray-500 bg-white cursor-pointer
-                       hover:border-[#12245B] focus:border-[#12245B] focus:outline-none transition-colors"
-          >
-            <option value="all">All</option>
-            {reviewFilters.map((f) => (
-              <option key={f} value={f}>
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-      </div>
+      <SessionFilters
+        processedFilter={processedFilter}       setProcessedFilter={setProcessedFilter}
+        safetyFilter={safetyFilter}             setSafetyFilter={setSafetyFilter}
+        reviewStatusFilter={reviewStatusFilter} setReviewStatusFilter={setReviewStatusFilter}
+        onCreated={() => getAllSessions(1, itemlimit)}
+      />
 
       {/* Table */}
       <div style={{ background: "#fff", border: "1.5px solid #E5E7EB", borderRadius: 14 }}>
