@@ -1,6 +1,9 @@
 "use client";
 
 import toast from "react-hot-toast";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useRouter } from "next/navigation";
+import { faEye, faClockRotateLeft, faCircleCheck,faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import { ReviewStatus } from "@/types/globalTypes.types";
 import { GroupSessionAnalysis } from "@/types/groupSessionAnalysis.types";
 import { useState, useEffect } from "react";
@@ -43,6 +46,7 @@ export default function EvaluationPage() {
 
   const params = useParams();
   const id = Number(params.id);
+  const router = useRouter();
 
   if (!id) throw new Error(`No Param id was provided`);
 
@@ -92,7 +96,7 @@ export default function EvaluationPage() {
       const result = await analyzedService.trashSessionClient(id);
       if (!result.message) throw new Error(`Session anlaysis failed`)
       toast.success(result.message);
-      redirect("/dashboard/analyzed/")
+      router.push(`/dashboard/analyzed`);
 
     } catch (error) {
       toast.error(`Error in trashing session`)
@@ -168,19 +172,40 @@ export default function EvaluationPage() {
           )}
 
           {/* Review */}
-          <button
-            onClick={() => setReviewOpen(true)}
-            className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border-2 transition-colors hover:text-white"
-            style={{ borderColor: "#12245B", color: "#12245B" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#12245B"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "#12245B"; }}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            Review Session
-          </button>
+          {/* Review */}
+          {sessionData.review_status === undefined ? (
+            <div className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border-2 border-gray-200 text-gray-400 cursor-not-allowed">
+              <FontAwesomeIcon icon={faClockRotateLeft} className="w-4 h-4" />
+              Not Evaluated Yet
+            </div>
+
+          ) : sessionData.review_status === "unreviewed" ? (
+            <button
+              onClick={() => setReviewOpen(true)}
+              className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border-2 border-[#12245B] text-[#12245B] hover:bg-[#12245B] hover:text-white transition-colors"
+            >
+              <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+              Review Session
+            </button>
+
+          ) : (
+            <div
+              className={`flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border-2 ${
+                sessionData.review_status === "accepted"
+                  ? "border-green-500 text-green-700 bg-green-50"
+                  : "border-red-400 text-red-700 bg-red-50"
+              }`}
+            >
+              <FontAwesomeIcon
+                icon={sessionData.review_status === "accepted" ? faCircleCheck : faCircleXmark}
+                className="w-4 h-4"
+              />
+              Review Status:{" "}
+              {sessionData.review_status
+                ? sessionData.review_status.charAt(0).toUpperCase() + sessionData.review_status.slice(1)
+                : "Unknown"}
+            </div>
+          )}
 
           {/* Trash */}
           <button
@@ -398,16 +423,16 @@ export default function EvaluationPage() {
           )}
         </section>
 
-        <TranscriptModal
-          open={transcriptOpen}
-          onClose={() => setTranscriptOpen(false)}
-          session={sessionData.transcript as Session}
-        />
-
         <LLMEvaluationModal
           open={llmOpen}
           onClose={() => setLlmOpen(false)}
           evaluation={sessionData.llm_evaluation as LLMEvaluation}
+        />
+
+        <TranscriptModal
+          open={transcriptOpen}
+          onClose={() => setTranscriptOpen(false)}
+          session={sessionData.transcript as Session}
         />
 
         <ReviewSessionModal

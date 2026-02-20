@@ -215,7 +215,8 @@ export function LLMEvaluationModal({
   open: boolean;
   onClose: () => void;
   evaluation: LLMEvaluation;
-}) {
+  }) {
+  if (!evaluation) return null;
   const { session_summary, metrics, risk_assessment } = evaluation;
 
   const metricRows: { key: keyof typeof metrics; label: string }[] = [
