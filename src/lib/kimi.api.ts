@@ -16,10 +16,11 @@ export async function useKimiLLMApi(
       Payload: ${JSON.stringify(finalTranscript.transcript)}
     `;
 
+    console.log("apii keyyy", kimiApiKey)
     const response = await axios.post(
-      "https://kimi-k2.ai/api/v1/chat/completions",
+      "https://api.moonshot.cn/v1/chat/completions",
       {
-        model: "kimi-k2-0905",
+        model: "kimi-k2",
 
         messages: [
           { role: "system", content: systemPrompt },
@@ -28,7 +29,7 @@ export async function useKimiLLMApi(
 
         temperature: 0.2,
 
-        // ⚠️ IMPORTANT → forces clean JSON output (Gemini equivalent)
+        // forces JSON output (like Gemini)
         response_format: { type: "json_object" }
       },
       {

@@ -6,6 +6,7 @@ import { LLMEvaluationResult } from "../../types/evaluation.types";
 import { useGeminiLLMApi } from "../../lib/gemini.api";
 import { logger } from "@/lib/logger";
 import { safeJsonParse } from "@/lib/json.manager";
+import { useKimiLLMApi } from "@/lib/kimi.api";
 
 export async function getLLMEvaluation( jsonData: string): Promise<LLMEvaluationResult> {
   try {
@@ -28,6 +29,8 @@ export async function getLLMEvaluation( jsonData: string): Promise<LLMEvaluation
 
     const llmStart = performance.now();
     const llmEvaluation = await useGeminiLLMApi(systemPrompt, prunedSession.finalTranscript);
+    // const llmEvaluation = await useKimiLLMApi(systemPrompt,prunedSession.finalTranscript);
+
     const llmDuration = performance.now() - llmStart;
 
     logger.info("Gemini LLM evaluation complete", { durationMs: Math.round(llmDuration) });
@@ -45,26 +48,44 @@ export async function getLLMEvaluation( jsonData: string): Promise<LLMEvaluation
 }
 
 function buildSystemPrompt(): string {
-  return `
-    You are an expert Educational Quality Auditor.
-    Evaluate the FULL, UNEDITED session transcript provided.
 
-    RUBRICS:
-    1. Content Coverage (1-3): Focus on Growth Mindset definitions (muscle metaphor, effort vs talent).
-    2. Facilitation Quality (1-3): Focus on open-ended questions and validation.
-    3. Protocol Safety (1-3): Ensure NO medical/psychiatric advice was given.
+  const systemPrompt = `
+    You are a Senior Healthcare Clinical Evaluator for the Shamiri Institute. Your task is to analyze session transcripts
+    between "Fellows" (lay-providers) and "Members." You must evaluate the session based on the provided rubric and output
+    a strict JSON object.
 
-    RISK DETECTION:
-    - Flag: "RISK" if text contains indications of self-harm, suicidal ideation, or severe crisis.
-    - Otherwise return "SAFE".
-    - Quote: Extract the triggering phrase; otherwise null.
+    ### TRANSCRIPT ARCHITECTURE:
+    - The transcript contains "SYSTEM" tags (e.g., "[3 turn(s) omitted]").
+    - These indicate gaps in the recording/pruning where content was removed for brevity.
+    - DO NOT penalize the Fellow for abrupt transitions if they occur across a SYSTEM tag.
+    - Evaluate the Fellow ONLY on the visible text provided.
 
-    OUTPUT INSTRUCTIONS:
+    ### EVALUATION RUBRIC:
+    1. Content Coverage (Growth Mindset):
+    - Score 1 (Missed): Failed to mention "Growth Mindset" or defined it incorrectly.
+    - Score 2 (Partial): Mentioned the concept but did not check for understanding or moved too quickly.
+    - Score 3 (Complete): Explained the concept (e.g., "brain is a muscle"), gave an example, and asked for group thoughts.
+
+    2. Facilitation Quality:
+    - Score 1 (Poor): Monologue, interrupted students, or used confusing jargon.
+    - Score 2 (Adequate): Polite but transactional. Stuck to the script without deep engagement.
+    - Score 3 (Excellent): Warm, validated feelings (e.g., "That sounds hard"), and encouraged quiet members.
+
+    3. Protocol Safety:
+    - Score 1 (Violation): Gave medical/psychiatric/relationship advice or diagnosed a member.
+    - Score 2 (Minor Drift): Briefly distracted by side topics (like sleep/family advice) but returned to the curriculum.
+    - Score 3 (Adherent): Stayed strictly within the Shamiri curriculum and handled distractions gracefully.
+
+    ### RISK DETECTION:
+    - Flag: "RISK" if text contains indications of self-harm, suicidal ideation, or severe crisis. Otherwise "SAFE".
+    - Quote: Extract the specific phrase triggering the risk; otherwise, return null.
+
+    ### OUTPUT INSTRUCTIONS:
     - Return ONLY a valid JSON object.
-    - No markdown blocks.
-    - Concise but evidence-based justifications.
+    - Do NOT include markdown code blocks, "json" labels, or backticks.
+    - Ensure justifications are concise but evidence-based.
 
-    JSON SCHEMA:
+    ### JSON SCHEMA:
     {
       "session_summary": "string (exactly 3 sentences)",
       "metrics": {
@@ -78,4 +99,6 @@ function buildSystemPrompt(): string {
       }
     }
   `;
+
+  return systemPrompt;
 }
