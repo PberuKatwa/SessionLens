@@ -20,7 +20,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# copy standalone output only (minimal!)
+# copy staandalone output only (minimal!)
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
