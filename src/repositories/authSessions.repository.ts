@@ -5,7 +5,7 @@ import { BaseAuthSession } from "@/types/authSession.types";
 export async function createAuthSession(userId:number):Promise<BaseAuthSession> {
   try {
 
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const query = `
       WITH invalidate_old AS (
         UPDATE auth_sessions
@@ -31,7 +31,7 @@ export async function createAuthSession(userId:number):Promise<BaseAuthSession> 
 export async function getAuthSession(sessionId: string):Promise<BaseAuthSession> {
   try {
 
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const result = await pgPool.query(
       `
       SELECT id, user_id
@@ -54,7 +54,7 @@ export async function getAuthSession(sessionId: string):Promise<BaseAuthSession>
 
 export async function trashAuthSession(id:string) {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     await pgPool.query(`UPDATE auth_sessions SET status=$1 WHERE id=$2;`,["trash", id])
     logger.info("Successfully trashed auth session");

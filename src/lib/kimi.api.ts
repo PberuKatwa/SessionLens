@@ -2,13 +2,13 @@ import axios from "axios";
 import { Session } from "../types/pruner.types";
 import { LLMEvaluation } from "../types/evaluation.types";
 import { LLMEvaluationSchema } from "../validators/evaluation.schema";
-import { llmConfig } from "@/config/config";
 
 export async function useKimiLLMApi(
   systemPrompt: string,
   finalTranscript: Session
 ): Promise<LLMEvaluation> {
   try {
+    const { llmConfig } = await import("../config/config");
     const { kimiApiKey } = llmConfig();
 
     const promptInput = `

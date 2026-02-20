@@ -3,7 +3,7 @@ import { getPgPool } from "../lib/database";
 
 export async function initializeTypes() {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const query = `
       DO $$
       BEGIN

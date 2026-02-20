@@ -10,7 +10,7 @@ import {
 
 export async function createGroupSession(payload: CreateGroupSessionPayload): Promise<BaseGroupSession> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const { user_id, group_id, fellow_name, transcript } = payload;
 
     const query = `
@@ -32,7 +32,7 @@ export async function createGroupSession(payload: CreateGroupSessionPayload): Pr
 
 export async function getGroupSessionById(id: number): Promise<GroupSession> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const result = await pgPool.query(
       `SELECT * FROM group_sessions WHERE id = $1 AND row_status != 'trash';`,
       [id]
@@ -49,7 +49,7 @@ export async function getGroupSessionById(id: number): Promise<GroupSession> {
 
 export async function getUnprocessedGroupSessionById(id: number): Promise<GroupSession> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const result = await pgPool.query(
       `SELECT * FROM group_sessions WHERE id = $1 AND row_status != 'trash' AND is_processed IS FALSE; ;`,
       [id]
@@ -93,7 +93,7 @@ export async function getAllGroupSessions( pageInput?: number, limitInput?: numb
       FROM group_sessions
       WHERE row_status != 'trash';
     `;
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const [dataResult, countResult] = await Promise.all([
       pgPool.query(dataQuery, [limit, offset]),
@@ -120,7 +120,7 @@ export async function getAllGroupSessions( pageInput?: number, limitInput?: numb
 
 export async function updateProcessedStatus(payload: UpdateGroupSessionPayload): Promise<void> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const { id, is_processed } = payload;
 
     const query = `
@@ -139,7 +139,7 @@ export async function updateProcessedStatus(payload: UpdateGroupSessionPayload):
 
 export async function trashGroupSession(id: number): Promise<void> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     await pgPool.query(
       `UPDATE group_sessions SET row_status = 'trash' WHERE id = $1;`,
       [id]

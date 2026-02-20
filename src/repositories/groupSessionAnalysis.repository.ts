@@ -9,7 +9,7 @@ import {
 
 export async function getSessionWithAnalysisBySessionId(sessionId: number): Promise<GroupSessionAnalysis> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const query = `
       SELECT
@@ -104,7 +104,7 @@ export async function getAllSessionsWithAnalysis(pageInput?: number, limitInput?
       WHERE gs.row_status != 'trash';
     `;
 
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const [dataResult, countResult] = await Promise.all([
       pgPool.query(dataQuery, [limit, offset]),
@@ -201,7 +201,7 @@ export async function minimalSessionsWithAnalysis(
       ${whereClause};
     `;
 
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const [dataResult, countResult] = await Promise.all([
       pgPool.query(dataQuery, values),

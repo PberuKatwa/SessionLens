@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 export async function createAnalyzedSessionsTable() {
   try {
 
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     await pgPool.query(`
       CREATE TABLE IF NOT EXISTS analyzed_sessions(

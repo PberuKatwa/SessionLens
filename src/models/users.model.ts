@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger";
 
 export async function createUsersTable() {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const query = `
       CREATE TABLE IF NOT EXISTS users (

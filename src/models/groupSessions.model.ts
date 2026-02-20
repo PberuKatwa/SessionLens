@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 export async function createGroupSessionsTable() {
   try {
 
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     await pgPool.query(`
       CREATE TABLE IF NOT EXISTS group_sessions(
         id SERIAL PRIMARY KEY,

@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger";
 
 export async function createAuthSessionsTable() {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const query = `
       CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

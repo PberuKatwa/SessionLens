@@ -10,7 +10,7 @@ import {
 
 export async function createAnalyzedSession(payload: CreateAnalyzedSessionPayload): Promise<BaseAnalyzedSession>{
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const { session_id, is_safe, content_coverage, facilitation_quality, protocol_safety,
     summary, llm_evaluation } = payload;
 
@@ -36,7 +36,7 @@ export async function createAnalyzedSession(payload: CreateAnalyzedSessionPayloa
 
 export async function getAnalyzedSessionById(id: number): Promise<AnalyzedSession> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const result = await pgPool.query(
       `SELECT session_id, is_safe, content_coverage, facilitation_quality, protocol_safety, summary, created_at, llm_evaluation
@@ -74,7 +74,7 @@ export async function getAllAnalyzedSessions(pageInput?: number,limitInput?: num
       WHERE row_status != 'trash';
     `;
 
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const [dataResult, countResult] = await Promise.all([
       pgPool.query(dataQuery, [limit, offset]),
@@ -99,7 +99,7 @@ export async function getAllAnalyzedSessions(pageInput?: number,limitInput?: num
 
 export async function reviewAnalyzedSession( payload: ReviewerUpdatePayload): Promise<void> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const {
       id,
@@ -145,7 +145,7 @@ export async function reviewAnalyzedSession( payload: ReviewerUpdatePayload): Pr
 
 export async function trashAnalyzedSession(id: number): Promise<void> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     await pgPool.query(
       `UPDATE analyzed_sessions SET row_status = 'trash' WHERE id = $1;`,
       [id]

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validatePassword } from "../../../../repositories/users.repository";
 import { createAuthSession } from "../../../../repositories/authSessions.repository";
-import { globalConfig } from "@/config/config";
 import { AuthUserApiResponse } from "@/types/user.types";
 import { setCookies } from "@/lib/cookies";
 

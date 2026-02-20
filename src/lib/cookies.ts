@@ -1,19 +1,10 @@
 import { cookies } from "next/headers";
-import { globalConfig } from "@/config/config";
 import { BaseCookie } from "@/types/cookies.types";
-
-const { cookieIdName, environment } = globalConfig();
-
-// function cookieConfig() {
-//   try {
-//     const cookieStore
-//   } catch (error) {
-//     throw error;
-//   }
-// }
 
 export async function setCookies(authSessionId: string) {
   try {
+    const { globalConfig } = await import("../config/config");
+    const { cookieIdName, environment } = globalConfig();
 
     const cookieStore = await cookies();
     let isSecure = false;
@@ -35,6 +26,9 @@ export async function setCookies(authSessionId: string) {
 export async function getCookieId():Promise<BaseCookie> {
   try {
 
+    const { globalConfig } = await import("../config/config");
+    const { cookieIdName } = globalConfig();
+
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get(cookieIdName);
     const authSessionId = sessionCookie?.value;
@@ -48,6 +42,8 @@ export async function getCookieId():Promise<BaseCookie> {
 
 export async function deleteCookie():Promise<string> {
   try {
+    const { globalConfig } = await import("../config/config");
+    const { cookieIdName } = globalConfig();
     const { cookieStore, authSessionId } = await getCookieId()
     cookieStore.delete(cookieIdName);
 

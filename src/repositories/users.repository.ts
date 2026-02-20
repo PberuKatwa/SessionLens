@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 
 export async function createUser(payload:CreateUserPayload):Promise<BaseUser> {
   try {
-    const pgPool = getPgPool()
+    const pgPool = await getPgPool()
     const { firstName, lastName, email, password } = payload;
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
@@ -35,7 +35,7 @@ export async function createUser(payload:CreateUserPayload):Promise<BaseUser> {
 
 export async function findUserByEmail(email: string):Promise<UserProfile> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const result = await pgPool.query(
       `SELECT id, first_name, last_name FROM users WHERE email = $1`,
       [email]
@@ -49,7 +49,7 @@ export async function findUserByEmail(email: string):Promise<UserProfile> {
 
 export async function findUserById(id: number):Promise<UserProfile> {
   try {
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
     const result = await pgPool.query(
       `SELECT id, first_name, last_name, email, role, created_at FROM users WHERE id = $1`,
       [id]
@@ -64,7 +64,7 @@ export async function findUserById(id: number):Promise<UserProfile> {
 export async function validatePassword(email: string, password: string):Promise<AuthUser> {
   try {
     logger.warn(`Attempting to login user`);
-    const pgPool = getPgPool();
+    const pgPool = await getPgPool();
 
     const result = await pgPool.query(
       `SELECT id,email, password FROM users WHERE email=$1;`,

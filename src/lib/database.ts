@@ -1,10 +1,9 @@
 import { Pool } from "pg";
-import { postgresEnv } from "../config/config";
-
 let pool:Pool
 
-export function getPgPool() {
+export async function getPgPool() {
   try {
+    const { postgresEnv } = await import("../config/config");
     const { pgHost, pgDatabase, pgPassword, pgPort, pgUser } = postgresEnv();
 
     if (!pool) {

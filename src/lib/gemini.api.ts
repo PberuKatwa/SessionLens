@@ -2,11 +2,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Session } from "../types/pruner.types";
 import { LLMEvaluation } from "../types/evaluation.types";
 import {  LLMEvaluationSchema } from "../validators/evaluation.schema";
-import { llmConfig } from "@/config/config";
 
 export async function useGeminiLLMApi(systemPrompt: string, finalTranscript: Session): Promise<LLMEvaluation>{
   try {
-
+    const { llmConfig } = await import("../config/config");
     const { geminiApiKey } = llmConfig();
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);
