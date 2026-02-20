@@ -306,40 +306,6 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
                 </pre>
               </div>
 
-              {/* File drop zone */}
-              <label
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-colors"
-                style={{
-                  borderColor: data.transcriptFile ? "#B4F000" : "#d1d5db",
-                  backgroundColor: data.transcriptFile ? "rgba(180,240,0,0.06)" : "#fafafa",
-                }}
-                onMouseEnter={(e) => { if (!data.transcriptFile) (e.currentTarget as HTMLElement).style.borderColor = "#12245B"; }}
-                onMouseLeave={(e) => { if (!data.transcriptFile) (e.currentTarget as HTMLElement).style.borderColor = "#d1d5db"; }}
-              >
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: data.transcriptFile ? "#B4F000" : "#F3F4F6" }}
-                >
-                  <FontAwesomeIcon
-                    icon={faUpload}
-                    className="w-3.5 h-3.5"
-                    style={{ color: data.transcriptFile ? "#12245B" : "#9ca3af" }}
-                  />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span
-                    className="text-sm font-semibold truncate"
-                    style={{ color: data.transcriptFile ? "#12245B" : "#6b7280" }}
-                  >
-                    {data.transcriptFile?.name || "Upload JSON Transcript"}
-                  </span>
-                  {!data.transcriptFile && (
-                    <span className="text-[11px] text-gray-400">Click to browse · .json files only</span>
-                  )}
-                </div>
-                <input type="file" accept="application/json" onChange={handleFileUpload} className="hidden" />
-              </label>
-
               {/* Generate with AI prompt — hideable */}
               <div className="rounded-xl border border-gray-200 overflow-hidden mt-1">
                 <button
@@ -395,6 +361,43 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
                   </div>
                 )}
               </div>
+
+              {/* File drop zone */}
+              <label
+                className="flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed cursor-pointer transition-colors"
+                style={{
+                  borderColor: data.transcriptFile ? "#B4F000" : "#d1d5db",
+                  backgroundColor: data.transcriptFile ? "rgba(180,240,0,0.06)" : "#fafafa",
+                }}
+                onMouseEnter={(e) => { if (!data.transcriptFile) (e.currentTarget as HTMLElement).style.borderColor = "#12245B"; }}
+                onMouseLeave={(e) => { if (!data.transcriptFile) (e.currentTarget as HTMLElement).style.borderColor = "#d1d5db"; }}
+              >
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: data.transcriptFile ? "#B4F000" : "#F3F4F6" }}
+                >
+                  <FontAwesomeIcon
+                    icon={faUpload}
+                    className="w-3.5 h-3.5"
+                    style={{ color: data.transcriptFile ? "#12245B" : "#9ca3af" }}
+                  />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span
+                    className="text-sm font-semibold truncate"
+                    style={{ color: data.transcriptFile ? "#12245B" : "#6b7280" }}
+                  >
+                    {data.transcriptFile?.name || "Upload JSON Transcript"}
+                  </span>
+                  {!data.transcriptFile && (
+                    <span className="text-[11px] text-gray-400">Click to browse · .json files only</span>
+                  )}
+                </div>
+                <input type="file" accept="application/json" onChange={handleFileUpload} className="hidden" />
+              </label>
+
+
+
             </div>
 
             {/* Submit */}
