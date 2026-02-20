@@ -146,17 +146,29 @@ export default function EvaluationPage() {
 
         {/* ── Action Bar ── */}
         <div className="flex flex-wrap items-center gap-3 mb-10">
-          {/* Evaluate */}
-          <button
-            onClick={() => evaluateSessionLLM()}
-            className="flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all hover:brightness-105"
-            style={{ backgroundColor: "#B4F000", color: "#12245B" }}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 117.072 0l-.347.347a3.75 3.75 0 01-5.303 0l-.347-.347z" />
-            </svg>
-            Evaluate Session
-          </button>
+
+          {!sessionData.is_processed ? (
+            <button
+              onClick={() => evaluateSessionLLM()}
+              className="flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl shadow-sm transition-all hover:brightness-105"
+              style={{ backgroundColor: "#B4F000", color: "#12245B" }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636-.707.707M21 12h-1M4 12H3m3.343-5.657-.707-.707m2.828 9.9a5 5 0 117.072 0l-.347.347a3.75 3.75 0 01-5.303 0l-.347-.347z" />
+              </svg>
+              Evaluate Session
+            </button>
+          ) : (
+            <div
+              className="flex items-center gap-2 text-sm font-bold px-5 py-2.5 rounded-xl shadow-sm"
+              style={{ backgroundColor: "#B4F000", color: "#12245B" }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              Evaluated
+            </div>
+          )}
 
           {/* Review */}
           <button
@@ -232,6 +244,7 @@ export default function EvaluationPage() {
 
         {/* ══════════ PART 2: ANALYSIS ══════════ */}
         <section>
+
           <div className="flex items-center gap-3 mb-4">
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center text-sm font-extrabold"
@@ -366,7 +379,7 @@ export default function EvaluationPage() {
                 <p className="text-xs text-gray-400 mt-1">This session has not been processed yet. Run an evaluation to generate AI insights.</p>
               </div>
               <button
-                onClick={() => {/* trigger evaluate */}}
+                onClick={() => evaluateSessionLLM()}
                 className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg mt-1"
                 style={{ backgroundColor: "#B4F000", color: "#12245B" }}
               >
