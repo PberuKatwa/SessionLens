@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
-import { PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
+import { GroupSessionAnalysisApiResponse, PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "../../types/analysisFilters.types";
 import { SingleGroupSessionApiResponse } from "@/types/groupSession.types";
 import { BaseAnalyzedSessionApiResponse } from "@/types/analyzedSession.types";
@@ -86,6 +86,17 @@ export const analyzedService = {
       const response = await apiClient.post(`/sessions/group/${sessionId}/trash`);
       const session:ApiResponse = response.data;
       return session
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async fetchFullGroupAnalysis(id: number):Promise<GroupSessionAnalysisApiResponse> {
+    try {
+
+      const response = await apiClient.post(`/sessions/combined/${id}`);
+      const session: GroupSessionAnalysisApiResponse = response.data;
+      return session;
     } catch (error) {
       throw error;
     }
