@@ -15,7 +15,6 @@ export function BooleanStatusBadge({
 }: StatusBadgeProps) {
 
   const baseStyles = "text-xs font-medium px-2 py-0.5 rounded";
-
   const successStyles = "px-3 py-1.5 rounded-md bg-green-100 text-green-700 text-xs font-semibold";
   const dangerStyles = "bg-red-100 text-red-700";
   const warningStyles = "bg-yellow-100 text-yellow-700";
