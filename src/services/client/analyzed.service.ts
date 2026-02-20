@@ -94,7 +94,7 @@ export const analyzedService = {
   async fetchFullGroupAnalysis(id: number):Promise<GroupSessionAnalysisApiResponse> {
     try {
 
-      const response = await apiClient.post(`/sessions/combined/${id}`);
+      const response = await apiClient.get(`/sessions/combined/${id}`);
       const session: GroupSessionAnalysisApiResponse = response.data;
       return session;
     } catch (error) {

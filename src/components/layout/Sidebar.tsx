@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import { redirect, usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChartLine, faUsers, faUser, faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
@@ -15,6 +16,7 @@ const navItems = [
 
 export const Sidebar = () => {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside style={{
@@ -65,7 +67,7 @@ export const Sidebar = () => {
           try {
             await authService.logout();
 
-            await authService.profile()
+            router.push(`/`);
           } catch (error) {
             console.error("Logout failed", error);
             toast.error("Failed to logout. Please try again.");

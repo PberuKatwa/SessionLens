@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { analyzedService } from "../../../services/client/analyzed.service";
@@ -35,9 +36,10 @@ export default function AnalyzedSessionsPage() {
   const [itemlimit, setItemlimit] = useState<number>(10);
   const [statusFilter, setStatusFilter] = useState<keyof MinimalAnalysisFilters | "all">("all");
   const [reviewStatusFilter, setReviewStatusFilter] = useState<ReviewStatus | "all">("all");
-
   const booleanFilters: (keyof MinimalAnalysisFilters)[] = ["is_processed", "is_safe"];
   const reviewFilters: ReviewStatus[] = ["unreviewed", "accepted", "rejected"];
+
+  const router = useRouter();
 
   const tableHeaders = ["Date","GroupId","Fellow","Is Processed","Safety Status","Review Status","Content","Facilitaion","Safety","Actions"]
 
@@ -87,7 +89,7 @@ export default function AnalyzedSessionsPage() {
 
   const viewSession = async function viewSession(id:number) {
     try {
-      toast.success("Successfully viewed session")
+      router.push(`/dashboard/analyzed/${id}`);
     } catch(error) {
       console.error(`Error in viewing session`, error)
     }
@@ -279,7 +281,7 @@ export default function AnalyzedSessionsPage() {
 
                       {/* View button — ghost */}
                       <button
-                        onClick={() => toast("View session coming soon")}
+                        onClick={() => viewSession(session.session_id)}
                         className="px-2.5 py-1.5 rounded-md border border-gray-200 bg-white text-gray-500 hover:border-[#12245B] hover:text-[#12245B] transition-colors cursor-pointer"
                       >
                         <FontAwesomeIcon icon={faEye} />

@@ -105,12 +105,7 @@ export default function EvaluationPage() {
   if (loading) return <ShamiriLoader />;
   if (aiLoading) return <AiEvaluationLoader />;
 
-  const s = SESSION_DATA;
-
-  const fmt = (d: Date) =>
-    d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) +
-    ", " +
-    d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  const s = sessionData;
 
   const reviewBadge: Record<ReviewStatus, { bg: string; dot: string; label: string }> = {
     unreviewed:  { bg: "bg-yellow-100 text-yellow-800", dot: "bg-yellow-400", label: "Pending Review" },
@@ -136,7 +131,7 @@ export default function EvaluationPage() {
           </div>
           <div className="flex items-center gap-2 text-sm text-white/60">
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: "#B4F000" }} />
-            Session #{s.session_id}
+            Session #{sessionData.session_id}
           </div>
         </div>
       </header>
@@ -200,17 +195,17 @@ export default function EvaluationPage() {
           >
             {/* Row 1 */}
             <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-gray-100">
-              <MetaCell label="Fellow">{s.fellow_name}</MetaCell>
-              <MetaCell label="Session ID">#{s.session_id}</MetaCell>
-              <MetaCell label="Group ID">GRP-{s.group_id}</MetaCell>
-              <MetaCell label="Date">{fmt(s.session_created_at)}</MetaCell>
+              <MetaCell label="Fellow">{sessionData.fellow_name}</MetaCell>
+              <MetaCell label="Session ID">#{sessionData.session_id}</MetaCell>
+              <MetaCell label="Group ID">GRP-{sessionData.group_id}</MetaCell>
+              <MetaCell label="Date">{new Date(sessionData.session_created_at).toLocaleDateString()}</MetaCell>
             </div>
 
             {/* Row 2 */}
             <div className="border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-gray-100">
-              <MetaCell label="User ID">USR-{s.user_id}</MetaCell>
+              <MetaCell label="User ID">USR-{sessionData.user_id}</MetaCell>
               <MetaCell label="Processed">
-                {s.is_processed ? (
+                {sessionData.is_processed ? (
                   <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700">Yes</span>
                 ) : (
                   <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-500">No</span>
@@ -246,16 +241,16 @@ export default function EvaluationPage() {
             </div>
             <h2 className="text-lg font-bold" style={{ color: "#12245B" }}>AI Analysis</h2>
             <div className="flex-1 h-px bg-gray-100" />
-            {s.analysis_created_at && (
-              <span className="text-xs text-gray-400">Analyzed {fmt(s.analysis_created_at)}</span>
+            {sessionData.analysis_created_at && (
+              <span className="text-xs text-gray-400">Analyzed {new Date(sessionData.analysis_created_at).toLocaleDateString()}</span>
             )}
           </div>
 
           {/* Status Badges */}
           <div className="flex flex-wrap gap-3 mb-5">
             <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${s.is_safe ? "bg-green-100 text-green-800" : "bg-red-100 text-red-700"}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${s.is_safe ? "bg-green-500" : "bg-red-500"}`} />
-              {s.is_safe ? "SAFE — No Risk Indicators" : "RISK — Flagged for Review"}
+              <span className={`w-1.5 h-1.5 rounded-full ${sessionData.is_safe ? "bg-green-500" : "bg-red-500"}`} />
+              {sessionData.is_safe ? "SAFE — No Risk Indicators" : "RISK — Flagged for Review"}
             </span>
 
             <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${rb.bg}`}>
@@ -263,9 +258,9 @@ export default function EvaluationPage() {
               Review Status: {rb.label}
             </span>
 
-            {s.analyzed_id && (
+            {sessionData.analyzed_id && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
-                Analysis ID: #{s.analyzed_id}
+                Analysis ID: #{sessionData.analyzed_id}
               </span>
             )}
           </div>
@@ -320,7 +315,7 @@ export default function EvaluationPage() {
                 </button>
               </div>
               <p className="text-sm text-gray-700 leading-relaxed">
-                {s.summary ?? "No summary available."}
+                {sessionData.summary ?? "No summary available."}
               </p>
             </div>
 
@@ -330,12 +325,12 @@ export default function EvaluationPage() {
 
               <div className="space-y-4 mb-4 flex-1">
                 <div>
-                  <p className="text-xs text-gray-400 mb-0.5">Reviewer</p>
+                  <p className="text-xs text-gray-400 mb-0.5">Review Status</p>
                   <p className="text-sm font-semibold" style={{ color: "#12245B" }}>
-                    SUP-0{s.reviewer_id} — Dr. Nkosi
+                    {sessionData.review_status}
                   </p>
                 </div>
-                {s.reviewer_comments && (
+                {sessionData.reviewer_comments && (
                   <div>
                     <p className="text-xs text-gray-400 mb-0.5">Comments</p>
                     <p className="text-sm text-gray-600 italic leading-snug">"{s.reviewer_comments}"</p>
@@ -343,21 +338,6 @@ export default function EvaluationPage() {
                 )}
               </div>
 
-              <div className="border-t border-gray-100 pt-4 flex flex-col gap-2">
-                <button
-                  onClick={() => toast.success("AI findings validated ✓")}
-                  className="w-full text-xs font-bold py-2.5 rounded-lg transition-all hover:brightness-105"
-                  style={{ backgroundColor: "#B4F000", color: "#12245B" }}
-                >
-                  Validate AI Findings
-                </button>
-                <button
-                  onClick={() =>toast.success("AI findings rejected")}
-                  className="w-full text-xs font-semibold py-2.5 rounded-lg border border-gray-300 text-gray-600 hover:border-gray-400 transition-colors"
-                >
-                  Reject AI Findings
-                </button>
-              </div>
             </div>
 
           </div>
