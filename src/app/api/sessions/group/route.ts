@@ -7,6 +7,7 @@ import { GroupSessionTranscript } from "@/types/json.types";
 import { NextRequest, NextResponse } from "next/server";
 import { parseJsonFile } from "@/lib/json.manager";
 import { authMiddleware } from "@/lib/auth.middleware";
+import { SessionSchema } from "@/validators/session.schema";
 
 
 async function createSession(req: NextRequest, session:BaseAuthSession) {
@@ -19,12 +20,20 @@ async function createSession(req: NextRequest, session:BaseAuthSession) {
     const transcriptFile = formData.get("transcriptFile") as File;
 
     const parsedJson = await parseJsonFile<GroupSessionTranscript>(transcriptFile)
+    const validationResult = SessionSchema.safeParse(parsedJson);
+    if (!validationResult.success) {
+      logger.error("Session validation failed", { validationErrors: validationResult.error.flatten() });
+      throw new Error("Invalid session data format");
+    }
+
+    const sessionData = validationResult.data;
+    logger.info("Session validated successfully")
 
     const groupSession = await createGroupSession({
       user_id: session.user_id,
       group_id: parseInt(groupId),
       fellow_name: fellowName,
-      transcript: parsedJson
+      transcript: sessionData
     });
 
     const response: SingleGroupSessionApiResponse = {
