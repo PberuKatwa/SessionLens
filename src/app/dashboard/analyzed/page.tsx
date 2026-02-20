@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { analyzedService } from "../../../services/client/analyzed.service";
-import { BooleanStatusBadge, ReviewStatusBadge, ScoreBadge } from "@/components/ui/StatusBadge";
+import { BooleanStatusBadge, ReviewStatusBadge, RiskStatusBadge, ScoreBadge } from "@/components/ui/StatusBadge";
 import { MinimalAnalysis } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "@/types/analysisFilters.types";
 import { ReviewStatus } from "@/types/globalTypes.types";
@@ -193,7 +193,7 @@ export default function AnalyzedSessionsPage() {
                     <BooleanStatusBadge value={session.is_processed} trueLabel="Evaluated" falseLabel="Not Evaluated"/>
                   </td>
                   <td style={{ padding: 12 }}>
-                    <BooleanStatusBadge value={session.is_safe} trueLabel="SAFE" falseLabel="RISK" nullLabel="Not Evaluated"/>
+                    <RiskStatusBadge value={session.is_safe} />
                   </td>
                   <td style={{ padding: 12 }}>
                     <ReviewStatusBadge value={session.review_status}/>
