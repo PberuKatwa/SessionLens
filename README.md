@@ -1,182 +1,121 @@
-# Shamiri Supervisor Intelligence Dashboard
+# Shamiri Supervisor Copilot
 
-A web-based platform enabling Shamiri Supervisors to monitor therapy sessions, access AI-generated insights, and ensure quality assurance across a network of lay-provider Fellows delivering evidence-based mental health interventions in East Africa.
+A web-based dashboard enabling Shamiri Supervisors to review therapy sessions conducted by Fellows and access AI-generated session insights. Solves the quality assurance bottleneck at scale by amplifying supervisor capacity through structured AI analysis and human-in-the-loop validation.
 
----
+## Purpose
 
-## Table of Contents
+Shamiri delivers evidence-based mental health interventions to young people using a Tiered Care Model. As we scale to serve millions of youths, Supervisors face a critical bottleneck: they cannot listen to every session recording to ensure safety and protocol adherence. This application amplifies supervisor capacity using Generative AI while preserving human judgment and accountability.
 
-1. [Platform Overview](#platform-overview)
-2. [Core Architecture](#core-architecture)
-3. [The Transcript Pruning Engine](#the-transcript-pruning-engine)
-4. [Data Models & Persistence](#data-models--persistence)
-5. [Session Evaluation Pipeline](#session-evaluation-pipeline)
-6. [API Endpoints](#api-endpoints)
-7. [Frontend Components](#frontend-components)
-8. [Getting Started](#getting-started)
+## Core Features
 
----
-
-## Platform Overview
-
-### Purpose
-
-Shamiri is building one of the world's most cost-effective and scalable youth mental health care models through a **for-youth-by-youth** delivery approach. This platform operationalizes quality assurance and supervision at scale by:
-
-- **Enabling Supervisors** to view and analyze therapy sessions conducted by Fellows
-- **Leveraging AI** to generate structured insights from session transcripts
-- **Maintaining Human Oversight** through supervisor validation and contextual judgment
-- **Detecting Safety Risks** in real-time to protect vulnerable populations
-- **Ensuring Fidelity** to Shamiri's evidence-based curriculum
-
-### What This Application Does
-
-The platform transforms raw session transcripts into actionable supervisory intelligence through a three-layer system:
-
-1. **Transcript Pruning** — Intelligently reduces context to essential content
-2. **LLM Evaluation** — Generates structured clinical assessments
-3. **Human Review** — Supervisors validate, override, and contextualize AI findings
+- **Session Dashboard**: View 10+ completed therapy sessions with metadata (Fellow Name, Date, Group ID, Status)
+- **AI Session Analysis**: Structured LLM-generated insights including 3-sentence summary, quality scores, and risk detection
+- **3-Point Quality Index**: Evaluate sessions on Content Coverage, Facilitation Quality, and Protocol Safety
+- **Risk Detection**: Binary SAFE/RISK flag with exact quote extraction for self-harm or crisis indicators
+- **Human-in-the-Loop**: Supervisors validate, reject, or override AI findings with contextual notes
 
 ---
 
-## Core Architecture
-
-### System Flow
+## System Architecture
 
 ```
-Raw Session Transcript
-        ↓
-   [Pruning Engine]  ← Reduces token usage by 40-70%
-        ↓
-   [Pruned Transcript]
-        ↓
-   [Gemini LLM API]  ← Evaluates on optimized context
-        ↓
-   [LLM Evaluation]  ← Structured JSON output
-        ↓
-   [Database Storage]
-        ↓
-   [Supervisor Dashboard] ← Human validation & override
+Session Upload → Pruning Engine (67% reduction) → Gemini LLM → 
+Structured Evaluation → Database → Supervisor Dashboard (Human Validation)
 ```
 
-### Key Design Principles
+### Transcript Pruning Engine
 
-- **Context Optimization**: Pruning reduces LLM processing time and token costs without sacrificing clinical accuracy
-- **Human-in-the-Loop**: AI augments, not replaces, supervisor judgment
-- **Safety-First**: Risk detection is prioritized; safety flags are extracted with exact quotes
-- **Scalability**: Designed to handle hundreds of sessions across multiple supervisors
+**Why**: Raw transcripts exceed 5,000+ words. Pruning reduces tokens by 67% while preserving clinical signals, cutting latency from ~3.2s to ~1.1s and API costs by 67%.
+
+**How** (`src/transcript_pruner/transcriptPruner/transcript.pruner.ts`):
+1. **Signal Detection**: Identifies clinically relevant turns using lexicons (safety, pedagogy, empathy, reflection)
+2. **Context Expansion**: Expands critical turns bidirectionally with surrounding dialogue
+3. **Smart Capping**: Limits repetitive content while preserving narrative flow
+4. **Gap Annotation**: Marks omitted sections with `[X turn(s) omitted]` tags
+
+**Performance**:
+- Word Count: 4,200 → 1,400 (67% reduction)
+- LLM Latency: 3.2s → 1.1s (66% faster)
+- API Cost: $0.042 → $0.014 (67% cheaper)
 
 ---
 
-## The Transcript Pruning Engine
+## Quality Evaluation Rubric
 
-### Why Pruning Matters
+### Metric 1: Content Coverage (Teaching Fidelity)
+- **Score 1 (Missed)**: Failed to mention concept or defined incorrectly
+- **Score 2 (Partial)**: Mentioned but didn't check understanding
+- **Score 3 (Complete)**: Explained clearly, gave examples, engaged group
 
-Raw therapy session transcripts can exceed 5,000+ words. Sending entire transcripts to an LLM is:
+### Metric 2: Facilitation Quality (Delivery Style)
+- **Score 1 (Poor)**: Monologue, interrupted, confusing jargon
+- **Score 2 (Adequate)**: Polite but transactional, stuck to script
+- **Score 3 (Excellent)**: Warm, validated feelings, encouraged participation
 
-- **Expensive**: Higher token usage = higher API costs
-- **Slow**: Larger context windows increase latency
-- **Inefficient**: LLMs must process irrelevant filler and repetition
+### Metric 3: Protocol Safety (Scope Adherence)
+- **Score 1 (Violation)**: Gave unauthorized medical/psychiatric advice
+- **Score 2 (Minor Drift)**: Got distracted but returned to curriculum
+- **Score 3 (Adherent)**: Stayed within Shamiri curriculum
 
-**Solution**: Intelligently prune transcripts to 30-60% of original size while preserving clinical signals.
+### Risk Assessment
+- **Flag**: `SAFE` or `RISK`
+- **Quote**: Exact phrase if risk detected (self-harm, suicidal ideation, crisis) or `null`
 
-### How It Works
+---
 
-The pruning engine (`src/transcript_pruner/transcriptPruner/transcript.pruner.ts`) uses a **signal-based indexing strategy**:
+## Type Safety & Validation
 
-#### 1. **Lexicon-Based Signal Detection**
+All inputs validated with Zod schemas for runtime type safety.
 
-The engine identifies clinically relevant turns using six lexicon categories:
+### Session Upload Validation
 
 ```typescript
-interface Lexicons {
-  safetyWords: string[];        // "harm", "suicide", "crisis"
-  pedagogyWords: string[];      // "growth mindset", "brain", "learning"
-  reflectionWords: string[];    // "think", "feel", "experience"
-  empathyWords: string[];       // "understand", "validate", "support"
-  understandingWords: string[]; // "get it", "makes sense"
-  fillerWords: string[];        // "um", "like", "you know"
-}
+// src/validators/session.schema.ts
+export const SessionSchema = z.object({
+  session_topic: z.string(),
+  duration_minutes: z.number().positive(),
+  transcript: z.array(z.object({
+    speaker: z.string(),
+    text: z.string()
+  }))
+});
 ```
 
-#### 2. **Turn Scoring & Indexing**
-
-For each turn in the transcript:
-
-- **Speaker Classification**: Fellow vs. Member
-- **Signal Matching**: Regex patterns identify pedagogical, empathetic, and safety signals
-- **Index Tagging**: Turns are tagged with signal types (safety, pedagogy, facilitation)
+### LLM Response Validation
 
 ```typescript
-// Example: A turn containing "growth mindset" is tagged as pedagogyIndices
-// A turn containing "I want to hurt myself" is tagged as safetyIndices
+// src/validators/evaluation.schema.ts
+export const LLMEvaluationSchema = z.object({
+  session_summary: z.string().min(1),
+  metrics: z.object({
+    content_coverage: z.object({
+      score: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+      justification: z.string().min(1)
+    }),
+    facilitation_quality: z.object({
+      score: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+      justification: z.string().min(1)
+    }),
+    protocol_safety: z.object({
+      score: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+      justification: z.string().min(1)
+    })
+  }),
+  risk_assessment: z.object({
+    flag: z.union([z.literal("SAFE"), z.literal("RISK")]),
+    quote: z.string().nullable()
+  })
+}).strict();
 ```
 
-#### 3. **Context Window Expansion**
-
-Critical turns are expanded with surrounding context:
-
-- **Safety Signals**: Expand bidirectionally (before + after) to capture full context
-- **Pedagogy Signals**: Expand forward to capture student responses
-- **Facilitation Signals**: Expand to nearest opposite speaker (Fellow ↔ Member)
-
-```typescript
-// If turn 50 contains a safety signal:
-// Include turns 48, 49, 50, 51, 52 (with windowPadding = 2)
-// Also include nearest Member response for context
-```
-
-#### 4. **Capping & Randomization**
-
-To prevent over-inclusion of repetitive content:
-
-- Pedagogy signals are capped at a percentage of total turns (e.g., 20%)
-- When capped, signals are randomly sampled to maintain distribution
-- First and last signals are always included to preserve narrative flow
-
-#### 5. **Gap Annotation**
-
-Omitted sections are marked with SYSTEM tags:
-
-```
-Fellow: "Growth mindset means your brain is like a muscle..."
-[3 turn(s) omitted]
-Member: "So I can get better at math?"
-```
-
-This tells the LLM: "Don't penalize abrupt transitions; context was removed for brevity."
-
-### Pruning Output
-
-```typescript
-interface PrunedSession {
-  metadata: {
-    originalWordCount: number;      // e.g., 4,200
-    originalTurns: number;          // e.g., 120
-    finalWordCount: number;         // e.g., 1,400
-    finalTurns: number;             // e.g., 45
-    reductionRatioPercentage: number; // e.g., 67%
-  };
-  finalTranscript: Session;
-}
-```
-
-### Performance Impact
-
-| Metric | Before Pruning | After Pruning | Improvement |
-|--------|---|---|---|
-| Word Count | 4,200 | 1,400 | 67% reduction |
-| Token Count | ~1,050 | ~350 | 67% reduction |
-| LLM Latency | ~3.2s | ~1.1s | 66% faster |
-| API Cost | $0.042 | $0.014 | 67% cheaper |
+**Validation Flow**: Parse JSON → Validate with Zod → Use type-safe data → Store in database
 
 ---
 
-## Data Models & Persistence
+## Data Models
 
 ### GroupSessions Table
-
-Stores raw session transcripts and metadata.
+Stores raw session transcripts (immutable source of truth)
 
 ```typescript
 interface GroupSession {
@@ -189,77 +128,34 @@ interface GroupSession {
   row_status: 'active' | 'trash';
   created_at: timestamp;
 }
-
-interface RawTurn {
-  speaker: 'Fellow' | 'Member' | 'SYSTEM';
-  text: string;
-}
 ```
 
-**Purpose**: Source of truth for raw session data. Immutable after creation.
-
 ### AnalyzedSessions Table
-
-Stores LLM evaluations and supervisor reviews.
+Stores LLM evaluations and supervisor reviews (audit trail)
 
 ```typescript
 interface AnalyzedSession {
   id: number;
   session_id: number;           // FK to GroupSession
-  
-  // LLM Evaluation Results
   summary: string;              // 3-sentence session summary
-  content_coverage: number;     // 1-3 score
-  facilitation_quality: number; // 1-3 score
-  protocol_safety: number;      // 1-3 score
+  content_coverage: 1 | 2 | 3;
+  facilitation_quality: 1 | 2 | 3;
+  protocol_safety: 1 | 2 | 3;
   is_safe: boolean;             // Risk flag
   llm_evaluation: object;       // Full LLM JSON response
-  
-  // Supervisor Review
   review_status: 'unreviewed' | 'reviewed' | 'flagged';
   reviewer_id: number;          // Supervisor who reviewed
   reviewer_comments: string;    // Contextual notes
-  
   row_status: 'active' | 'trash';
   created_at: timestamp;
 }
 ```
 
-**Purpose**: Stores AI-generated insights and supervisor validations. Enables audit trail.
-
-### Data Flow
-
-```
-1. Session Uploaded
-   ↓
-   GroupSession created (is_processed = false)
-   ↓
-2. Evaluation Triggered
-   ↓
-   Pruning Engine processes transcript
-   ↓
-   Gemini LLM evaluates pruned transcript
-   ↓
-3. Results Stored
-   ↓
-   AnalyzedSession created with LLM results
-   ↓
-   GroupSession.is_processed = true
-   ↓
-4. Supervisor Review
-   ↓
-   Supervisor validates/overrides AI findings
-   ↓
-   AnalyzedSession updated with reviewer_id, comments, review_status
-```
-
 ---
 
-## Session Evaluation Pipeline
+## Evaluation Pipeline
 
-### Evaluation Service
-
-The `evaluation.service.ts` orchestrates the entire analysis workflow:
+The `evaluation.service.ts` orchestrates the entire workflow:
 
 ```typescript
 export async function evaluateSession(groupSessionId: number) {
@@ -290,500 +186,52 @@ export async function evaluateSession(groupSessionId: number) {
 }
 ```
 
-### LLM Evaluation Schema
-
-The Gemini LLM is prompted to return structured JSON:
-
-```json
-{
-  "session_summary": "The Fellow introduced growth mindset by explaining how the brain is like a muscle. Members engaged with examples from their own learning experiences. The session stayed within curriculum boundaries and maintained a supportive tone.",
-  
-  "metrics": {
-    "content_coverage": {
-      "score": 3,
-      "justification": "Fellow clearly explained growth mindset concept, provided brain-muscle analogy, and checked for understanding with group questions."
-    },
-    "facilitation_quality": {
-      "score": 3,
-      "justification": "Warm tone, validated member experiences, encouraged quiet participants, and created safe space for discussion."
-    },
-    "protocol_safety": {
-      "score": 3,
-      "justification": "Stayed strictly within Shamiri curriculum. No medical advice, diagnosis, or unauthorized guidance provided."
-    }
-  },
-  
-  "risk_assessment": {
-    "flag": "SAFE",
-    "quote": null
-  }
-}
-```
-
-### Scoring Rubric
-
-#### Content Coverage (Teaching Fidelity)
-
-- **Score 1 (Missed)**: Failed to mention concept or defined it incorrectly
-- **Score 2 (Partial)**: Mentioned concept but didn't check understanding or moved too quickly
-- **Score 3 (Complete)**: Explained concept, gave examples, asked for group thoughts
-
-#### Facilitation Quality (Delivery Style)
-
-- **Score 1 (Poor)**: Monologue, interrupted members, used confusing jargon
-- **Score 2 (Adequate)**: Polite but transactional; stuck to script without deep engagement
-- **Score 3 (Excellent)**: Warm, validated feelings, encouraged quiet members, created psychological safety
-
-#### Protocol Safety (Scope Adherence)
-
-- **Score 1 (Violation)**: Gave medical/psychiatric/relationship advice or diagnosed
-- **Score 2 (Minor Drift)**: Briefly distracted by side topics but returned to curriculum
-- **Score 3 (Adherent)**: Stayed strictly within Shamiri curriculum; handled distractions gracefully
-
-#### Risk Assessment
-
-- **Flag**: `SAFE` or `RISK`
-- **Quote**: Exact phrase triggering risk flag (self-harm, suicidal ideation, severe crisis) or `null`
-
----
-
-## Type Safety & Validation
-
-### Zod Schema Architecture
-
-All inputs are validated using Zod schemas before processing. This ensures type safety, runtime validation, and clear error messages.
-
-#### Session Input Validation (`src/validators/session.schema.ts`)
-
-Validates raw session transcripts on upload:
-
-```typescript
-export const RawTurnSchema: z.ZodType<RawTurn> = z.object({
-  speaker: z.string(),
-  text: z.string(),
-});
-
-export const SessionSchema = z.object({
-  session_topic: z.string(),
-  duration_minutes: z.number().positive(),
-  transcript: z.array(RawTurnSchema)
-});
-```
-
-**Validation Rules**:
-- `session_topic`: Required string (e.g., "Growth Mindset")
-- `duration_minutes`: Positive number (e.g., 60)
-- `transcript`: Array of turns with speaker and text
-
-**Example Valid Input**:
-```json
-{
-  "session_topic": "Growth Mindset",
-  "duration_minutes": 60,
-  "transcript": [
-    { "speaker": "Fellow", "text": "Today we're learning about growth mindset..." },
-    { "speaker": "Member", "text": "What does that mean?" },
-    { "speaker": "Fellow", "text": "It means your brain is like a muscle..." }
-  ]
-}
-```
-
-#### LLM Evaluation Output Validation (`src/validators/evaluation.schema.ts`)
-
-Validates LLM responses before storage:
-
-```typescript
-export const MetricCategorySchema = z.object({
-  score: z.union([z.literal(1), z.literal(2), z.literal(3)]),
-  justification: z.string().min(1),
-});
-
-export const MetricsSchema = z.object({
-  content_coverage: MetricCategorySchema,
-  facilitation_quality: MetricCategorySchema,
-  protocol_safety: MetricCategorySchema,
-});
-
-export const RiskAssessmentSchema = z.object({
-  flag: z.union([z.literal("SAFE"), z.literal("RISK")]),
-  quote: z.string().nullable(),
-});
-
-export const LLMEvaluationSchema = z.object({
-  session_summary: z.string().min(1),
-  metrics: MetricsSchema,
-  risk_assessment: RiskAssessmentSchema,
-}).strict();
-```
-
-**Validation Rules**:
-- `session_summary`: Non-empty string (exactly 3 sentences)
-- `metrics.*.score`: Must be 1, 2, or 3
-- `metrics.*.justification`: Non-empty string with evidence
-- `risk_assessment.flag`: Must be "SAFE" or "RISK"
-- `risk_assessment.quote`: String or null (exact phrase if RISK)
-- `.strict()`: No extra fields allowed
-
-**Example Valid Output**:
-```json
-{
-  "session_summary": "The Fellow introduced growth mindset by explaining how the brain is like a muscle. Members engaged with examples from their own learning experiences. The session stayed within curriculum boundaries and maintained a supportive tone.",
-  "metrics": {
-    "content_coverage": {
-      "score": 3,
-      "justification": "Fellow clearly explained growth mindset concept, provided brain-muscle analogy, and checked for understanding with group questions."
-    },
-    "facilitation_quality": {
-      "score": 3,
-      "justification": "Warm tone, validated member experiences, encouraged quiet participants, and created safe space for discussion."
-    },
-    "protocol_safety": {
-      "score": 3,
-      "justification": "Stayed strictly within Shamiri curriculum. No medical advice, diagnosis, or unauthorized guidance provided."
-    }
-  },
-  "risk_assessment": {
-    "flag": "SAFE",
-    "quote": null
-  }
-}
-```
-
-### Validation in Session Upload
-
-The `POST /api/sessions/group` endpoint validates inputs at multiple layers:
-
-```typescript
-// 1. Parse uploaded JSON file
-const parsedJson = await parseJsonFile<GroupSessionTranscript>(transcriptFile);
-
-// 2. Validate against SessionSchema
-const validationResult = SessionSchema.safeParse(parsedJson);
-if (!validationResult.success) {
-  logger.error("Session validation failed", { 
-    validationErrors: validationResult.error.flatten() 
-  });
-  throw new Error("Invalid session data format");
-}
-
-// 3. Use validated data
-const sessionData = validationResult.data;
-const groupSession = await createGroupSession({
-  user_id: session.user_id,
-  group_id: parseInt(groupId),
-  fellow_name: fellowName,
-  transcript: sessionData
-});
-```
-
-**Error Handling**:
-- Invalid JSON → Parse error
-- Missing required fields → Zod validation error with field details
-- Wrong data types → Type coercion or validation error
-- Invalid values (e.g., negative duration) → Validation error
-
-**Example Error Response**:
-```json
-{
-  "success": false,
-  "message": "Invalid session data format",
-  "validationErrors": {
-    "fieldErrors": {
-      "duration_minutes": ["Expected number to be greater than 0"]
-    }
-  }
-}
-```
-
-### Type Safety Benefits
-
-1. **Compile-Time Checking**: TypeScript catches type errors during development
-2. **Runtime Validation**: Zod ensures data matches schema at runtime
-3. **Clear Error Messages**: Validation errors pinpoint exact issues
-4. **Self-Documenting**: Schemas serve as API documentation
-5. **Strict Mode**: `.strict()` prevents unexpected fields from being accepted
-
 ---
 
 ## API Endpoints
 
-### Session Management
+### `POST /api/sessions/group`
+Upload session transcript (multipart/form-data: fellowName, groupId, transcriptFile)
+- Validates against `SessionSchema`
+- Stores in `GroupSessions` table
+- Returns session ID and processing status
 
-#### `POST /api/sessions/group`
+### `GET /api/sessions/group`
+Fetch paginated list of group sessions
+- Query params: `?page=1&limit=10`
+- Returns sessions with metadata and pagination info
 
-Creates a new group session with validated transcript.
+### `POST /api/sessions/analyzed/[id]`
+Trigger AI evaluation for session
+- Prunes transcript → Calls Gemini LLM → Validates response → Stores results
+- Validates LLM response against `LLMEvaluationSchema`
+- Returns analyzed session with scores and risk assessment
 
-**Request** (multipart/form-data):
-```typescript
-{
-  fellowName: string;           // Fellow's name
-  groupId: string;              // Group identifier
-  transcriptFile: File;         // JSON file with session data
-}
-```
+### `POST /api/sessions/analyzed/review`
+Supervisor validates/overrides AI findings
+- Enables human-in-the-loop validation
+- Supervisors can confirm, override, or flag sessions
+- Stores reviewer ID, comments, and final status
 
-**Transcript File Schema** (validated with `SessionSchema`):
-```typescript
-{
-  session_topic: string;        // e.g., "Growth Mindset"
-  duration_minutes: number;     // Positive integer
-  transcript: Array<{
-    speaker: string;            // "Fellow" or "Member"
-    text: string;               // Turn content
-  }>
-}
-```
-
-**Response**:
-```typescript
-{
-  success: true;
-  message: "Successfully created group session";
-  data: {
-    id: number;
-    is_processed: boolean;      // false (awaiting evaluation)
-  }
-}
-```
-
-**Validation Flow**:
-1. Parse JSON file
-2. Validate against `SessionSchema`
-3. Check `duration_minutes > 0`
-4. Verify transcript array is non-empty
-5. Store in `GroupSessions` table
-
-**Error Responses**:
-```typescript
-// Invalid JSON
-{ success: false, message: "Invalid JSON format" }
-
-// Missing required fields
-{ success: false, message: "Invalid session data format" }
-
-// Negative duration
-{ success: false, message: "duration_minutes must be positive" }
-
-// Empty transcript
-{ success: false, message: "transcript array cannot be empty" }
-```
-
----
-
-#### `GET /api/sessions/group`
-
-Fetches paginated list of group sessions.
-
-**Query Parameters**:
-```typescript
-?page=1&limit=10
-```
-
-**Response**:
-```typescript
-{
-  success: true;
-  message: "Successfully fetched sessions";
-  data: {
-    groupSessions: Array<{
-      id: number;
-      user_id: number;
-      group_id: number;
-      fellow_name: string;
-      is_processed: boolean;
-      created_at: timestamp;
-      transcript: Session;
-    }>;
-    pagination: {
-      totalCount: number;
-      currentPage: number;
-      totalPages: number;
-    }
-  }
-}
-```
-
----
-
-### Session Analysis
-
-#### `POST /api/sessions/analyzed/[id]`
-
-Triggers LLM evaluation for a group session.
-
-**Request**:
-```typescript
-// URL: /api/sessions/analyzed/42
-// Method: POST
-```
-
-**Response**:
-```typescript
-{
-  id: number;
-  summary: string;
-  review_status: 'unreviewed';
-  llm_evaluation: LLMEvaluation;
-}
-```
-
-**Flow**:
-1. Fetch unprocessed GroupSession
-2. Prune transcript
-3. Call Gemini LLM
-4. **Validate LLM response against `LLMEvaluationSchema`**
-5. Store AnalyzedSession
-6. Mark GroupSession as processed
-
-**Validation Details**:
-- LLM response must match `LLMEvaluationSchema` exactly
-- All three metrics (content_coverage, facilitation_quality, protocol_safety) required
-- Each metric score must be 1, 2, or 3
-- Risk flag must be "SAFE" or "RISK"
-- If RISK, quote must be non-null string
-- If SAFE, quote must be null
-- No extra fields allowed (strict mode)
-
-**Error Handling**:
-```typescript
-// LLM returns invalid JSON
-throw new Error("LLM returned invalid JSON");
-
-// LLM response fails schema validation
-throw new Error("LLM response failed schema validation");
-
-// Example: Missing metric
-{
-  "session_summary": "...",
-  "metrics": {
-    "content_coverage": { "score": 3, "justification": "..." },
-    // Missing facilitation_quality and protocol_safety
-  },
-  "risk_assessment": { "flag": "SAFE", "quote": null }
-}
-// → Validation fails: facilitation_quality is required
-```
-
----
-
-#### `POST /api/sessions/analyzed/review`
-
-Supervisor validates/overrides AI findings.
-
-**Request**:
-```typescript
-{
-  id: number;                    // AnalyzedSession ID
-  is_safe: boolean;              // Supervisor's safety determination
-  review_status: 'reviewed' | 'flagged';
-  content_coverage: number;      // 1-3 (can override AI)
-  facilitation_quality: number;  // 1-3 (can override AI)
-  protocol_safety: number;       // 1-3 (can override AI)
-  reviewer_id: number;           // Supervisor ID
-  reviewer_comments: string;     // Contextual notes
-}
-```
-
-**Response**:
-```typescript
-{ success: true }
-```
-
-**Purpose**: Enables human-in-the-loop validation. Supervisors can:
-- Confirm AI findings
-- Override AI scores with contextual judgment
-- Add notes explaining their decision
-- Flag sessions for escalation
-
----
-
-#### `GET /api/sessions/combined/minimal`
-
-Fetches paginated list of sessions with minimal data for dashboard.
-
-**Query Parameters**:
-```typescript
-?page=1&limit=10
-```
-
-**Response**:
-```typescript
-{
-  sessions: Array<{
-    id: number;
-    fellow_name: string;
-    group_id: number;
-    created_at: timestamp;
-    is_processed: boolean;
-    is_safe: boolean;
-    review_status: string;
-  }>;
-  pagination: {
-    totalCount: number;
-    currentPage: number;
-    totalPages: number;
-  };
-}
-```
-
-**Purpose**: Powers the dashboard session list. Minimal payload for fast rendering.
+### `GET /api/sessions/combined/minimal`
+Fetch paginated session list for dashboard
+- Minimal payload for fast rendering
+- Returns: id, fellow_name, group_id, created_at, is_processed, is_safe, review_status
 
 ---
 
 ## Frontend Components
 
-### Sidebar (`src/components/layout/Sidebar.tsx`)
-
-Navigation and session filtering.
-
-**Features**:
-- Session list with status indicators
-- Filter by: processed, safe, review status
-- Quick access to individual session details
-
----
-
-### Dashboard (`src/app/dashboard/page.tsx`)
-
-Main supervisor interface.
-
-**Features**:
-- Session overview cards
-- Pagination controls
-- Status badges (Processed, Safe, Flagged)
-- Quick actions (View, Review, Archive)
-
----
-
-### Analyzed Sessions Page (`src/app/dashboard/analyzed/page.tsx`)
-
-List of evaluated sessions.
-
-**Features**:
-- Filterable session list
-- Quality score summaries
-- Risk flags with quotes
-- Review status indicators
-
----
-
-### Individual Session Page (`src/app/dashboard/analyzed/[id]/page.tsx`)
-
-Detailed session review interface.
-
-**Features**:
-- Full session transcript (with pruning indicators)
-- AI evaluation card with scores and justifications
-- Risk assessment with exact quotes
-- Supervisor review form
-- Override controls
+- **Sidebar** (`src/components/layout/Sidebar.tsx`): Navigation and session filtering
+- **Dashboard** (`src/app/dashboard/page.tsx`): Main supervisor interface with session overview
+- **Analyzed Sessions** (`src/app/dashboard/analyzed/page.tsx`): List of evaluated sessions
+- **Session Detail** (`src/app/dashboard/analyzed/[id]/page.tsx`): Detailed review interface with transcript, AI scores, and supervisor override form
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-
 - Node.js 18+
 - PostgreSQL 14+
 - Gemini API key
@@ -791,151 +239,47 @@ Detailed session review interface.
 ### Installation
 
 ```bash
-# Clone repository
-git clone <repo-url>
-cd session-lens
-
 # Install dependencies
 npm install
 
-# Set up environment variables
-cp .env.example .env.local
-# Edit .env.local with your credentials:
-# - GEMINI_API_KEY
-# - DATABASE_URL
-# - NEXT_PUBLIC_API_URL
+# Configure environment
+GEMINI_API_KEY=your_key
+DATABASE_URL=postgresql://user:password@localhost:5432/shamiri
+NEXT_PUBLIC_API_URL=http://localhost:3000
 
-# Run database migrations
+# Run migrations
 npm run db:migrate
 
-# Start development server
+# Start development
 npm run dev
 ```
 
-### Environment Variables
+### Key Files
 
-```env
-# Gemini LLM
-GEMINI_API_KEY=your_api_key_here
-
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/shamiri
-
-# Application
-NEXT_PUBLIC_API_URL=http://localhost:3000
-NODE_ENV=development
-```
-
-### Type Definitions
-
-Key types are defined in `src/types/`:
-
-```typescript
-// Session types
-interface RawTurn {
-  speaker: string;
-  text: string;
-}
-
-interface Session {
-  session_topic: string;
-  duration_minutes: number;
-  transcript: RawTurn[];
-}
-
-// Evaluation types
-interface MetricCategory {
-  score: 1 | 2 | 3;
-  justification: string;
-}
-
-interface LLMEvaluation {
-  session_summary: string;
-  metrics: {
-    content_coverage: MetricCategory;
-    facilitation_quality: MetricCategory;
-    protocol_safety: MetricCategory;
-  };
-  risk_assessment: {
-    flag: "SAFE" | "RISK";
-    quote: string | null;
-  };
-}
-
-// Database types
-interface GroupSession {
-  id: number;
-  user_id: number;
-  group_id: number;
-  fellow_name: string;
-  transcript: Session;
-  is_processed: boolean;
-  row_status: 'active' | 'trash';
-  created_at: Date;
-}
-
-interface AnalyzedSession {
-  id: number;
-  session_id: number;
-  summary: string;
-  content_coverage: 1 | 2 | 3;
-  facilitation_quality: 1 | 2 | 3;
-  protocol_safety: 1 | 2 | 3;
-  is_safe: boolean;
-  llm_evaluation: LLMEvaluation;
-  review_status: 'unreviewed' | 'reviewed' | 'flagged';
-  reviewer_id: number | null;
-  reviewer_comments: string | null;
-  row_status: 'active' | 'trash';
-  created_at: Date;
-}
-```
-
-All types are validated at runtime using Zod schemas, ensuring type safety across the entire application.
+- `src/transcript_pruner/transcriptPruner/transcript.pruner.ts` - Pruning engine
+- `src/services/server/evaluation.service.ts` - Evaluation orchestration
+- `src/validators/*.schema.ts` - Zod validation schemas
+- `src/repositories/*.repository.ts` - Database layer
+- `src/lib/gemini.api.ts` - Gemini LLM integration
+- `src/app/api/sessions/group/route.ts` - Session upload endpoint
 
 ---
 
-```bash
-# Run all tests
-npm run test
-
-# Run with coverage
-npm run test:coverage
-
-# Watch mode
-npm run test:watch
-```
-
-### Building for Production
-
-```bash
-# Build Next.js application
-npm run build
-
-# Start production server
-npm run start
-```
-
----
-
-## Architecture Highlights
+## Design Decisions
 
 ### Why Pruning Reduces Latency
-
 1. **Fewer Tokens**: 67% reduction in token count
 2. **Smaller Context Window**: LLM processes less text
-3. **Faster Inference**: Gemini 2.5 Flash is optimized for speed
+3. **Faster Inference**: Gemini 2.5 Flash optimized for speed
 4. **Lower Cost**: Fewer tokens = lower API charges
 
 ### Why Pruning Preserves Accuracy
-
 1. **Signal-Based Selection**: Keeps clinically relevant content
 2. **Context Expansion**: Preserves surrounding dialogue
 3. **Gap Annotation**: Tells LLM where content was removed
 4. **Bidirectional Expansion**: Captures full conversational context
 
 ### Why Human Review Matters
-
 1. **Contextual Judgment**: Supervisors understand local context
 2. **Override Capability**: Can correct AI misinterpretations
 3. **Accountability**: Creates audit trail of decisions
@@ -943,9 +287,19 @@ npm run start
 
 ---
 
-## Monitoring & Logging
+## Security & Best Practices
 
-The application logs key events:
+- **Database**: Parameterized queries prevent SQL injection
+- **Authentication**: Supervisor login required for all endpoints
+- **Authorization**: Supervisors only view sessions under their supervision
+- **Data Privacy**: Transcripts stored securely; no PII in logs
+- **Risk Flagging**: Safety flags extracted and reviewed immediately
+- **Type Safety**: Zod validation at every input layer
+- **Error Handling**: Descriptive validation errors for debugging
+
+---
+
+## Monitoring & Logging
 
 ```typescript
 logger.info("Starting LLM evaluation pipeline");
@@ -954,130 +308,18 @@ logger.info("Gemini LLM evaluation complete", { durationMs: 1200 });
 logger.info("Successfully created analyzed session for session ID: 42");
 ```
 
-Monitor logs to track:
-- Evaluation latency
-- Error rates
-- Session processing volume
-- API performance
-
----
-
-## Validation & Type Safety Best Practices
-
-### Input Validation Strategy
-
-Every external input is validated before processing:
-
-1. **File Upload** → Parse JSON → Validate with `SessionSchema`
-2. **LLM Response** → Parse JSON → Validate with `LLMEvaluationSchema`
-3. **API Requests** → Extract params → Validate with Zod schemas
-4. **Database Queries** → Type-safe with TypeScript
-
-### Common Validation Patterns
-
-**Parsing and Validating Session Data**:
-```typescript
-import { SessionSchema } from "@/validators/session.schema";
-
-const validationResult = SessionSchema.safeParse(jsonData);
-
-if (!validationResult.success) {
-  // Handle validation errors
-  const errors = validationResult.error.flatten();
-  console.error("Validation failed:", errors.fieldErrors);
-  throw new Error("Invalid session format");
-}
-
-// Use validated data with full type safety
-const session = validationResult.data; // Type: Session
-```
-
-**Parsing and Validating LLM Responses**:
-```typescript
-import { LLMEvaluationSchema } from "@/validators/evaluation.schema";
-
-const llmResponse = await geminiApi.generateContent(prompt);
-const parsedJson = JSON.parse(llmResponse.text());
-
-const validation = LLMEvaluationSchema.safeParse(parsedJson);
-
-if (!validation.success) {
-  console.error("LLM response validation failed:", validation.error.format());
-  throw new Error("LLM returned invalid evaluation");
-}
-
-// Use validated evaluation
-const evaluation = validation.data; // Type: LLMEvaluation
-```
-
-### Error Messages
-
-Validation errors are descriptive and actionable:
-
-```typescript
-// Example: Invalid duration
-{
-  "fieldErrors": {
-    "duration_minutes": ["Expected number to be greater than 0"]
-  }
-}
-
-// Example: Missing field
-{
-  "fieldErrors": {
-    "session_topic": ["Required"]
-  }
-}
-
-// Example: Invalid metric score
-{
-  "fieldErrors": {
-    "metrics.content_coverage.score": ["Expected 1 | 2 | 3"]
-  }
-}
-```
-
-### Type Inference
-
-Zod schemas automatically infer TypeScript types:
-
-```typescript
-// Infer type from schema
-type Session = z.infer<typeof SessionSchema>;
-type LLMEvaluation = z.infer<typeof LLMEvaluationSchema>;
-
-// Now you have full IDE autocomplete and type checking
-const session: Session = validationResult.data;
-session.session_topic; // ✓ TypeScript knows this exists
-session.invalid_field; // ✗ TypeScript error
-```
-
----
-
-## Security Considerations
-
-- **Database**: All queries use parameterized statements (SQL injection prevention)
-- **Authentication**: Supervisor login required for all endpoints
-- **Authorization**: Supervisors can only view sessions under their supervision
-- **Data Privacy**: Session transcripts stored securely; no PII in logs
-- **Risk Flagging**: Safety flags are extracted and reviewed immediately
+Monitor: evaluation latency, error rates, session processing volume, API performance
 
 ---
 
 ## Future Enhancements
 
-- [ ] Batch session processing for efficiency
-- [ ] Custom evaluation rubrics per program
-- [ ] Supervisor performance analytics
-- [ ] Automated escalation workflows
-- [ ] Multi-language support
-- [ ] Mobile app for on-the-go review
-
----
-
-## Support & Contribution
-
-For issues, questions, or contributions, please reach out to the Shamiri engineering team.
+- Batch session processing for efficiency
+- Custom evaluation rubrics per program
+- Supervisor performance analytics
+- Automated escalation workflows
+- Multi-language support
+- Mobile app for on-the-go review
 
 ---
 
