@@ -347,7 +347,263 @@ The Gemini LLM is prompted to return structured JSON:
 
 ---
 
+## Type Safety & Validation
+
+### Zod Schema Architecture
+
+All inputs are validated using Zod schemas before processing. This ensures type safety, runtime validation, and clear error messages.
+
+#### Session Input Validation (`src/validators/session.schema.ts`)
+
+Validates raw session transcripts on upload:
+
+```typescript
+export const RawTurnSchema: z.ZodType<RawTurn> = z.object({
+  speaker: z.string(),
+  text: z.string(),
+});
+
+export const SessionSchema = z.object({
+  session_topic: z.string(),
+  duration_minutes: z.number().positive(),
+  transcript: z.array(RawTurnSchema)
+});
+```
+
+**Validation Rules**:
+- `session_topic`: Required string (e.g., "Growth Mindset")
+- `duration_minutes`: Positive number (e.g., 60)
+- `transcript`: Array of turns with speaker and text
+
+**Example Valid Input**:
+```json
+{
+  "session_topic": "Growth Mindset",
+  "duration_minutes": 60,
+  "transcript": [
+    { "speaker": "Fellow", "text": "Today we're learning about growth mindset..." },
+    { "speaker": "Member", "text": "What does that mean?" },
+    { "speaker": "Fellow", "text": "It means your brain is like a muscle..." }
+  ]
+}
+```
+
+#### LLM Evaluation Output Validation (`src/validators/evaluation.schema.ts`)
+
+Validates LLM responses before storage:
+
+```typescript
+export const MetricCategorySchema = z.object({
+  score: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+  justification: z.string().min(1),
+});
+
+export const MetricsSchema = z.object({
+  content_coverage: MetricCategorySchema,
+  facilitation_quality: MetricCategorySchema,
+  protocol_safety: MetricCategorySchema,
+});
+
+export const RiskAssessmentSchema = z.object({
+  flag: z.union([z.literal("SAFE"), z.literal("RISK")]),
+  quote: z.string().nullable(),
+});
+
+export const LLMEvaluationSchema = z.object({
+  session_summary: z.string().min(1),
+  metrics: MetricsSchema,
+  risk_assessment: RiskAssessmentSchema,
+}).strict();
+```
+
+**Validation Rules**:
+- `session_summary`: Non-empty string (exactly 3 sentences)
+- `metrics.*.score`: Must be 1, 2, or 3
+- `metrics.*.justification`: Non-empty string with evidence
+- `risk_assessment.flag`: Must be "SAFE" or "RISK"
+- `risk_assessment.quote`: String or null (exact phrase if RISK)
+- `.strict()`: No extra fields allowed
+
+**Example Valid Output**:
+```json
+{
+  "session_summary": "The Fellow introduced growth mindset by explaining how the brain is like a muscle. Members engaged with examples from their own learning experiences. The session stayed within curriculum boundaries and maintained a supportive tone.",
+  "metrics": {
+    "content_coverage": {
+      "score": 3,
+      "justification": "Fellow clearly explained growth mindset concept, provided brain-muscle analogy, and checked for understanding with group questions."
+    },
+    "facilitation_quality": {
+      "score": 3,
+      "justification": "Warm tone, validated member experiences, encouraged quiet participants, and created safe space for discussion."
+    },
+    "protocol_safety": {
+      "score": 3,
+      "justification": "Stayed strictly within Shamiri curriculum. No medical advice, diagnosis, or unauthorized guidance provided."
+    }
+  },
+  "risk_assessment": {
+    "flag": "SAFE",
+    "quote": null
+  }
+}
+```
+
+### Validation in Session Upload
+
+The `POST /api/sessions/group` endpoint validates inputs at multiple layers:
+
+```typescript
+// 1. Parse uploaded JSON file
+const parsedJson = await parseJsonFile<GroupSessionTranscript>(transcriptFile);
+
+// 2. Validate against SessionSchema
+const validationResult = SessionSchema.safeParse(parsedJson);
+if (!validationResult.success) {
+  logger.error("Session validation failed", { 
+    validationErrors: validationResult.error.flatten() 
+  });
+  throw new Error("Invalid session data format");
+}
+
+// 3. Use validated data
+const sessionData = validationResult.data;
+const groupSession = await createGroupSession({
+  user_id: session.user_id,
+  group_id: parseInt(groupId),
+  fellow_name: fellowName,
+  transcript: sessionData
+});
+```
+
+**Error Handling**:
+- Invalid JSON → Parse error
+- Missing required fields → Zod validation error with field details
+- Wrong data types → Type coercion or validation error
+- Invalid values (e.g., negative duration) → Validation error
+
+**Example Error Response**:
+```json
+{
+  "success": false,
+  "message": "Invalid session data format",
+  "validationErrors": {
+    "fieldErrors": {
+      "duration_minutes": ["Expected number to be greater than 0"]
+    }
+  }
+}
+```
+
+### Type Safety Benefits
+
+1. **Compile-Time Checking**: TypeScript catches type errors during development
+2. **Runtime Validation**: Zod ensures data matches schema at runtime
+3. **Clear Error Messages**: Validation errors pinpoint exact issues
+4. **Self-Documenting**: Schemas serve as API documentation
+5. **Strict Mode**: `.strict()` prevents unexpected fields from being accepted
+
+---
+
 ## API Endpoints
+
+### Session Management
+
+#### `POST /api/sessions/group`
+
+Creates a new group session with validated transcript.
+
+**Request** (multipart/form-data):
+```typescript
+{
+  fellowName: string;           // Fellow's name
+  groupId: string;              // Group identifier
+  transcriptFile: File;         // JSON file with session data
+}
+```
+
+**Transcript File Schema** (validated with `SessionSchema`):
+```typescript
+{
+  session_topic: string;        // e.g., "Growth Mindset"
+  duration_minutes: number;     // Positive integer
+  transcript: Array<{
+    speaker: string;            // "Fellow" or "Member"
+    text: string;               // Turn content
+  }>
+}
+```
+
+**Response**:
+```typescript
+{
+  success: true;
+  message: "Successfully created group session";
+  data: {
+    id: number;
+    is_processed: boolean;      // false (awaiting evaluation)
+  }
+}
+```
+
+**Validation Flow**:
+1. Parse JSON file
+2. Validate against `SessionSchema`
+3. Check `duration_minutes > 0`
+4. Verify transcript array is non-empty
+5. Store in `GroupSessions` table
+
+**Error Responses**:
+```typescript
+// Invalid JSON
+{ success: false, message: "Invalid JSON format" }
+
+// Missing required fields
+{ success: false, message: "Invalid session data format" }
+
+// Negative duration
+{ success: false, message: "duration_minutes must be positive" }
+
+// Empty transcript
+{ success: false, message: "transcript array cannot be empty" }
+```
+
+---
+
+#### `GET /api/sessions/group`
+
+Fetches paginated list of group sessions.
+
+**Query Parameters**:
+```typescript
+?page=1&limit=10
+```
+
+**Response**:
+```typescript
+{
+  success: true;
+  message: "Successfully fetched sessions";
+  data: {
+    groupSessions: Array<{
+      id: number;
+      user_id: number;
+      group_id: number;
+      fellow_name: string;
+      is_processed: boolean;
+      created_at: timestamp;
+      transcript: Session;
+    }>;
+    pagination: {
+      totalCount: number;
+      currentPage: number;
+      totalPages: number;
+    }
+  }
+}
+```
+
+---
 
 ### Session Analysis
 
@@ -375,8 +631,38 @@ Triggers LLM evaluation for a group session.
 1. Fetch unprocessed GroupSession
 2. Prune transcript
 3. Call Gemini LLM
-4. Store AnalyzedSession
-5. Mark GroupSession as processed
+4. **Validate LLM response against `LLMEvaluationSchema`**
+5. Store AnalyzedSession
+6. Mark GroupSession as processed
+
+**Validation Details**:
+- LLM response must match `LLMEvaluationSchema` exactly
+- All three metrics (content_coverage, facilitation_quality, protocol_safety) required
+- Each metric score must be 1, 2, or 3
+- Risk flag must be "SAFE" or "RISK"
+- If RISK, quote must be non-null string
+- If SAFE, quote must be null
+- No extra fields allowed (strict mode)
+
+**Error Handling**:
+```typescript
+// LLM returns invalid JSON
+throw new Error("LLM returned invalid JSON");
+
+// LLM response fails schema validation
+throw new Error("LLM response failed schema validation");
+
+// Example: Missing metric
+{
+  "session_summary": "...",
+  "metrics": {
+    "content_coverage": { "score": 3, "justification": "..." },
+    // Missing facilitation_quality and protocol_safety
+  },
+  "risk_assessment": { "flag": "SAFE", "quote": null }
+}
+// → Validation fails: facilitation_quality is required
+```
 
 ---
 
@@ -540,7 +826,74 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 NODE_ENV=development
 ```
 
-### Running Tests
+### Type Definitions
+
+Key types are defined in `src/types/`:
+
+```typescript
+// Session types
+interface RawTurn {
+  speaker: string;
+  text: string;
+}
+
+interface Session {
+  session_topic: string;
+  duration_minutes: number;
+  transcript: RawTurn[];
+}
+
+// Evaluation types
+interface MetricCategory {
+  score: 1 | 2 | 3;
+  justification: string;
+}
+
+interface LLMEvaluation {
+  session_summary: string;
+  metrics: {
+    content_coverage: MetricCategory;
+    facilitation_quality: MetricCategory;
+    protocol_safety: MetricCategory;
+  };
+  risk_assessment: {
+    flag: "SAFE" | "RISK";
+    quote: string | null;
+  };
+}
+
+// Database types
+interface GroupSession {
+  id: number;
+  user_id: number;
+  group_id: number;
+  fellow_name: string;
+  transcript: Session;
+  is_processed: boolean;
+  row_status: 'active' | 'trash';
+  created_at: Date;
+}
+
+interface AnalyzedSession {
+  id: number;
+  session_id: number;
+  summary: string;
+  content_coverage: 1 | 2 | 3;
+  facilitation_quality: 1 | 2 | 3;
+  protocol_safety: 1 | 2 | 3;
+  is_safe: boolean;
+  llm_evaluation: LLMEvaluation;
+  review_status: 'unreviewed' | 'reviewed' | 'flagged';
+  reviewer_id: number | null;
+  reviewer_comments: string | null;
+  row_status: 'active' | 'trash';
+  created_at: Date;
+}
+```
+
+All types are validated at runtime using Zod schemas, ensuring type safety across the entire application.
+
+---
 
 ```bash
 # Run all tests
@@ -606,6 +959,98 @@ Monitor logs to track:
 - Error rates
 - Session processing volume
 - API performance
+
+---
+
+## Validation & Type Safety Best Practices
+
+### Input Validation Strategy
+
+Every external input is validated before processing:
+
+1. **File Upload** → Parse JSON → Validate with `SessionSchema`
+2. **LLM Response** → Parse JSON → Validate with `LLMEvaluationSchema`
+3. **API Requests** → Extract params → Validate with Zod schemas
+4. **Database Queries** → Type-safe with TypeScript
+
+### Common Validation Patterns
+
+**Parsing and Validating Session Data**:
+```typescript
+import { SessionSchema } from "@/validators/session.schema";
+
+const validationResult = SessionSchema.safeParse(jsonData);
+
+if (!validationResult.success) {
+  // Handle validation errors
+  const errors = validationResult.error.flatten();
+  console.error("Validation failed:", errors.fieldErrors);
+  throw new Error("Invalid session format");
+}
+
+// Use validated data with full type safety
+const session = validationResult.data; // Type: Session
+```
+
+**Parsing and Validating LLM Responses**:
+```typescript
+import { LLMEvaluationSchema } from "@/validators/evaluation.schema";
+
+const llmResponse = await geminiApi.generateContent(prompt);
+const parsedJson = JSON.parse(llmResponse.text());
+
+const validation = LLMEvaluationSchema.safeParse(parsedJson);
+
+if (!validation.success) {
+  console.error("LLM response validation failed:", validation.error.format());
+  throw new Error("LLM returned invalid evaluation");
+}
+
+// Use validated evaluation
+const evaluation = validation.data; // Type: LLMEvaluation
+```
+
+### Error Messages
+
+Validation errors are descriptive and actionable:
+
+```typescript
+// Example: Invalid duration
+{
+  "fieldErrors": {
+    "duration_minutes": ["Expected number to be greater than 0"]
+  }
+}
+
+// Example: Missing field
+{
+  "fieldErrors": {
+    "session_topic": ["Required"]
+  }
+}
+
+// Example: Invalid metric score
+{
+  "fieldErrors": {
+    "metrics.content_coverage.score": ["Expected 1 | 2 | 3"]
+  }
+}
+```
+
+### Type Inference
+
+Zod schemas automatically infer TypeScript types:
+
+```typescript
+// Infer type from schema
+type Session = z.infer<typeof SessionSchema>;
+type LLMEvaluation = z.infer<typeof LLMEvaluationSchema>;
+
+// Now you have full IDE autocomplete and type checking
+const session: Session = validationResult.data;
+session.session_topic; // ✓ TypeScript knows this exists
+session.invalid_field; // ✗ TypeScript error
+```
 
 ---
 
