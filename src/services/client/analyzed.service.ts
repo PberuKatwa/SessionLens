@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/apiClient";
 import { GroupSessionAnalysisApiResponse, PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "../../types/analysisFilters.types";
 import { SingleGroupSessionApiResponse } from "@/types/groupSession.types";
-import { BaseAnalyzedSessionApiResponse } from "@/types/analyzedSession.types";
+import { BaseAnalyzedSessionApiResponse, ReviewerUpdatePayload } from "@/types/analyzedSession.types";
 import { ApiResponse } from "@/types/api.types";
 
 export type CreateGroupSessionPayload = {
@@ -100,6 +100,16 @@ export const analyzedService = {
     } catch (error) {
       throw error;
     }
-  }
+  },
 
+  async reviewSession(payload:ReviewerUpdatePayload):Promise<ApiResponse> {
+    try {
+
+      const response = await apiClient.post(`sessions/analyzed/review`,payload);
+      const session:ApiResponse = response.data;
+      return session
+    } catch (error) {
+      throw error;
+    }
+  },
 };
