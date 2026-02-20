@@ -219,7 +219,7 @@ export default function EvaluationPage() {
               <div className="p-5 col-span-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Session Transcript</p>
                 <button
-                  onClick={() => show("Opening original transcript…")}
+                  onClick={() => toast.success("Opening original transcript…")}
                   className="flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-lg border-2 transition-colors"
                   style={{ borderColor: "#12245B", color: "#12245B" }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#12245B"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
@@ -307,8 +307,8 @@ export default function EvaluationPage() {
               <div className="flex items-start justify-between gap-4 mb-3">
                 <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">AI Session Summary</p>
                 <button
-                  onClick={() => show("Opening LLM evaluation object…")}
-                  className="flex-shrink-0 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border-2 transition-colors"
+                  onClick={() => toast.success("Opening LLM evaluation object…")}
+                  className="shrink-0 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border-2 transition-colors"
                   style={{ borderColor: "#12245B", color: "#12245B" }}
                   onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#12245B"; (e.currentTarget as HTMLButtonElement).style.color = "#fff"; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "#12245B"; }}
@@ -345,14 +345,14 @@ export default function EvaluationPage() {
 
               <div className="border-t border-gray-100 pt-4 flex flex-col gap-2">
                 <button
-                  onClick={() => show("AI findings validated ✓")}
+                  onClick={() => toast.success("AI findings validated ✓")}
                   className="w-full text-xs font-bold py-2.5 rounded-lg transition-all hover:brightness-105"
                   style={{ backgroundColor: "#B4F000", color: "#12245B" }}
                 >
                   Validate AI Findings
                 </button>
                 <button
-                  onClick={() => show("AI findings rejected")}
+                  onClick={() =>toast.success("AI findings rejected")}
                   className="w-full text-xs font-semibold py-2.5 rounded-lg border border-gray-300 text-gray-600 hover:border-gray-400 transition-colors"
                 >
                   Reject AI Findings
