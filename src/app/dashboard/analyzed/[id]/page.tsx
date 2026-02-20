@@ -1,10 +1,14 @@
 "use client";
 
+import toast from "react-hot-toast";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faSpinner, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { ReviewStatus } from "@/types/globalTypes.types";
 import { GroupSessionAnalysis } from "@/types/groupSessionAnalysis.types";
 import { useState, useEffect } from "react";
 import { ScoreBar, ScoreLabel, SectionHeader, MetaCell, ScoreDescription } from "@/components/ui/analyzed/ScoreComponents";
 import { useParams } from "next/navigation";
+import { analyzedService } from "@/services/client/analyzed.service";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,50 +36,46 @@ const SESSION_DATA: GroupSessionAnalysis = {
   analysis_created_at: new Date("2025-02-14T11:23:00"),
 };
 
-// ─── Toast ─────────────────────────────────────────────────────────────────────
-
-function useToast() {
-  const [toast, setToast] = useState<{ msg: string; visible: boolean }>({
-    msg: "",
-    visible: false,
-  });
-  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
-
-  const show = (msg: string) => {
-    if (timer) clearTimeout(timer);
-    setToast({ msg, visible: true });
-    const t = setTimeout(() => setToast((p) => ({ ...p, visible: false })), 2800);
-    setTimer(t);
-  };
-
-  useEffect(() => () => { if (timer) clearTimeout(timer); }, [timer]);
-
-  return { toast, show };
-}
-
-function Toast({ msg, visible }: { msg: string; visible: boolean }) {
-  return (
-    <div
-      className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl text-sm font-medium transition-all duration-300 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
-      }`}
-      style={{ backgroundColor: "#12245B", color: "#fff" }}
-    >
-      <span style={{ color: "#B4F000" }} className="text-base">✦</span>
-      <span>{msg}</span>
-    </div>
-  );
-}
-
 export default function EvaluationPage() {
+  const [loading, setLoading] = useState(true);
+  const [sessionData, setSessionData] = useState<GroupSessionAnalysis>(SESSION_DATA)
 
   const params = useParams();
-  const id = params.id;
+  const id = Number(params.id);
+
+  if (!id) throw new Error(`No Param id was provided`);
+
+  const fetchSession = async function () {
+    try {
+      setLoading(true);
+
+      const response = await analyzedService.fetchFullGroupAnalysis(id);
+
+      if (!response.data) throw new Error(`No session was found`);
+      setSessionData(response.data);
+      toast.success(response.message);
+
+    } catch (error) {
+      console.error(`Error in fetching session data`, error);
+      toast.error(`Unable to fetch session`)
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchSession();
+  }, [])
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", padding: 40 }}>
+        <FontAwesomeIcon icon={faSpinner} spin size="2x" />
+      </div>
+    );
+  }
 
 
-
-
-  const { toast, show } = useToast();
   const s = SESSION_DATA;
 
   const fmt = (d: Date) =>
