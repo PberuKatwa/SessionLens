@@ -11,35 +11,31 @@ import { redirect, useParams } from "next/navigation";
 import { analyzedService } from "@/services/client/analyzed.service";
 import { ShamiriLoader, AiEvaluationLoader } from "@/components/Loader";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-const SESSION_DATA: GroupSessionAnalysis = {
-  session_id: 2847,
-  user_id: 509,
-  group_id: 114,
-  fellow_name: "Amara Wanjiku",
-  is_processed: true,
-  transcript: { raw: "session-transcript-2847.txt" },
+const initialState: GroupSessionAnalysis = {
+  session_id: 0,
+  user_id: 0,
+  group_id: 0,
+  fellow_name: "",
+  is_processed: false,
+  transcript: {},
   session_created_at: new Date("2025-02-14T10:00:00"),
 
-  analyzed_id: 7713,
+  analyzed_id: 0,
   is_safe: true,
   review_status: "unreviewed",
-  content_coverage: 2,
-  facilitation_quality: 3,
-  protocol_safety: 3,
-  summary:
-    "Fellow Amara Wanjiku led a Growth Mindset group session with six participants in Nairobi's Kibera community, demonstrating strong facilitation skills and genuine warmth throughout the hour. The session covered core growth mindset concepts including the power of \"yet\" and reframing challenges, though practical application exercises were abbreviated due to time constraints. No safety concerns were identified and the Fellow remained fully within Shamiri's curriculum boundaries throughout the session.",
-  reviewer_id: 42,
-  reviewer_comments:
-    "AI assessment aligns with my observations. Recommend a coaching note on deepening practice activities.",
-  llm_evaluation: { model: "claude-3-5-sonnet", version: "2025-02-01", tokens: 4821 },
+  content_coverage: 0,
+  facilitation_quality: 0,
+  protocol_safety: 0,
+  summary:"",
+  reviewer_id: 0,
+  reviewer_comments:"",
+  llm_evaluation: {},
   analysis_created_at: new Date("2025-02-14T11:23:00"),
 };
 
 export default function EvaluationPage() {
   const [loading, setLoading] = useState(true);
-  const [sessionData, setSessionData] = useState<GroupSessionAnalysis>(SESSION_DATA)
+  const [sessionData, setSessionData] = useState<GroupSessionAnalysis>(initialState)
   const [aiLoading, setAiLoading] = useState(false);
 
   const params = useParams();
@@ -104,7 +100,6 @@ export default function EvaluationPage() {
 
   if (loading) return <ShamiriLoader />;
   if (aiLoading) return <AiEvaluationLoader />;
-
 
   const reviewBadge: Record<ReviewStatus, { bg: string; dot: string; label: string }> = {
     unreviewed:  { bg: "bg-yellow-100 text-yellow-800", dot: "bg-yellow-400", label: "Pending Review" },
