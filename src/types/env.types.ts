@@ -6,6 +6,7 @@ export interface GlobalEnvironment{
 
 export interface LLMApiEnvironment{
   geminiApiKey: string;
+  kimiApiKey: string;
 }
 
 export interface PostgresEnv{

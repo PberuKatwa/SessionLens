@@ -50,5 +50,6 @@ export const globalConfig = (): GlobalEnvironment => ({
 });
 
 export const llmConfig = (): LLMApiEnvironment => ({
-  geminiApiKey: getEnv(getGlobalEnvironment, "GEMINI_API_KEY")
+  geminiApiKey: getEnv(getGlobalEnvironment, "GEMINI_API_KEY"),
+  kimiApiKey:getEnv(getGlobalEnvironment,"KIMI_API_KEY")
 });
