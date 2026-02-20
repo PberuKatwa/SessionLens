@@ -41,7 +41,7 @@ async function createUser(req: NextRequest) {
 
     const response: UserApiResponse = {
       success: true,
-      message: "Successfully registered user",
+      message: "Successfully regisstered user",
       data:user
     }
 
