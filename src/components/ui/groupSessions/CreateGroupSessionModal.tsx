@@ -160,10 +160,6 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
     setData(prev => ({ ...prev, transcriptFile: file }));
   };
 
-  const createSession = async function () {
-
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -178,7 +174,7 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
       onClose();
       setData(initialState);
     } catch (err: any) {
-      toast.error("Invalid json format please follow structure");
+      toast.error("Invalid json transcript format");
     } finally {
       setLoading(false);
     }
