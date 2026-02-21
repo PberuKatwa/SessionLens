@@ -55,3 +55,4 @@ async function createUser(req: NextRequest) {
 
 export const GET = authMiddleware(getProfile);
 export const POST = authMiddleware(createUser);
+// export const POST = createUser;
