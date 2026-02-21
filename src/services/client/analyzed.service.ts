@@ -4,6 +4,7 @@ import { MinimalAnalysisFilters } from "../../types/analysisFilters.types";
 import { SingleGroupSessionApiResponse } from "@/types/groupSession.types";
 import { BaseAnalyzedSessionApiResponse, ReviewerUpdatePayload } from "@/types/analyzedSession.types";
 import { ApiResponse } from "@/types/api.types";
+import { PaginatedFellowApiResponse } from "@/types/fellows.types";
 
 export type CreateGroupSessionPayload = {
   fellowName: string;
@@ -112,4 +113,17 @@ export const analyzedService = {
       throw error;
     }
   },
+
+
+  async getAllFellows():Promise<PaginatedFellowApiResponse> {
+    try {
+
+      const response = await apiClient.get(`/fellows`)
+      const fellows: PaginatedFellowApiResponse = response.data;
+
+      return fellows;
+    } catch (error) {
+      throw error;
+    }
+  }
 };
