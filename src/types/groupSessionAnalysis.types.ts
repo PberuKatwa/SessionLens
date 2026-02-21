@@ -7,6 +7,7 @@ export interface GroupSessionAnalysis {
   // Group Session
   user_id: number;
   group_id: number;
+  fellow_id: number;
   fellow_name: string;
   is_processed: boolean;
   transcript: object;
@@ -31,6 +32,7 @@ export interface MinimalAnalysis {
 
   // Group Session
   group_id: number;
+  fellow_id: number;
   fellow_name: string;
   is_processed: boolean;
 

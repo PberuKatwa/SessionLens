@@ -16,7 +16,8 @@ export async function getSessionWithAnalysisBySessionId(sessionId: number): Prom
         gs.id AS session_id,
         gs.user_id,
         gs.group_id,
-        gs.fellow_name,
+        gs.fellow_id,
+        f.first_name || ' ' || f.last_name AS fellow_name,
         gs.is_processed,
         gs.transcript,
         gs.created_at AS session_created_at,
@@ -34,8 +35,12 @@ export async function getSessionWithAnalysisBySessionId(sessionId: number): Prom
         ans.created_at AS analysis_created_at
 
       FROM group_sessions gs
+
       LEFT JOIN analyzed_sessions ans
         ON gs.id = ans.session_id
+
+      LEFT JOIN fellows f
+        ON gs.fellow_id = f.id
 
       WHERE gs.id = $1
         AND gs.row_status != 'trash'
@@ -70,7 +75,8 @@ export async function getAllSessionsWithAnalysis(pageInput?: number, limitInput?
         gs.id AS session_id,
         gs.user_id,
         gs.group_id,
-        gs.fellow_name,
+        gs.fellow_id,
+        f.first_name || ' ' || f.last_name AS fellow_name,
         gs.is_processed,
         gs.transcript,
         gs.created_at AS session_created_at,
@@ -88,8 +94,12 @@ export async function getAllSessionsWithAnalysis(pageInput?: number, limitInput?
         ans.created_at AS analysis_created_at
 
       FROM group_sessions gs
+
       LEFT JOIN analyzed_sessions ans
         ON gs.id = ans.session_id
+
+      LEFT JOIN fellows f
+        ON gs.fellow_id = f.id
 
       WHERE gs.row_status != 'trash'
         AND (ans.row_status IS NULL OR ans.row_status != 'trash')
@@ -172,7 +182,8 @@ export async function minimalSessionsWithAnalysis(
       SELECT
         gs.id AS session_id,
         gs.group_id,
-        gs.fellow_name,
+        gs.fellow_id,
+        f.first_name || ' ' || f.last_name AS fellow_name,
         gs.is_processed,
 
         ans.id AS analyzed_id,
@@ -184,8 +195,12 @@ export async function minimalSessionsWithAnalysis(
         ans.created_at AS analysis_created_at
 
       FROM group_sessions gs
+
       LEFT JOIN analyzed_sessions ans
         ON gs.id = ans.session_id
+
+      LEFT JOIN fellows f
+        ON gs.fellow_id = f.id
 
       ${whereClause}
 
