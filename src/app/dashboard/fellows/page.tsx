@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { analyzedService } from "@/services/client/analyzed.service";
-import { BooleanStatusBadge, ScoreBadge } from "@/components/ui/StatusBadge";
+import { BooleanStatusBadge, DecimalScoreBadge, ScoreBadge } from "@/components/ui/StatusBadge";
 import { FellowInsight } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "@/types/analysisFilters.types";
 import { ReviewStatus } from "@/types/globalTypes.types";
@@ -140,10 +140,10 @@ export default function FellowInsightsPage() {
                 <td style={{ padding: 12 }}>{fellow.processed_percent}%</td>
                 <td style={{ padding: 12 }}>{fellow.risk_sessions}</td>
                 <td style={{ padding: 12 }}>{fellow.risk_rate}%</td>
-                <td style={{ padding: 12 }}><ScoreBadge value={Number(fellow.avg_content_coverage)} /></td>
-                <td style={{ padding: 12 }}><ScoreBadge value={Number(fellow.avg_facilitation_quality)} /></td>
-                <td style={{ padding: 12 }}><ScoreBadge value={Number(fellow.avg_protocol_safety)} /></td>
-                <td style={{ padding: 12 }}><ScoreBadge value={Number(fellow.overall_quality)} /></td>
+                <td style={{ padding: 12 }}><DecimalScoreBadge value={Number(fellow.avg_content_coverage)} /></td>
+                <td style={{ padding: 12 }}><DecimalScoreBadge value={Number(fellow.avg_facilitation_quality)} /></td>
+                <td style={{ padding: 12 }}><DecimalScoreBadge value={Number(fellow.avg_protocol_safety)} /></td>
+                <td style={{ padding: 12 }}><DecimalScoreBadge value={Number(fellow.overall_quality)} /></td>
               </tr>
             ))}
           </tbody>

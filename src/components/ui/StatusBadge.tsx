@@ -153,3 +153,47 @@ export function ScoreBadge({ value }: ScoreBadgeProps) {
     </span>
   );
 }
+
+type DecimalScoreBadgeProps = {
+  value?: string | number | null;
+};
+
+export function DecimalScoreBadge({ value }: DecimalScoreBadgeProps) {
+  const baseStyles = "text-xs font-medium px-3 py-1.5 rounded-md";
+
+  const successStyles = "bg-green-100 text-green-700";
+  const warningStyles = "bg-yellow-100 text-yellow-700";
+  const dangerStyles = "bg-red-100 text-red-700";
+  const neutralStyles = "bg-gray-100 text-gray-500";
+
+  // Handle null / undefined
+  if (value === null || value === undefined) {
+    return <span className={`${baseStyles} ${neutralStyles}`}>Unscored</span>;
+  }
+
+  // Convert safely
+  const numericValue = typeof value === "string"
+    ? parseFloat(value)
+    : value;
+
+  // Handle invalid numbers
+  if (isNaN(numericValue)) {
+    return <span className={`${baseStyles} ${neutralStyles}`}>Unscored</span>;
+  }
+
+  let styles = warningStyles;
+
+  if (numericValue < 1.5) {
+    styles = dangerStyles;
+  } else if (numericValue < 2.5) {
+    styles = warningStyles;
+  } else {
+    styles = successStyles;
+  }
+
+  return (
+    <span className={`${baseStyles} ${styles}`}>
+      {numericValue.toFixed(2)}
+    </span>
+  );
+}
