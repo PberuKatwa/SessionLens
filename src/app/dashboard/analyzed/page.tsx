@@ -16,7 +16,8 @@ import { SessionFilters, ProcessedFilter, SafetyFilter } from "@/components/ui/a
 
 const initialState: MinimalAnalysis = {
   session_id: 0,
-  group_id:0,
+  group_id: 0,
+  fellow_id:0,
   fellow_name: "null",
   is_processed: false,
   analyzed_id: 0,

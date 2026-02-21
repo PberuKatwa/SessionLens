@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authMiddleware } from "@/lib/auth.middleware";
 import { BaseAuthSession } from "@/types/authSession.types";
 import { ApiResponse } from "@/types/api.types";
-import { GroupSessionAnalysis, GroupSessionAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
+import { GroupSessionAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
 import { getSessionWithAnalysisBySessionId } from "@/repositories/groupSessionAnalysis.repository";
 
 async function getCombinedSessionById(

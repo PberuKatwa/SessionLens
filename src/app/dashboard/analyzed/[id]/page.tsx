@@ -18,6 +18,7 @@ const initialState: GroupSessionAnalysis = {
   session_id: 0,
   user_id: 0,
   group_id: 0,
+  fellow_id:0,
   fellow_name: "",
   is_processed: false,
   transcript: {},
