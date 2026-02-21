@@ -15,7 +15,7 @@ async function createSession(req: NextRequest, session:BaseAuthSession) {
 
     const formData = await req.formData();
 
-    const fellowName = formData.get("fellowName") as string;
+    const fellowId = formData.get("fellowId") as string;
     const groupId = formData.get("groupId") as string;
     const transcriptFile = formData.get("transcriptFile") as File;
 
@@ -32,7 +32,7 @@ async function createSession(req: NextRequest, session:BaseAuthSession) {
     const groupSession = await createGroupSession({
       user_id: session.user_id,
       group_id: parseInt(groupId),
-      fellow_name: fellowName,
+      fellow_id: parseInt(fellowId),
       transcript: sessionData
     });
 

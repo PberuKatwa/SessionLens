@@ -9,7 +9,7 @@ export interface GroupSession extends BaseGroupSession {
   user_id: number;
   group_id: number;
   is_processed: boolean;
-  fellow_name: string;
+  fellow_id: number;
   created_at: Date;
   transcript: any;
 }
@@ -17,7 +17,7 @@ export interface GroupSession extends BaseGroupSession {
 export interface CreateGroupSessionPayload {
   user_id: number;
   group_id: number;
-  fellow_name: string;
+  fellow_id: number;
   transcript: object;
 }
 

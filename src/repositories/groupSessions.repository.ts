@@ -11,16 +11,16 @@ import {
 export async function createGroupSession(payload: CreateGroupSessionPayload): Promise<BaseGroupSession> {
   try {
     const pgPool = await getPgPool();
-    const { user_id, group_id, fellow_name, transcript } = payload;
+    const { user_id, group_id, fellow_id, transcript } = payload;
 
     const query = `
-      INSERT INTO group_sessions (user_id, group_id, fellow_name, transcript)
+      INSERT INTO group_sessions (user_id, group_id, fellow_id, transcript)
       VALUES ($1, $2, $3, $4)
       RETURNING id, is_processed;
     `;
 
-    const result = await pgPool.query(query, [user_id, group_id, fellow_name, transcript]);
-    logger.info(`Successfully created group session for fellow: ${fellow_name}`);
+    const result = await pgPool.query(query, [user_id, group_id, fellow_id, transcript]);
+    logger.info(`Successfully created group session for fellow: ${fellow_id}`);
 
     const groupSession = result.rows[0];
     return groupSession;
@@ -79,7 +79,7 @@ export async function getAllGroupSessions( pageInput?: number, limitInput?: numb
         user_id,
         group_id,
         is_processed,
-        fellow_name,
+        fellow_id,
         created_at,
         transcript
       FROM group_sessions
