@@ -140,7 +140,7 @@ export const analyzedService = {
       }
 
       const allParams = params.toString()
-      const response = await apiClient.get(`/combined/fellows/?${allParams}`)
+      const response = await apiClient.get(`/sessions/combined/fellows/?${allParams}`)
 
       const fellowInsights: PaginatedFellowInsightApiResponse = response.data;
       return fellowInsights;

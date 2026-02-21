@@ -35,10 +35,7 @@ export default function SupervisorLanding() {
 
         {/* Headline */}
         <h1 className="text-5xl md:text-7xl font-bold text-white max-w-4xl leading-[1.1] tracking-tight mb-6">
-          Empowering Fellows through{" "}
-          <span className="text-transparent bg-clip-text bg-linear-to- from-[#00c97a] to-[#1a8fe3]">
-            Data-Driven Oversight
-          </span>
+          Empowering Supervisors Through AI Driven Insights
         </h1>
 
         {/* Subheadline */}

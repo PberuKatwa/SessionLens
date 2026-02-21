@@ -11,6 +11,7 @@ import { authService } from "@/services/client/auth.service";
 
 const navItems = [
   { path: "/dashboard/analyzed", label: "Analyzed Sessions", icon: faChartLine },
+  { path: "/dashboard/fellows", label: "Fellow Insights", icon: faUsers },
   { path: "/dashboard/profile", label: "Profile", icon: faUser },
 ];
 
