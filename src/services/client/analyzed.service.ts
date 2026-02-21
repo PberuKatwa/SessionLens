@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
-import { GroupSessionAnalysisApiResponse, PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
+import { GroupSessionAnalysisApiResponse, PaginatedFellowInsightApiResponse, PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "../../types/analysisFilters.types";
 import { SingleGroupSessionApiResponse, CreateGroupSessionPayload } from "@/types/groupSession.types";
 import { BaseAnalyzedSessionApiResponse, ReviewerUpdatePayload } from "@/types/analyzedSession.types";
@@ -115,6 +115,36 @@ export const analyzedService = {
       const fellows: PaginatedFellowApiResponse = response.data;
 
       return fellows;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async fetchFellowInsights(page:number,limit:number, filters:MinimalAnalysisFilters): Promise<PaginatedFellowInsightApiResponse>{
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (filters) {
+        if (filters.is_processed !== null) {
+          params.append("isProcessed", String(filters.is_processed));
+        }
+        if (filters.is_safe !== null) {
+          params.append("isSafe", String(filters.is_safe));
+        }
+        if (filters.review_status !== null) {
+          params.append("reviewStatus", filters.review_status);
+        }
+      }
+
+      const allParams = params.toString()
+      const response = await apiClient.get(`/combined/fellows/?${allParams}`)
+
+      const fellowInsights: PaginatedFellowInsightApiResponse = response.data;
+      return fellowInsights;
+
     } catch (error) {
       throw error;
     }
