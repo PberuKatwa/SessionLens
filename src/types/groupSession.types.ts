@@ -19,6 +19,7 @@ export interface CreateGroupSessionPayload {
   group_id: number;
   fellow_id: number;
   transcript: object;
+  transcriptFile: File | null;
 }
 
 export interface PaginatedGroupSessions {

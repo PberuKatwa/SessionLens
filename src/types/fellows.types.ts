@@ -5,12 +5,10 @@ export interface BaseFellow {
   id: number;
   first_name: string;
   last_name: string;
-  email: string;
 }
 
 export interface Fellow extends BaseFellow {
-  status: RowStatus;
-  created_at: Date;
+  email: string;
 }
 
 export interface CreateFellowPayload {

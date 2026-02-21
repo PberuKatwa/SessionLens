@@ -1,143 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { analyzedService, CreateGroupSessionPayload } from "../../../services/client/analyzed.service";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faUpload, faCircleNotch, faChevronDown, faChevronUp, faCopy, faCheck } from "@fortawesome/free-solid-svg-icons";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type PerformanceProfile = "PERFECT" | "AVERAGE" | "BAD" | "RISK";
+import { analyzedService } from "../../../services/client/analyzed.service";
+import { CreateGroupSessionPayload } from "@/types/groupSession.types";
+import { PerformanceProfile,Props, PROFILES, EXPECTED_SHAPE, buildPrompt } from "./CreateResources";
+import { BaseFellow, Fellow } from "@/types/fellows.types";
 
 const initialState: CreateGroupSessionPayload = {
-  fellowName: "",
-  groupId: 0,
+  fellow_id: 0,
+  group_id: 0,
   transcriptFile: null,
+  transcript: {},
+  user_id:0
 };
 
-type Props = {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreated?: () => void;
-};
-
-// ─── Profile definitions ──────────────────────────────────────────────────────
-
-const PROFILES: {
-  value: PerformanceProfile;
-  label: string;
-  scores: string;
-  description: string;
-  activeBg: string;
-  activeText: string;
-  activeBorder: string;
-}[] = [
-  {
-    value: "PERFECT",
-    label: "Perfect",
-    scores: "3 / 3 / 3",
-    description: "Clear teaching, warm facilitation, gracefully handles distractions.",
-    activeBg: "#B4F000",
-    activeText: "#12245B",
-    activeBorder: "#B4F000",
-  },
-  {
-    value: "AVERAGE",
-    label: "Average",
-    scores: "2 / 2 / 2",
-    description: "Transactional delivery, brief definitions, polite but lacks deep empathy.",
-    activeBg: "#fef9c3",
-    activeText: "#713f12",
-    activeBorder: "#fbbf24",
-  },
-  {
-    value: "BAD",
-    label: "Poor",
-    scores: "1 / 1 / 2",
-    description: "Fails to define the concept, dominates the conversation, interrupts students.",
-    activeBg: "#fee2e2",
-    activeText: "#991b1b",
-    activeBorder: "#f87171",
-  },
-  {
-    value: "RISK",
-    label: "Risk",
-    scores: "1 / 1 / 1",
-    description: "Fellow gives medical advice or mishandles a participant's crisis disclosure.",
-    activeBg: "#12245B",
-    activeText: "#ffffff",
-    activeBorder: "#ef4444",
-  },
-];
-
-// ─── Prompt builder ───────────────────────────────────────────────────────────
-
-const EXPECTED_SHAPE = `{
-  "session_topic": "Growth Mindset",
-  "duration_minutes": 50,
-  "transcript": [
-    { "speaker": "Fellow",  "text": "Hi everyone…" },
-    { "speaker": "Member1", "text": "Tired."       },
-    { "speaker": "Member2", "text": "Okay."        }
-  ]
-}`;
-
-const buildPrompt = (profile: PerformanceProfile) => `[SYSTEM ROLE]
-You are a high-fidelity behavioral-health group-session simulator. You generate realistic, research-quality intervention transcripts for the Shamiri Tiered Care Model.
-
-[PERFORMANCE PROFILE INJECTION]
-The user will provide a "Performance Profile" (PERFECT, AVERAGE, BAD, or RISK). You must adjust the Fellow's behavior and the session outcome based on the following rubric:
-
-1. PERFECT (3/3/3): Clear "Growth Mindset" teaching (brain=muscle), warm facilitation, validating, handles all distractions gracefully.
-2. AVERAGE (2/2/2): Transactional/robotic delivery, brief definitions, minor off-topic drifts, polite but lacks deep empathy.
-3. BAD (1/1/2): Fails to define the concept (or defines it as "fixed intelligence"), dominates the conversation, interrupts students.
-4. RISK (Score 1/1/1):
-Content: The Fellow completely ignores the "Growth Mindset" curriculum or provides factually incorrect psychological advice.
-Facilitation: The Fellow is dismissive, creates a "power-over" dynamic, or uses shaming language toward participants.
-Protocol Violation: [CRITICAL SIMULATION] The Fellow commits a "Scope of Practice" violation. This includes:
-Medicalization: Giving unauthorized pharmacological or diagnostic advice.
-Crisis Mishandling: A participant expresses a "Red Flag" distress signal (e.g., severe hopelessness, withdrawal, or mention of personal safety risks), and the Fellow fails to follow the Shamiri escalation protocol, instead offering a "layperson" dismissal or a non-professional "quick fix" that minimizes the participant's safety.
-
-
-[SIMULATION PARAMETERS]
-- Topic: Growth Mindset
-- Group: 1 Fellow + 6 Youth (Jabari, Amani, Keziah, Leo, Sara, Sam).
-- Personalities: Follow the established traits (skeptical, stressed, outspoken, etc.).
-- Duration: 50-minute equivalent.
-- Word Count: 6,000–7,500 words of spoken dialogue. This is mandatory.
-
-[SESSION FLOW]
-The transcript must flow naturally through these stages:
-Welcome/Rapport -> Icebreaker -> Concept Intro -> Real-life Examples -> Activity -> Reflection -> Take-home -> Closing.
-
-[INPUT]
-"performance_profile": "${profile}"
-
-[OUTPUT FORMAT - STRICT JSON ONLY]
-Return ONLY a valid JSON object. Do not include introductory text or markdown outside the JSON.
-
-{
-  "session_topic": "Growth Mindset",
-  "duration_minutes": 50,
-  "participants": 6,
-  "transcript": [
-    {"speaker": "Fellow", "text": "..."},
-    {"speaker": "Jabari", "text": "..."},
-    {"speaker": "Amani", "text": "..."}
-  ]
+const initialFellow: Fellow = {
+  id: 0,
+  email: "",
+  first_name: "",
+  last_name:"",
 }
-
-[GENERATION RULES]
-1. DO NOT SUMMARIZE. Write out every word spoken.
-2. Ensure the Fellow speaks 35-40% of the time.
-3. Peer-to-peer interaction is required (Participants talking to each other).
-4. For the RISK profile, the crisis moment must be blatant and the Fellow's response must violate protocol.`;
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: Props) {
   const [data, setData] = useState(initialState);
+  const [fellows, setFellows] = useState<Fellow[]>([initialFellow]);
   const [loading, setLoading] = useState(false);
   const [promptOpen, setPromptOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<PerformanceProfile>("PERFECT");
@@ -160,25 +49,55 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
     setData(prev => ({ ...prev, transcriptFile: file }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const fetchFellows = async function () {
     try {
+
+      const response = await analyzedService.getAllFellows();
+
+      if (!response.data) throw new Error(`No fellows were registered`);
+
+      setFellows(response.data.fellows)
+      toast.success(response.message)
+
+    } catch (error) {
+      console.error("error in fetching fellows", error);
+      toast.error(`Unable to fetch fellows`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const createSession = async function () {
+    try {
+
       setLoading(true);
       const groupSession = await analyzedService.createGroupSession({
-        fellowName: data.fellowName,
-        groupId: Number(data.groupId),
+        fellow_id: data.fellow_id,
+        group_id: Number(data.group_id),
         transcriptFile: data.transcriptFile,
+        user_id: 0,
+        transcript:{}
       });
+
       toast.success(groupSession.message);
       onCreated?.();
       onClose();
+
       setData(initialState);
     } catch (err: any) {
       toast.error("Invalid json transcript format");
     } finally {
       setLoading(false);
     }
+  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await createSession();
   };
+
+  useEffect(() => {
+    fetchFellows();
+  }, []);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(buildPrompt(selectedProfile));
@@ -221,22 +140,38 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
         <div className="overflow-y-auto flex-1">
           <form onSubmit={handleSubmit} className="px-6 py-5 flex flex-col gap-5">
 
-            {/* Fellow Name */}
+            {/* Fellow */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#12245B" }}>
-                Fellow Name
+              <label
+                className="text-xs font-semibold uppercase tracking-wide"
+                style={{ color: "#12245B" }}
+              >
+                Fellow
               </label>
-              <input
-                name="fellowName"
-                value={data.fellowName}
-                onChange={handleChange}
-                placeholder="e.g. Amara Wanjiku"
+
+              <select
+                name="fellow_id"
+                value={data.fellow_id || ""}
+                onChange={(e) =>
+                  setData(prev => ({
+                    ...prev,
+                    fellow_id: Number(e.target.value)
+                  }))
+                }
                 required
                 className="w-full px-4 py-2.5 rounded-xl text-sm border border-gray-200 outline-none transition-all"
                 style={{ color: "#12245B" }}
                 onFocus={(e) => (e.currentTarget.style.borderColor = "#12245B")}
                 onBlur={(e) => (e.currentTarget.style.borderColor = "#e5e7eb")}
-              />
+              >
+                <option value="">Select Fellow</option>
+
+                {fellows.map((fellow) => (
+                  <option key={fellow.id} value={fellow.id}>
+                    {fellow.first_name} {fellow.last_name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Group ID */}
@@ -247,7 +182,7 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
               <input
                 name="groupId"
                 type="number"
-                value={data.groupId || ""}
+                value={data.group_id || 0}
                 onChange={handleChange}
                 placeholder="e.g. 114"
                 required

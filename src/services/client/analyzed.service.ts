@@ -1,16 +1,10 @@
 import { apiClient } from "@/lib/apiClient";
 import { GroupSessionAnalysisApiResponse, PaginatedMinimalAnalysisApiResponse } from "@/types/groupSessionAnalysis.types";
 import { MinimalAnalysisFilters } from "../../types/analysisFilters.types";
-import { SingleGroupSessionApiResponse } from "@/types/groupSession.types";
+import { SingleGroupSessionApiResponse, CreateGroupSessionPayload } from "@/types/groupSession.types";
 import { BaseAnalyzedSessionApiResponse, ReviewerUpdatePayload } from "@/types/analyzedSession.types";
 import { ApiResponse } from "@/types/api.types";
 import { PaginatedFellowApiResponse } from "@/types/fellows.types";
-
-export type CreateGroupSessionPayload = {
-  fellowName: string;
-  groupId: number;
-  transcriptFile: File | null;
-};
 
 export const analyzedService = {
 
@@ -48,8 +42,8 @@ export const analyzedService = {
     try {
       const form = new FormData();
 
-      form.append("fellowName", payload.fellowName);
-      form.append("groupId", String(payload.groupId));
+      form.append("fellowName", String(payload.fellow_id));
+      form.append("groupId", String(payload.group_id));
 
       if (!payload.transcriptFile) throw new Error("Transcript JSON file is required");
       form.append("transcriptFile", payload.transcriptFile);
