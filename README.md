@@ -174,17 +174,46 @@ interface PrunedSession {
 
 ## Data Models & Persistence
 
+### Entity Relationship Diagram
+
+```
+Fellows (Tier 1 Providers)
+    ↓ (1:N)
+GroupSessions (Raw Transcripts)
+    ↓ (1:1)
+AnalyzedSessions (AI Evaluations + Supervisor Reviews)
+    ↓
+Supervisors (Tier 2 Oversight)
+```
+
+### Fellows Table
+
+Stores lay-provider information (Tier 1 Fellows).
+
+```typescript
+interface Fellow {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  status: 'active' | 'inactive';
+  created_at: timestamp;
+}
+```
+
+**Purpose**: Source of truth for Fellow identity. One Fellow conducts multiple sessions.
+
 ### GroupSessions Table
 
-Stores raw session transcripts and metadata.
+Stores raw session transcripts and metadata. Links Supervisors to Fellows through sessions.
 
 ```typescript
 interface GroupSession {
   id: number;
-  user_id: number;              // Supervisor ID
+  user_id: number;              // Supervisor ID (FK → users)
   group_id: number;             // Group identifier
-  fellow_name: string;          // Fellow conducting session
-  transcript: RawTurn[];        // Raw transcript data
+  fellow_id: number;            // Fellow conducting session (FK → fellows)
+  transcript: RawTurn[];        // Raw transcript data (JSONB)
   is_processed: boolean;        // Has LLM evaluation been run?
   row_status: 'active' | 'trash';
   created_at: timestamp;
@@ -196,28 +225,32 @@ interface RawTurn {
 }
 ```
 
-**Purpose**: Source of truth for raw session data. Immutable after creation.
+**Purpose**: Source of truth for raw session data. Immutable after creation. Maintains referential integrity with Fellows and Supervisors.
+
+**Key Relationships**:
+- `user_id` → `users.id` (Supervisor who oversees this session)
+- `fellow_id` → `fellows.id` (Fellow who conducted this session)
 
 ### AnalyzedSessions Table
 
-Stores LLM evaluations and supervisor reviews.
+Stores LLM evaluations and supervisor reviews. One-to-one relationship with GroupSessions.
 
 ```typescript
 interface AnalyzedSession {
   id: number;
-  session_id: number;           // FK to GroupSession
+  session_id: number;           // FK to GroupSession (1:1)
   
   // LLM Evaluation Results
   summary: string;              // 3-sentence session summary
-  content_coverage: number;     // 1-3 score
-  facilitation_quality: number; // 1-3 score
-  protocol_safety: number;      // 1-3 score
-  is_safe: boolean;             // Risk flag
-  llm_evaluation: object;       // Full LLM JSON response
+  content_coverage: 1 | 2 | 3;
+  facilitation_quality: 1 | 2 | 3;
+  protocol_safety: 1 | 2 | 3;
+  is_safe: boolean;             // Risk flag (SAFE/RISK)
+  llm_evaluation: object;       // Full LLM JSON response (JSONB)
   
-  // Supervisor Review
+  // Supervisor Review & Override
   review_status: 'unreviewed' | 'reviewed' | 'flagged';
-  reviewer_id: number;          // Supervisor who reviewed
+  reviewer_id: number;          // Supervisor who reviewed (FK → users)
   reviewer_comments: string;    // Contextual notes
   
   row_status: 'active' | 'trash';
@@ -225,14 +258,40 @@ interface AnalyzedSession {
 }
 ```
 
-**Purpose**: Stores AI-generated insights and supervisor validations. Enables audit trail.
+**Purpose**: Stores AI-generated insights and supervisor validations. Enables audit trail and human-in-the-loop override.
 
-### Data Flow
+**Key Relationships**:
+- `session_id` → `group_sessions.id` (CASCADE delete: if session deleted, analysis deleted)
+- `reviewer_id` → `users.id` (Supervisor who validated/overrode AI findings)
+
+### Aggregate Query Pattern
+
+The `groupSessionAnalysis.repository.ts` uses LEFT JOINs to create aggregate views:
+
+```typescript
+// Joins all three tables to provide complete session context
+SELECT
+  gs.id, gs.user_id, gs.group_id, gs.fellow_id,
+  f.first_name || ' ' || f.last_name AS fellow_name,  // From Fellows
+  gs.transcript, gs.is_processed,
+  ans.id, ans.is_safe, ans.review_status,             // From AnalyzedSessions
+  ans.content_coverage, ans.facilitation_quality, ans.protocol_safety,
+  ans.summary, ans.reviewer_id, ans.reviewer_comments, ans.llm_evaluation
+FROM group_sessions gs
+LEFT JOIN analyzed_sessions ans ON gs.id = ans.session_id
+LEFT JOIN fellows f ON gs.fellow_id = f.id
+```
+
+**Why LEFT JOINs**: Sessions may not have analyses yet (is_processed = false). LEFT JOINs preserve session visibility even before evaluation.
+
+### Data Flow & State Management
 
 ```
 1. Session Uploaded
    ↓
    GroupSession created (is_processed = false)
+   fellow_id linked to specific Fellow
+   user_id linked to Supervisor
    ↓
 2. Evaluation Triggered
    ↓
@@ -250,8 +309,23 @@ interface AnalyzedSession {
    ↓
    Supervisor validates/overrides AI findings
    ↓
-   AnalyzedSession updated with reviewer_id, comments, review_status
+   AnalyzedSession updated with:
+   - reviewer_id (who reviewed)
+   - review_status (reviewed/flagged)
+   - reviewer_comments (contextual notes)
+   - Optionally: override scores (content_coverage, facilitation_quality, protocol_safety)
 ```
+
+### Source of Truth Maintenance
+
+- **Fellows**: Immutable provider registry
+- **GroupSessions**: Immutable raw transcripts (audit trail)
+- **AnalyzedSessions**: Mutable review layer (supervisors can override AI)
+
+This separation ensures:
+- Raw data integrity (GroupSessions never modified)
+- AI transparency (original LLM evaluation preserved)
+- Supervisor accountability (all overrides tracked with reviewer_id and timestamp)
 
 ---
 
@@ -349,6 +423,21 @@ The Gemini LLM is prompted to return structured JSON:
 
 ## API Endpoints
 
+### Session Management
+
+#### `POST /api/sessions/group`
+Upload session transcript (multipart/form-data: fellowName, groupId, transcriptFile)
+- Validates against `SessionSchema`
+- Creates GroupSession with `fellow_id` (linked to Fellows table)
+- Stores in `GroupSessions` table with `is_processed = false`
+- Returns session ID and processing status
+
+#### `GET /api/sessions/group`
+Fetch paginated list of group sessions
+- Query params: `?page=1&limit=10`
+- Returns sessions with Fellow metadata (via LEFT JOIN with Fellows table)
+- Includes pagination info
+
 ### Session Analysis
 
 #### `POST /api/sessions/analyzed/[id]`
@@ -372,10 +461,10 @@ Triggers LLM evaluation for a group session.
 ```
 
 **Flow**:
-1. Fetch unprocessed GroupSession
+1. Fetch unprocessed GroupSession with Fellow context
 2. Prune transcript
 3. Call Gemini LLM
-4. Store AnalyzedSession
+4. Create AnalyzedSession (1:1 with GroupSession)
 5. Mark GroupSession as processed
 
 ---
@@ -393,7 +482,7 @@ Supervisor validates/overrides AI findings.
   content_coverage: number;      // 1-3 (can override AI)
   facilitation_quality: number;  // 1-3 (can override AI)
   protocol_safety: number;       // 1-3 (can override AI)
-  reviewer_id: number;           // Supervisor ID
+  reviewer_id: number;           // Supervisor ID (FK → users)
   reviewer_comments: string;     // Contextual notes
 }
 ```
@@ -417,20 +506,23 @@ Fetches paginated list of sessions with minimal data for dashboard.
 
 **Query Parameters**:
 ```typescript
-?page=1&limit=10
+?page=1&limit=10&is_processed=true&is_safe=true&review_status=unreviewed
 ```
 
 **Response**:
 ```typescript
 {
-  sessions: Array<{
-    id: number;
-    fellow_name: string;
+  data: Array<{
+    session_id: number;
+    fellow_name: string;          // From Fellows table
     group_id: number;
-    created_at: timestamp;
     is_processed: boolean;
+    analyzed_id: number;          // AnalyzedSession ID (if exists)
     is_safe: boolean;
     review_status: string;
+    content_coverage: 1 | 2 | 3;
+    facilitation_quality: 1 | 2 | 3;
+    protocol_safety: 1 | 2 | 3;
   }>;
   pagination: {
     totalCount: number;
@@ -440,7 +532,7 @@ Fetches paginated list of sessions with minimal data for dashboard.
 }
 ```
 
-**Purpose**: Powers the dashboard session list. Minimal payload for fast rendering.
+**Purpose**: Powers the dashboard session list. Uses aggregate query (LEFT JOINs: GroupSessions → AnalyzedSessions → Fellows). Supports filtering by is_processed, is_safe, review_status.
 
 ---
 
