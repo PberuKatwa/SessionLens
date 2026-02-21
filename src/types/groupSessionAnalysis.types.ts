@@ -64,6 +64,32 @@ export interface PaginatedMinimalAnalysis{
   };
 }
 
+export interface FellowInsight {
+  fellow_id: number;
+  fellow_name: string;
+  total_sessions: string;
+  analyzed_sessions: string;
+  processed_percent: string;
+  avg_content_coverage: string;
+  avg_facilitation_quality: string;
+  avg_protocol_safety: string;
+  overall_quality: string;
+  risk_sessions: string;
+  risk_rate: string;
+}
+
+export interface PaginatedFellowInsights{
+  data: FellowInsight[];
+  pagination: {
+    totalCount: number;
+    currentPage: number;
+    totalPages: number;
+  };
+}
+
+
+
 export interface PaginatedGroupSessionAnalysisApiResponse extends ApiResponse<PaginatedGroupSessionAnalysis> { };
 export interface GroupSessionAnalysisApiResponse extends ApiResponse<GroupSessionAnalysis> { };
 export interface PaginatedMinimalAnalysisApiResponse extends ApiResponse<PaginatedMinimalAnalysis> { };
+export interface PaginatedFellowInsightApiResponse extends ApiResponse<PaginatedFellowInsights> { };
