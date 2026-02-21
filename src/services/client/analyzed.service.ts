@@ -41,8 +41,7 @@ export const analyzedService = {
   async createGroupSession(payload: CreateGroupSessionPayload):Promise<SingleGroupSessionApiResponse> {
     try {
       const form = new FormData();
-
-      form.append("fellowName", String(payload.fellow_id));
+      form.append("fellowId", String(payload.fellow_id));
       form.append("groupId", String(payload.group_id));
 
       if (!payload.transcriptFile) throw new Error("Transcript JSON file is required");

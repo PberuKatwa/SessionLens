@@ -33,7 +33,8 @@ async function createSession(req: NextRequest, session:BaseAuthSession) {
       user_id: session.user_id,
       group_id: parseInt(groupId),
       fellow_id: parseInt(fellowId),
-      transcript: sessionData
+      transcript: sessionData,
+      transcriptFile:null
     });
 
     const response: SingleGroupSessionApiResponse = {

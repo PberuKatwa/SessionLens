@@ -32,6 +32,12 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
   const [selectedProfile, setSelectedProfile] = useState<PerformanceProfile>("PERFECT");
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) {
+      fetchFellows();
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,10 +100,6 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
     e.preventDefault();
     await createSession();
   };
-
-  useEffect(() => {
-    fetchFellows();
-  }, []);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(buildPrompt(selectedProfile));
@@ -180,9 +182,9 @@ export default function CreateGroupSessionModal({ isOpen, onClose, onCreated }: 
                 Group ID
               </label>
               <input
-                name="groupId"
+                name="group_id"
                 type="number"
-                value={data.group_id || 0}
+                value={data.group_id || ""}
                 onChange={handleChange}
                 placeholder="e.g. 114"
                 required
