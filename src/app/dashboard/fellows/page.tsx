@@ -64,7 +64,7 @@ export default function FellowInsightsPage() {
       const filters = buildFilters();
       const response = await analyzedService.fetchFellowInsights(page, limit, filters);
 
-      if (!response.data) throw new Error(`No fellow insights were found`);
+      if (!response.data) throw new Error(`No feellow insights were found`);
 
       setFellows(response.data.data);
       setCurrentPage(response.data.pagination.currentPage);
